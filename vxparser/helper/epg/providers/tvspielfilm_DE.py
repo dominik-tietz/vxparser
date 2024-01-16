@@ -303,6 +303,7 @@ def create_xml_channels():
     ## Create XML Channels Provider information
     xml_structure.xml_channels_start(provider)
     xml_structure.xmltv_start()
+    xml_structure.epg_start()
 
     #MyADD
     rytec = str(com.get_setting('epg_rytec', 'Vavoo'))
@@ -311,7 +312,7 @@ def create_xml_channels():
         con = com.con
         cur = con.cursor()
         for row in cur.execute('SELECT * FROM epgs ORDER BY id'):
-            if not row["tid"] == None:
+            if not row["tid"] == None and not row["tid"] == '':
                 epg_channels[row["tid"]] = row["rid"]
 
     for user_item in selected_list['channellist']:
@@ -358,13 +359,14 @@ def create_xml_broadcast(enable_rating_mapper, thread_temppath, download_threads
 
     #MyADD
     rytec = str(com.get_setting('epg_rytec', 'Vavoo'))
-    if rytec == '1':
-        epg_channels = {}
-        con = com.con
-        cur = con.cursor()
-        for row in cur.execute('SELECT * FROM epgs ORDER BY id'):
-            if not row["tid"] == None:
-                epg_channels[row["tid"]] = row["rid"]
+    epg_channels = {}
+    epg_ids = {}
+    con = com.con
+    cur = con.cursor()
+    for row in cur.execute('SELECT * FROM epgs ORDER BY id'):
+        if not row["tid"] == None and not row["tid"] == '':
+            epg_channels[row["tid"]] = row["rid"]
+            epg_ids[row["tid"]] = row["id"]
 
     for user_item in selected_list['channellist']:
         items += 1
@@ -379,14 +381,16 @@ def create_xml_broadcast(enable_rating_mapper, thread_temppath, download_threads
             broadcastfiles = json.load(b)
 
         ### Map Channels
-        if not channel_id == '':
-            if rytec == '1':
-                if contentID in epg_channels: 
-                    channel_id = epg_channels[contentID]
-                else: 
-                    channel_id = mapper.map_channels(channel_id, channel_format, tvsDE_channels_json, tvsDE_channels_warnings_tmp, lang)
-            else:
+        if rytec == '1':
+            if contentID in epg_channels:
+                channel_id = epg_channels[contentID]
+            elif not channel_id == '':
                 channel_id = mapper.map_channels(channel_id, channel_format, tvsDE_channels_json, tvsDE_channels_warnings_tmp, lang)
+        elif not channel_id == '':
+            channel_id = mapper.map_channels(channel_id, channel_format, tvsDE_channels_json, tvsDE_channels_warnings_tmp, lang)
+
+        if contentID in epg_ids: cid = epg_ids[contentID]
+        else: cid = contentID
 
         try:
             for days in broadcastfiles['broadcasts']:
@@ -454,6 +458,8 @@ def create_xml_broadcast(enable_rating_mapper, thread_temppath, download_threads
 
                     # Transform items to Readable XML Format
                     item_starrating = ''
+                    item_start = item_starttime
+                    item_end = item_endtime
                     item_starttime = datetime.utcfromtimestamp(item_starttime).strftime('%Y%m%d%H%M%S')
                     item_endtime = datetime.utcfromtimestamp(item_endtime).strftime('%Y%m%d%H%M%S')
 
@@ -477,14 +483,16 @@ def create_xml_broadcast(enable_rating_mapper, thread_temppath, download_threads
                                                 item_date, item_season, item_episode, item_agerating, item_starrating, items_director,
                                                 items_producer, items_actor, enable_rating_mapper, lang)
 
-                    xml_structure.xmltv_broadcast(channel_id, item_title, item_starttime, item_endtime, item_description, lang)
+                    xml_structure.xmltv_broadcast(channel_id, item_title, item_starttime, item_endtime, item_description, lang, item_date, item_country, item_season, item_episode, item_agerating)
 
-
+                    xml_structure.epg_broadcast(cid, item_title, item_date, item_start, item_end, item_description, lang, item_country, item_season, item_episode, item_agerating)
         except (KeyError, IndexError):
             print('Error!')
 
     
     xml_structure.xmltv_end()
+
+    xml_structure.epg_end()
     
     ## Create Channel Warnings Textile
     channel_pull = '\nPlease Create an Pull Request for Missing Rytec Id´s to https://github.com/sunsettrack4/config_files/blob/master/tvs_channels.json\n'

@@ -92,10 +92,18 @@ async def get_get(username: Union[str, None] = None, password: Union[str, None] 
     out = "mp4"
     if output is not None:
         if output == "ts" or output == "mpegts": out = "ts"
-    of = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache/streams.%s' % typ)
-    if not os.path.exists(of):
-        video.get_m3u8(username, password, out, typ)
-    return FileResponse(of)
+        elif output == "hls": out = "m3u8"
+    of = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache/streams.m3u')
+    if os.path.exists(of):
+        os.remove(of)
+    video.get_m3u8(username, password, out, typ)
+    if os.path.exists(of):
+        file = open(of, "rb")
+        if typ == 'm3u8': headers = {'Content-Disposition': 'attachment; filename="tv_channels_%s_plus.m3u"' % username, 'Content-Description': 'File Transfer'}
+        else: headers = {'Content-Disposition': 'attachment; filename="tv_channels_%s.m3u"' % username, 'Content-Description': 'File Transfer'}
+        return StreamingResponse(file, headers=headers, media_type="application/octet-stream")
+    else:
+        raise HTTPException(status_code=404, detail="File not found")
 
 
 @app.post("/get.php")
@@ -109,12 +117,17 @@ async def get_post(username: Annotated[str, Form()] = None, password: Annotated[
     out = "mp4"
     if output is not None:
         if output == "ts" or output == "mpegts": out = "ts"
-    of = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache/streams.%s' % typ)
-    if not os.path.exists(of):
-        get = video.get_m3u8(username, password, out, typ)
-        if get == True:
-            return FileResponse(of)
-    return FileResponse(of)
+    of = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache/streams.m3u')
+    if os.path.exists(of):
+        os.remove(of)
+    video.get_m3u8(username, password, out, typ)
+    if os.path.exists(of):
+        file = open(of, "rb")
+        if typ == 'm3u8': headers = {'Content-Disposition': 'attachment; filename="tv_channels_%s_plus.m3u"' % username, 'Content-Description': 'File Transfer'}
+        else: headers = {'Content-Disposition': 'attachment; filename="tv_channels_%s.m3u"' % username, 'Content-Description': 'File Transfer'}
+        return StreamingResponse(file, headers=headers, media_type="application/octet-stream")
+    else:
+        raise HTTPException(status_code=404, detail="File not found")
 
 
 @app.get("/player_api.php")
@@ -146,9 +159,9 @@ async def player_get(username: Union[str, None] = None, password: Union[str, Non
         elif action == "get_series":
             return video.get_series(category_id)
         elif action == "get_simple_data_table":
-            return #video.get_simple_data_table(stream_id)
+            return video.get_simple_data_table(stream_id)
         elif action == "get_short_epg":
-            return #video.get_short_epg(stream_id, limit)
+            return video.get_short_epg(stream_id, limit)
 
 
 @app.post("/player_api.php")
@@ -180,9 +193,9 @@ async def player_post(username: Annotated[str, Form()] = None, password: Annotat
         elif action == "get_series":
             return video.get_series(category_id)
         elif action == "get_simple_data_table":
-            return #video.get_simple_data_table(stream_id)
+            return video.get_simple_data_table(stream_id)
         elif action == "get_short_epg":
-            return #video.get_short_epg(stream_id, limit)
+            return video.get_short_epg(stream_id, limit)
 
 
 @app.get("/panel_api.php")
@@ -275,9 +288,9 @@ async def vod(typ: str, username: str, password: str, sid: str, ext: str):
                 notify = Notifications("0.0.0.0")
                 try:
                     await notify.async_connect()
-                except ConnectError:
+                    await notify.async_send("Link (%s/%s) not found" %(str(linked[sid][username]), str(len(links[sid]))), title="Mastaaa's VX Parser")
+                except Exception:
                     Logger(1, "Link (%s/%s) not found" %(str(linked[sid][username]), str(len(links[sid]))))
-                await notify.async_send("Link (%s/%s) not found" %(str(linked[sid][username]), str(len(links[sid]))), title="Mastaaa's VX Parser")
                 raise HTTPException(status_code=404, detail="Link (%s/%s) not found" %(str(linked[sid][username]), str(len(links[sid]))))
             elif "voe" in link.lower():
                 link = re.sub('\|User-Agent=.*', '', link)
@@ -392,9 +405,9 @@ async def stream(sid: str):
                 notify = Notifications("0.0.0.0")
                 try:
                     await notify.async_connect()
-                except ConnectError:
+                    await notify.async_send("Link (%s/%s) not found" %(str(linked[sid]), str(len(links[sid]))), title="Mastaaa's VX Parser")
+                except Exception:
                     Logger(1, "Link (%s/%s) not found" %(str(linked[sid]), str(len(links[sid]))))
-                await notify.async_send("Link (%s/%s) not found" %(str(linked[sid]), str(len(links[sid]))), title="Mastaaa's VX Parser")
                 raise HTTPException(status_code=404, detail="Link (%s/%s) not found" %(str(linked[sid]), str(len(links[sid]))))
             return link
         elif len(links[sid]) > 1:

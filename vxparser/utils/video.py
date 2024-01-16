@@ -13,10 +13,10 @@ temp = os.path.join(cachepath, 'xmltv.xml')
 unicode = str
 
 
-def get_m3u8(user, pw, out, typ):
+def get_m3u8(username, password, out, typ):
     return
     cur = con.cursor()
-    tf = open(os.path.join(cachepath, 'streams.%s' % typ), "w")
+    tf = open(os.path.join(cachepath, 'streams.m3u'), "w")
     tf.write("#EXTM3U")
     for d in cur.execute('SELECT * FROM streams ORDER BY id'):
         if typ == "m3u":
@@ -104,6 +104,11 @@ def get_all_channels():
             if m3u8_name == '1': name = d['display']
             else: name = d['name']
             if not str(d['logo']) == '': logo = d['logo']
+        if not str(d['cid']) == '':
+            cur.execute('SELECT * FROM categories WHERE category_id="' + str(d['cid']) + '"')
+            cat = cur.fetchone()
+            cat_name = cat['category_name']
+        else: cat_name = ''
         num += 1
         num2 += 1
         dub[str(num)] = {
@@ -115,7 +120,7 @@ def get_all_channels():
             "stream_icon": logo,
             "epg_channel_id": tid,
             "added": None,
-            "category_name": d['category_id'],
+            "category_name": str(cat_name),
             "category_id": str(d['cid']),
             "series_no": None,
             "live": "1",
@@ -316,7 +321,8 @@ def get_series_info(series_id):
                 "season": d['season'],
                 "tmdb_id": info['tmdb_id']
             },
-            "added": None,
+            "custom_sid": "",
+            "added": str(int(time.time())-10000),
             "season": int(d['season']),
             "direct_source": ""
         })
@@ -330,7 +336,7 @@ def get_series_info(series_id):
             "director": "",
             "genre": info['genres'],
             "releaseDate": info['releaseDate'],
-            "last_modified": None,
+            "last_modified": str(int(time.time())-10000),
             "rating": info['rating'],
             "rating_5based": 0,
             "backdrop_path": [ info['backdrop'] ],
@@ -463,8 +469,8 @@ def get_live_streams(category_id=None):
 
 
 def get_short_epg(stream_id, limit=None):
-    return
     cur = con.cursor()
+    rytec = str(common.get_setting('epg_rytec', 'Vavoo'))
     
     ret = {}
     ret["epg_listings"] = []
@@ -476,33 +482,40 @@ def get_short_epg(stream_id, limit=None):
     cur.execute('SELECT * FROM channel WHERE id="' + str(stream_id) + '"')
     chan = cur.fetchone()
     if chan:
-        cur.execute('SELECT * FROM tvs WHERE id="' + str(chan['tid']) + '"')
-        cat = cur.fetchone()
-        if cat:
+        if not chan['tid'] == '':
+            cur.execute('SELECT * FROM epgs WHERE id="' + str(chan['tid']) + '"')
+            cat = cur.fetchone()
+            if rytec == '1': cid = cat['rid']
+            else: cid = chan['tid']
+
             for e in cur.execute('SELECT * FROM epg WHERE cid="' + str(chan['tid']) + '" ORDER BY start'):
                 if go == True or int(e['start']) > int(time.time()) or int(e['end']) > int(time.time()):
                     if int(num) >= int(limit):
                         break
                     go = True
+                    if int(e['start']) < int(time.time()) and int(e['end']) > int(time.time()): play = 1
+                    else: play = 0
                     ret["epg_listings"].append({
                         "id": str(e['id']),
-                        "epg_id": str(cat['i']),
+                        "epg_id": "1",
                         "title": e['title'],
                         "lang": e['lang'],
-                        "start": datetime.utcfromtimestamp(e['start']).strftime('%Y-%m-%d %H:%M:%S'),
-                        "end": datetime.utcfromtimestamp(e['end']).strftime('%Y-%m-%d %H:%M:%S'),
+                        "start": datetime.fromtimestamp(int(e['start'])).strftime('%Y-%m-%d %H:%M:%S'),
+                        "end": datetime.fromtimestamp(int(e['end'])).strftime('%Y-%m-%d %H:%M:%S'),
                         "description": e['desc'],
-                        "channel_id": cat['cid'],
+                        "channel_id": str(cid),
                         "start_timestamp": int(e['start']),
-                        "stop_timestamp": int(e['end'])
+                        "stop_timestamp": int(e['end']),
+                        "now_playing": play,
+                        "has_archive": 0
                     })
                     num += 1
-            return ret
+    return ret
 
 
 def get_simple_data_table(stream_id):
-    return
     cur = con.cursor()
+    rytec = str(common.get_setting('epg_rytec', 'Vavoo'))
     
     ret = {}
     ret["epg_listings"] = []
@@ -512,28 +525,31 @@ def get_simple_data_table(stream_id):
     cur.execute('SELECT * FROM channel WHERE id="' + str(stream_id) + '"')
     chan = cur.fetchone()
     if chan:
-        cur.execute('SELECT * FROM tvs WHERE id="' + str(chan['tid']) + '"')
-        cat = cur.fetchone()
-        if cat:
+        if not chan['tid'] == '':
+            cur.execute('SELECT * FROM epgs WHERE id="' + str(chan['tid']) + '"')
+            cat = cur.fetchone()
+            if rytec == '1': cid = cat['rid']
+            else: cid = chan['tid']
+
             for e in cur.execute('SELECT * FROM epg WHERE cid="' + str(chan['tid']) + '" ORDER BY start'):
-                if go == True or int(e['start']) > int(time.time()) or int(e['end']) > int(time.time()):
-                    go = True
-                    ret["epg_listings"].append({
-                        "id": str(e['id']),
-                        "epg_id": str(cat['i']),
-                        "title": e['title'],
-                        "lang": e['lang'],
-                        "start": datetime.utcfromtimestamp(e['start']).strftime('%Y-%m-%d %H:%M:%S'),
-                        "end": datetime.utcfromtimestamp(e['end']).strftime('%Y-%m-%d %H:%M:%S'),
-                        "description": e['desc'],
-                        "channel_id": cat['cid'],
-                        "start_timestamp": int(e['start']),
-                        "stop_timestamp": int(e['end']),
-                        "now_playing": 0,
-                        "has_archive": 0
-                    })
-                    num += 1
-            return ret
+                if int(e['start']) < int(time.time()) and int(e['end']) > int(time.time()): play = 1
+                else: play = 0
+                ret["epg_listings"].append({
+                    "id": str(e['id']),
+                    "epg_id": "1",
+                    "title": e['title'],
+                    "lang": e['lang'],
+                    "start": datetime.fromtimestamp(int(e['start'])).strftime('%Y-%m-%d %H:%M:%S'),
+                    "end": datetime.fromtimestamp(int(e['end'])).strftime('%Y-%m-%d %H:%M:%S'),
+                    "description": e['desc'],
+                    "channel_id": str(cid),
+                    "start_timestamp": int(e['start']),
+                    "stop_timestamp": int(e['end']),
+                    "now_playing": play,
+                    "has_archive": 0
+                })
+                num += 1
+    return ret
 
 
 def get_xml():

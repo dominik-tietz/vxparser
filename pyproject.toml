@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vxparser"
-version = "1.2.1"
+version = "1.2.5"
 description = "FastApi Server backend for VAVOO Live TV & German Xstream VOD's & Series, to publish it via Xtream Code api."
 authors = ["Mastaaa <sebastianspaaa@gmail.com>"]
 readme = "README.md"

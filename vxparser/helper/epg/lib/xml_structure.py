@@ -18,13 +18,47 @@ xmltv_temp = os.path.join(datapath, 'xmltv.xml')
 guide_dest = os.path.join(listpath, 'epg.xml.gz')
 
 
+def epg_start():
+    cur = con.cursor()
+    cur.execute('DELETE FROM epg')
+    con.commit()
+
+
+def epg_broadcast(cid, item_title, item_date, item_start, item_end, item_description, lang, item_country, item_season, item_episode, item_agerating):
+    cur = con.cursor()
+    desc = ''
+    if not item_country == '':
+        desc = desc + '(%s) ' % item_country
+    if not item_date == '':
+        desc = desc + '%s ' % item_date
+    if not item_season == '':
+        desc = desc + '• S%s ' % item_season
+    if not item_episode == '':
+        desc = desc + 'E%s ' % item_episode
+    if not item_agerating == '':
+        desc = desc + '• FSK %s' % item_agerating
+    if not item_description == '':
+        desc = desc + '\n        %s' % item_description
+        desc = base64.b64encode(str(desc).encode('utf-8')).decode('utf-8')
+    else: desc = ''
+    if not item_title == '': title = base64.b64encode(str(item_title).encode('utf-8')).decode('utf-8')
+    else: title = ''
+
+    if not item_title == '' and not desc == '':
+        cur.execute('INSERT INTO epg VALUES (NULL,"'+str(cid)+'","'+str(item_start)+'","'+str(item_end)+'","'+str(title)+'","'+str(desc)+'","'+str(lang)+'")')
+
+
+def epg_end():
+    con.commit()
+
+
 def xmltv_start():
     if os.path.exists(xmltv_temp):
         os.remove(xmltv_temp)
     ret = []
     ret.append('<?xml version="1.0" encoding="utf-8" ?>')
-    ret.append('<!DOCTYPE tv SYSTEM "xmltv.dtd">')
-    ret.append('<tv generator-info-name="Xtream Codes" generator-info-url="{}:{}">'.format(com.get_ip_address(), com.get_setting('server_port', 'Main')))
+    ret.append('<!DOCTYPE tv SYSTEM "http://www.example.org/xmltv.dtd">')
+    ret.append('<tv generator-info-name="Xtream Codes" generator-info-url="http://www.example.org">')
     start = ''.join(ret)
     with open(xmltv_temp, 'w', encoding='utf-8') as f:
         f.write(start)
@@ -41,15 +75,27 @@ def xmltv_channels(channel_name, channel_id, channel_icon, lang):
         f.write(s)
 
 
-def xmltv_broadcast(channel_id, item_title, item_starttime, item_endtime, item_description, lang):
+def xmltv_broadcast(channel_id, item_title, item_starttime, item_endtime, item_description, lang, item_date, item_country, item_season, item_episode, item_agerating):
     ret = []
-    if not item_title == '': 
-        item_title = item_title.replace('<', '&lt;').replace('>', '&gt;')
-    if not item_description == '': 
-        item_description = ' 2023\n'+item_description.replace('<', '&lt;').replace('>', '&gt;')
-    ret.append('<programme start="{} +0000" stop="{} +0000" channel="{}" >'.format(item_starttime, item_endtime, channel_id))
-    ret.append('<title>{}</title>'.format(item_title))
-    ret.append('<desc>{}</desc>'.format(item_description))
+    desc = ''
+    if not item_country == '':
+        desc = desc + '%s ' % item_country
+    if not item_date == '':
+        desc = desc + '%s ' % item_date
+    if not item_season == '':
+        desc = desc + 'S%s ' % item_season
+    if not item_episode == '':
+        desc = desc + 'E%s ' % item_episode
+    if not item_agerating == '':
+        desc = desc + 'FSK %s' % item_agerating
+    if not item_description == '':
+        desc = desc + '\n        %s' % item_description.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    else: desc = ''
+
+    if not item_title == '': item_title = item_title.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    ret.append('<programme start="{} +0000" stop="{} +0000" channel="{}">'.format(item_starttime, item_endtime, channel_id))
+    ret.append('<title lang="de">{}</title>'.format(item_title))
+    ret.append('<desc  lang="de">{}</desc>'.format(desc))
     ret.append('</programme>')
     s = ''.join(ret)
     with open(xmltv_temp, 'a', encoding='utf-8') as f:

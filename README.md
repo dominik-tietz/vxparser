@@ -4,6 +4,9 @@
 
 # Update Verlauf:
 
+### Update v1.2.1 -> v1.2.5:
+- Xtream Code Api gefixxt, sodass jetzt xtream code api, livetv + serien + filme mit epg läuft ...
+### Update to v1.2.1:
 - HLS/TS Stream Source Settings wahl für Xtream api code Live TV ...
 - Einstellung für epg Provider, Icon & Rytec ID's xml.gz generation ...
 - Automatische erfassung der Internet IP für den Vavoo key, ggf automatische neu generierung dessen ...
@@ -75,13 +78,6 @@ player_api.php?username=*&password=*&action=get_live_streams&category_id=X
 ```shell
 xmltv.php?username=*&password=*
 ```
-
-### Dies fehlt momentan noch:
-
-- GET m3u:
-```shell
-get.php?username=*&password=*&type=[m3u|m3u8]&output=[hls|ts|mpegts|rtmp]
-```
 - GET EPG:
 ```shell
 player_api.php?username=*&password=*&action=get_simple_data_table&steam_id=X
@@ -89,6 +85,13 @@ player_api.php?username=*&password=*&action=get_simple_data_table&steam_id=X
 - GET SHORT EPG:
 ```shell
 player_api.php?username=*&password=*&action=get_short_epg&steam_id=X&limit=X
+```
+
+### Dies fehlt momentan noch:
+
+- GET m3u:
+```shell
+get.php?username=*&password=*&type=[m3u|m3u8]&output=[hls|ts|mpegts|rtmp]
 ```
 
 ### Verbesserungen in dieser Version:
@@ -123,7 +126,9 @@ Momentan verfügbare Plugins:
 
 ### Installation:
 
-
+```shell
+python3 -m pip install vxparser
+```
 
 ### Hintergrund Infos:
 
@@ -223,8 +228,8 @@ Genereller Ablauf ist wie folgt:
 - Xstream Settings:
 
 ```shell
-[X] cinemathek: auto list creation? # Aktiviert Site für die Automatische Suche (Xstream Menü: Get New VoD & Series)
-[X] cinemathek: global search?     # Aktiviert SIte für die Site Suche (Xstream Menü: Global Search)
+[X] cinemathek: auto list creation?  # Aktiviert Site für die Automatische Suche (Xstream Menü: Get New VoD & Series)
+[X] cinemathek: global search?       # Aktiviert SIte für die Site Suche (Xstream Menü: Global Search)
 ...
 ...
 ```
