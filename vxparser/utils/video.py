@@ -13,7 +13,95 @@ temp = os.path.join(cachepath, 'xmltv.xml')
 unicode = str
 
 
-def get_m3u8(username, password, out, typ):
+def get_m3u8(username, password, out, typ, of):
+    cur = con.cursor()
+    tf = open(of, "w")
+    tf.write("#EXTM3U")
+    if typ == 'm3u_plus':
+        epg_logos = common.get_setting('epg_logos')
+        epg_rytec = common.get_setting('epg_rytec')
+        m3u8_name = common.get_setting('m3u8_name')
+        epg_provider = common.get_setting('epg_provider')
+        for d in cur.execute('SELECT * FROM info WHERE media_type="' + str('movie') + '" ORDER BY releaseDate DESC'):
+            tf.write('\n#EXTINF:-1 tvg-id="" tvg-name="%s" tvg-logo="%s" group-title="movies",%s' % (d['name'], d['poster'], d['name']))
+            tf.write('\nhttp://%s:%s/movie/%s/%s/%s.%s' % (str(server_ip), str(port), username, password, str(d['id']), out))
+        if str(common.get_setting('xtream_codec')) == 't': cur.execute('SELECT * FROM channel WHERE url!="" ORDER BY id')
+        else: cur.execute('SELECT * FROM channel WHERE hls!="" ORDER BY id')
+        dat = cur.fetchall()
+        for d in dat:
+            tid = ''
+            name = ''
+            logo = ''
+            if not str(d['tid']) == '':
+                cur.execute('SELECT * FROM epgs WHERE id="' + d['tid'] + '"')
+                eat = cur.fetchone()
+                if epg_rytec == '1': tid = eat['rid']
+                elif epg_provider == 'm':
+                    if not eat['mn'] == None: tid = eat['mn']
+                elif epg_provider == 't':
+                    if not eat['tn'] == None: tid = eat['tn']
+                if epg_logos == 'p':
+                    if epg_provider == 'm':
+                        if not eat['ml'] == None: logo = eat['ml']
+                    elif epg_provider == 't':
+                        if not eat['tl'] == None: logo = eat['tl']
+                elif epg_logos == 'o':
+                    if not eat['ol'] == None: logo = eat['ol']
+                if m3u8_name == '1':
+                    if not eat['display'] == None: name = eat['display']
+                    else: name = d['display']
+                else: name = d['name']
+            else:
+                if m3u8_name == '1': name = d['display']
+                else: name = d['name']
+                if not str(d['logo']) == '': logo = d['logo']
+            tf.write('\n#EXTINF:-1 tvg-id="%s" tvg-name="%s" tvg-logo="%s" group-title="livetv",%s' % (tid, name, logo, name))
+            tf.write('\nhttp://%s:%s/live/%s/%s/%s.%s' % (str(server_ip), str(port), username, password, str(d['id']), out))
+        cur.execute('SELECT * FROM info WHERE media_type="' + str('tvshow') + '" ORDER BY releaseDate DESC')
+        dat = cur.fetchall()
+        for d in dat:
+            cur.execute('SELECT * FROM streams WHERE sid="' + str(d['id']) + '" ORDER BY season, episode')
+            eat = cur.fetchall()
+            for e in eat:
+                name = d['name'] + ' S' + e['season'] + ' E' + e['episode']
+                tf.write('\n#EXTINF:-1 tvg-id="" tvg-name="%s" tvg-logo="%s" group-title="series",%s' % (name, d['poster'], name))
+                tf.write('\nhttp://%s:%s/series/%s/%s/%s.%s' % (str(server_ip), str(port), username, password, str(e['id']), out))
+    else:
+        m3u8_name = common.get_setting('m3u8_name')
+        for d in cur.execute('SELECT * FROM info WHERE media_type="' + str('movie') + '" ORDER BY releaseDate DESC'):
+            tf.write('\n#EXTINF:-1,%s' % d['name'])
+            tf.write('\nhttp://%s:%s/movie/%s/%s/%s.%s' % (str(server_ip), str(port), username, password, str(d['id']), out))
+        if str(common.get_setting('xtream_codec')) == 't': cur.execute('SELECT * FROM channel WHERE url!="" ORDER BY id')
+        else: cur.execute('SELECT * FROM channel WHERE hls!="" ORDER BY id')
+        dat = cur.fetchall()
+        for d in dat:
+            name = ''
+            if not str(d['tid']) == '':
+                cur.execute('SELECT * FROM epgs WHERE id="' + d['tid'] + '"')
+                eat = cur.fetchone()
+                if m3u8_name == '1':
+                    if not eat['display'] == None: name = eat['display']
+                    else: name = d['display']
+                else: name = d['name']
+            else:
+                if m3u8_name == '1': name = d['display']
+                else: name = d['name']
+            tf.write('\n#EXTINF:-1,%s' % name)
+            tf.write('\nhttp://%s:%s/live/%s/%s/%s.%s' % (str(server_ip), str(port), username, password, str(d['id']), out))
+        cur.execute('SELECT * FROM info WHERE media_type="' + str('tvshow') + '" ORDER BY releaseDate DESC')
+        dat = cur.fetchall()
+        for d in dat:
+            cur.execute('SELECT * FROM streams WHERE sid="' + str(d['id']) + '" ORDER BY season, episode')
+            eat = cur.fetchall()
+            for e in eat:
+                name = d['name'] + ' S' + e['season'] + ' E' + e['episode']
+                tf.write('\n#EXTINF:-1,%s' % name)
+                tf.write('\nhttp://%s:%s/series/%s/%s/%s.%s' % (str(server_ip), str(port), username, password, str(e['id']), out))
+    tf.close()
+    return True
+
+
+def get_m3u8_bakk(username, password, out, typ):
     return
     cur = con.cursor()
     tf = open(os.path.join(cachepath, 'streams.m3u'), "w")

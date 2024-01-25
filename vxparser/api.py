@@ -83,23 +83,22 @@ linked = {}
 ############################################################################################################
 @app.get("/get.php")
 async def get_get(username: Union[str, None] = None, password: Union[str, None] = None, type: Union[str, None] = None, output: Union[str, None] = None):
-    return
     if username is None: username = "nobody"
     if password is None: password = "pass"
-    typ = "m3u8"
+    typ = "m3u_plus"
     if type is not None:
         if type == "m3u": typ = "m3u"
     out = "mp4"
     if output is not None:
         if output == "ts" or output == "mpegts": out = "ts"
         elif output == "hls": out = "m3u8"
-    of = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache/streams.m3u')
+    of = os.path.join(cachepath, 'streams.m3u')
     if os.path.exists(of):
         os.remove(of)
-    video.get_m3u8(username, password, out, typ)
+    vid = video.get_m3u8(username, password, out, typ, of)
     if os.path.exists(of):
         file = open(of, "rb")
-        if typ == 'm3u8': headers = {'Content-Disposition': 'attachment; filename="tv_channels_%s_plus.m3u"' % username, 'Content-Description': 'File Transfer'}
+        if typ == 'm3u8_plus': headers = {'Content-Disposition': 'attachment; filename="tv_channels_%s_plus.m3u"' % username, 'Content-Description': 'File Transfer'}
         else: headers = {'Content-Disposition': 'attachment; filename="tv_channels_%s.m3u"' % username, 'Content-Description': 'File Transfer'}
         return StreamingResponse(file, headers=headers, media_type="application/octet-stream")
     else:
@@ -111,16 +110,17 @@ async def get_post(username: Annotated[str, Form()] = None, password: Annotated[
     return
     if username is None: username = "nobody"
     if password is None: password = "pass"
-    typ = "m3u8"
+    typ = "m3u_plus"
     if type is not None:
         if type == "m3u": typ = "m3u"
     out = "mp4"
     if output is not None:
         if output == "ts" or output == "mpegts": out = "ts"
-    of = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache/streams.m3u')
+        elif output == "hls": out = "m3u8"
+    of = os.path.join(cachepath, 'streams.m3u')
     if os.path.exists(of):
         os.remove(of)
-    video.get_m3u8(username, password, out, typ)
+    vid = video.get_m3u8(username, password, out, typ, of)
     if os.path.exists(of):
         file = open(of, "rb")
         if typ == 'm3u8': headers = {'Content-Disposition': 'attachment; filename="tv_channels_%s_plus.m3u"' % username, 'Content-Description': 'File Transfer'}
@@ -327,8 +327,8 @@ async def root(response: Response):
     return Response(content=data, media_type="text/html")
 
 
-@app.get("/{m3u8}.m3u8", response_class=RedirectResponse, status_code=302)
-async def m3u8(m3u8: str):
+@app.get("/{m3u8}.{ext}", response_class=RedirectResponse, status_code=302)
+async def m3u8(m3u8: str, ext: str):
     f = os.path.join(listpath, m3u8+'.m3u8')
     if os.path.exists(f):
         file = open(f, "rb")

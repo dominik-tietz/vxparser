@@ -4,7 +4,10 @@
 
 # Update Verlauf:
 
-### Update v1.2.1 -> v1.2.5:
+### Update v1.2.5 -> v1.3.0:
+- Xtream Code Api letzte Funktion komplementiert. (get.php m3u/m3u_plus ...)
+- added custom_sid: '' to return json, nun laufen alle gängigen Xtream Code App's wie IPTV Smarters, IPTV Extream, IPTV Pro usw.
+### Update to v1.2.5:
 - Xtream Code Api gefixxt, sodass jetzt xtream code api, livetv + serien + filme mit epg läuft ...
 ### Update to v1.2.1:
 - HLS/TS Stream Source Settings wahl für Xtream api code Live TV ...
@@ -14,7 +17,17 @@
 - Global Search, Fixxed sodass jetzt auch Filme gesucht und geaddet werden konnen ...
 - Signatur Key check integriert, sodass wenn sich internet ip ändert bzw. key sigvalitUntil ausläuft, automatisch ein neuer Key angefordert wird ...
 - Main Settings wurden neu gestaltet, jetzt gibts ne kleine Info zur Setting ;-)
-- Xtream Code zu 99% integriert. Ab jetzt kann insofern Xtream Code api vom clienten unterstützt wird, den gesamten Kontent darüber bekommen könnt! (Info hier drunter ^^)
+- Xtream Code zu 100% integriert. Ab jetzt kann insofern Xtream Code api vom clienten unterstützt wird, den gesamten Kontent darüber bekommen könnt! (Info hier drunter ^^)
+
+# Installation / Start:
+
+```shell
+python3 -m pip install vxparser
+```
+
+```shell
+vxparser
+```
 
 # Xtream Codes API Readme:
 
@@ -86,12 +99,9 @@ player_api.php?username=*&password=*&action=get_simple_data_table&steam_id=X
 ```shell
 player_api.php?username=*&password=*&action=get_short_epg&steam_id=X&limit=X
 ```
-
-### Dies fehlt momentan noch:
-
 - GET m3u:
 ```shell
-get.php?username=*&password=*&type=[m3u|m3u8]&output=[hls|ts|mpegts|rtmp]
+get.php?username=*&password=*&type=[m3u|m3u_plus]&output=[hls|ts|mpegts|rtmp]
 ```
 
 ### Verbesserungen in dieser Version:
@@ -123,12 +133,6 @@ Momentan verfügbare Plugins:
 - streamen
 - streampalace
 - xcine
-
-### Installation:
-
-```shell
-python3 -m pip install vxparser
-```
 
 ### Hintergrund Infos:
 
