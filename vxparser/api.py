@@ -327,19 +327,19 @@ async def root(response: Response):
     return Response(content=data, media_type="text/html")
 
 
-@app.get("/{m3u8}.{ext}", response_class=RedirectResponse, status_code=302)
-async def m3u8(m3u8: str, ext: str):
-    f = os.path.join(listpath, m3u8+'.m3u8')
-    if os.path.exists(f):
-        file = open(f, "rb")
-        return StreamingResponse(file)
-    else: 
-        raise HTTPException(status_code=404, detail="File not found")
-
-
 @app.get("/epg.xml.gz", response_class=RedirectResponse, status_code=302)
 async def gz():
     f = os.path.join(listpath, 'epg.xml.gz')
+    if os.path.exists(f):
+        file = open(f, "rb")
+        return StreamingResponse(file)
+    else:
+        raise HTTPException(status_code=404, detail="File not found")
+
+
+@app.get("/{m3u8}.{ext}", response_class=RedirectResponse, status_code=302)
+async def m3u8(m3u8: str, ext: str):
+    f = os.path.join(listpath, m3u8+'.m3u8')
     if os.path.exists(f):
         file = open(f, "rb")
         return StreamingResponse(file)

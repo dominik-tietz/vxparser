@@ -4,7 +4,9 @@
 
 # Update Verlauf:
 
-### Update v1.2.5 -> v1.3.0:
+### Update v1.3.0 -> v.1.3.2:
+- epg.xml.gz export bug fixx ... Jetzt läuft's wieder gut ;-)
+### Update v1.3.0:
 - Xtream Code Api letzte Funktion komplementiert. (get.php m3u/m3u_plus ...)
 - added custom_sid: '' to return json, nun laufen alle gängigen Xtream Code App's wie IPTV Smarters, IPTV Extream, IPTV Pro usw.
 ### Update to v1.2.5:
