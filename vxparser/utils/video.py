@@ -473,7 +473,7 @@ def get_live_streams(category_id=None):
         if str(common.get_setting('xtream_codec')) == 't': cur1.execute('SELECT * FROM channel WHERE url!="" ORDER BY id')
         else: cur1.execute('SELECT * FROM channel WHERE hls!="" ORDER BY id')
         #cur.execute('SELECT * FROM channel ORDER BY id')
-        dat = cur.fetchall()
+        dat = cur1.fetchall()
         for d in dat:
             tid = ''
             name = ''
