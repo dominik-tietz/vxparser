@@ -8,7 +8,7 @@ import utils.data as data
 import utils.vavoo as vavoo
 import services
 
-con = common.con
+con = common.con0
 cache = common.cp
 
 def mainMenu():

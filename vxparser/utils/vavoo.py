@@ -19,7 +19,9 @@ session = requests.session()
 BASEURL = "https://www2.vavoo.to/ccapi/"
 
 cachepath = com.cp
-con = com.con
+con0 = com.con0
+con1 = com.con1
+con3 = com.con3
 _path = com.lp
 
 
@@ -198,7 +200,9 @@ def sky_m3u8():
     m3u8_name = com.get_setting('m3u8_name')
     epg_provider = com.get_setting('epg_provider')
 
-    cur = con.cursor()
+    cur0 = con0.cursor()
+    cur1 = con1.cursor()
+    cur3 = con3.cursor()
 
     ssl._create_default_https_context = ssl._create_unverified_context
     req = Request('https://www2.vavoo.to/live2/index?output=json', headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.100 Safari/537.36'})
@@ -213,10 +217,10 @@ def sky_m3u8():
         group = country
         if group not in groups:
             groups.append(group)
-            cur.execute('SELECT * FROM categories WHERE category_name="' + group + '" AND media_type="' + str('live') + '"')
-            test = cur.fetchone()
+            cur0.execute('SELECT * FROM categories WHERE category_name="' + group + '" AND media_type="' + str('live') + '"')
+            test = cur0.fetchone()
             if not test:
-                cur.execute('INSERT INTO categories VALUES (NULL,"' + str('live') + '","' + str(group) + '",NULL)')
+                cur0.execute('INSERT INTO categories VALUES (NULL,"' + str('live') + '","' + str(group) + '",NULL)')
         if group == 'Germany':
             if any(x in c['name'] for x in matches1):
                 group = 'Sky'
@@ -224,25 +228,27 @@ def sky_m3u8():
                 group = 'Sport'
             if any(x in c['name'] for x in matches3):
                 group = 'Cine'
-        cur.execute('SELECT * FROM categories WHERE category_name="' + group + '" AND media_type="' + str('live') + '"')
-        data = cur.fetchone()
+        cur0.execute('SELECT * FROM categories WHERE category_name="' + group + '" AND media_type="' + str('live') + '"')
+        data = cur0.fetchone()
         cid = data['category_id']
-        cur.execute('SELECT * FROM channel WHERE name="' + c['name'].encode('ascii', 'ignore').decode('ascii') + '" AND grp="' + group + '"')
-        test = cur.fetchone()
+        cur1.execute('SELECT * FROM channel WHERE name="' + c['name'].encode('ascii', 'ignore').decode('ascii') + '" AND grp="' + group + '"')
+        test = cur1.fetchone()
         if not test:
             name = re.sub('( (AUSTRIA|AT|HEVC|RAW|SD|HD|FHD|UHD|H265|GERMANY|DEUTSCHLAND|1080|DE|S-ANHALT|SACHSEN|MATCH TIME))|(\\+)|( \\(BACKUP\\))|\\(BACKUP\\)|( \\([\\w ]+\\))|\\([\\d+]\\)', '', c['name'].encode('ascii', 'ignore').decode('ascii'))
             logo = c['logo']
             tid = ''
             ti = ''
             if c['group'] == 'Germany':
-                cur.execute('SELECT * FROM epgs WHERE name="' + name + '" OR name1="' + name + '" OR name2="' + name + '" OR name3="' + name + '" OR name4="' + name + '" OR name5="' + name + '"')
-                test = cur.fetchone()
+                cur3.execute('SELECT * FROM epgs WHERE name="' + name + '" OR name1="' + name + '" OR name2="' + name + '" OR name3="' + name + '" OR name4="' + name + '" OR name5="' + name + '"')
+                test = cur3.fetchone()
                 if test:
                     tid = str(test['id'])
-            cur.execute('INSERT INTO channel VALUES(NULL,"' + c['name'].encode('ascii', 'ignore').decode('ascii') + '","' + group + '","' + logo + '","' + tid + '","' + c['url'] + '","' + name + '","' + str(country) + '","' + str(cid) + '","' + str(ti) + '")')
+            cur1.execute('INSERT INTO channel VALUES(NULL,"' + c['name'].encode('ascii', 'ignore').decode('ascii') + '","' + group + '","' + logo + '","' + tid + '","' + c['url'] + '","' + name + '","' + str(country) + '","' + str(cid) + '","' + str(ti) + '")')
         else:
-            cur.execute('UPDATE channel SET url="' + c['url'] + '" WHERE name="' + c['name'].encode('ascii', 'ignore').decode('ascii') + '" AND grp="' + group + '"')
-    con.commit()
+            cur1.execute('UPDATE channel SET url="' + c['url'] + '" WHERE name="' + c['name'].encode('ascii', 'ignore').decode('ascii') + '" AND grp="' + group + '"')
+    con0.commit()
+    con1.commit()
+    con3.commit()
 
     for group in groups:
         if os.path.exists("%s/%s.m3u8" % (_path, re.sub(' ', '_', group))):
@@ -264,15 +270,15 @@ def sky_m3u8():
             if any(x in c['name'] for x in matches3):
                 group = 'Cine'
 
-        cur.execute('SELECT * FROM channel WHERE name="' + c['name'].encode('ascii', 'ignore').decode('ascii') + '" AND grp="' + group + '"')
-        row = cur.fetchone()
+        cur1.execute('SELECT * FROM channel WHERE name="' + c['name'].encode('ascii', 'ignore').decode('ascii') + '" AND grp="' + group + '"')
+        row = cur1.fetchone()
         if row:
             tid = None
             name = None
             logo = None
             if not str(row['tid']) == '':
-                cur.execute('SELECT * FROM epgs WHERE id="' + row['tid'] + '"')
-                dat = cur.fetchone()
+                cur3.execute('SELECT * FROM epgs WHERE id="' + row['tid'] + '"')
+                dat = cur3.fetchone()
                 if epg_rytec == '1': tid = dat['rid']
                 elif epg_provider == 'm':
                     if not dat['mn'] == None: tid = dat['mn']
@@ -329,17 +335,17 @@ def sky_m3u8():
         for c in channels:
             u = re.sub('.*/', '', c['url'])
             uid = u[:len(u)-12]
-            cur.execute('SELECT * FROM channel WHERE url LIKE "%' + uid + '%" OR hls="' + c['url'] + '"')
-            test = cur.fetchone()
+            cur1.execute('SELECT * FROM channel WHERE url LIKE "%' + uid + '%" OR hls="' + c['url'] + '"')
+            test = cur1.fetchone()
             if not test:
                 country = c['group']
                 group = country
                 if group not in groups:
                     groups.append(group)
-                    cur.execute('SELECT * FROM categories WHERE category_name="' + group + '" AND media_type="' + str('live') + '"')
-                    test = cur.fetchone()
+                    cur0.execute('SELECT * FROM categories WHERE category_name="' + group + '" AND media_type="' + str('live') + '"')
+                    test = cur0.fetchone()
                     if not test:
-                        cur.execute('INSERT INTO categories VALUES (NULL,"' + str('live') + '","' + str(group) + '",NULL)')
+                        cur0.execute('INSERT INTO categories VALUES (NULL,"' + str('live') + '","' + str(group) + '",NULL)')
                 if group == 'Germany':
                     if any(x in c['name'] for x in matches1):
                         group = 'Sky'
@@ -347,22 +353,24 @@ def sky_m3u8():
                         group = 'Sport'
                     if any(x in c['name'] for x in matches3):
                         group = 'Cine'
-                cur.execute('SELECT * FROM categories WHERE category_name="' + group + '" AND media_type="' + str('live') + '"')
-                data = cur.fetchone()
+                cur0.execute('SELECT * FROM categories WHERE category_name="' + group + '" AND media_type="' + str('live') + '"')
+                data = cur0.fetchone()
                 cid = data['category_id']
                 name = re.sub('( (\\|.*|AUSTRIA|AT|HEVC|RAW|SD|HD|FHD|UHD|H265|GERMANY|DEUTSCHLAND|1080|DE|S-ANHALT|SACHSEN|MATCH TIME))|(\\+)|( \\(BACKUP\\))|\\(BACKUP\\)|( \\([\\w ]+\\))|\\([\\d+]\\)', '', c['name'].encode('ascii', 'ignore').decode('ascii'))
                 logo = c['logo']
                 tid = ''
                 ti = ''
                 if c['group'] == 'Germany':
-                    cur.execute('SELECT * FROM epgs WHERE name="' + name + '" OR name1="' + name + '" OR name2="' + name + '" OR name3="' + name + '" OR name4="' + name + '" OR name5="' + name + '"')
-                    test = cur.fetchone()
+                    cur3.execute('SELECT * FROM epgs WHERE name="' + name + '" OR name1="' + name + '" OR name2="' + name + '" OR name3="' + name + '" OR name4="' + name + '" OR name5="' + name + '"')
+                    test = cur3.fetchone()
                     if test:
                         tid = str(test['id'])
-                cur.execute('INSERT INTO channel VALUES(NULL,"' + c['name'].encode('ascii', 'ignore').decode('ascii') + '","' + group + '","' + logo + '","' + tid + '","' + str(ti) + '","' + name + '","' + str(country) + '","' + str(cid) + '","' + c['url'] + '")')
+                cur1.execute('INSERT INTO channel VALUES(NULL,"' + c['name'].encode('ascii', 'ignore').decode('ascii') + '","' + group + '","' + logo + '","' + tid + '","' + str(ti) + '","' + name + '","' + str(country) + '","' + str(cid) + '","' + c['url'] + '")')
             else:
-                cur.execute('UPDATE channel SET hls="' + c['url'] + '" WHERE id="' + str(test['id']) + '"')
-        con.commit()
+                cur1.execute('UPDATE channel SET hls="' + c['url'] + '" WHERE id="' + str(test['id']) + '"')
+        con0.commit()
+        con1.commit()
+        con3.commit()
 
         for group in groups:
             if os.path.exists("%s/%s_hls.m3u8" % (_path, re.sub(' ', '_', group))):
@@ -373,15 +381,15 @@ def sky_m3u8():
             tf.close()
 
         for c in channels:
-            cur.execute('SELECT * FROM channel WHERE hls="' + c['url'] + '"')
-            row = cur.fetchone()
+            cur1.execute('SELECT * FROM channel WHERE hls="' + c['url'] + '"')
+            row = cur1.fetchone()
             if row:
                 tid = None
                 name = None
                 logo = None
                 if not str(row['tid']) == '':
-                    cur.execute('SELECT * FROM epgs WHERE id="' + row['tid'] + '"')
-                    dat = cur.fetchone()
+                    cur3.execute('SELECT * FROM epgs WHERE id="' + row['tid'] + '"')
+                    dat = cur3.fetchone()
                     if epg_rytec == '1': tid = dat['rid']
                     elif epg_provider == 'm':
                         if not dat['mn'] == None: tid = dat['mn']

@@ -13,7 +13,10 @@ urllib3.disable_warnings()
 BASEURL = "https://www2.vavoo.to/ccapi/"
 cachepath = os.path.join(com.dp, 'vavoo')
 cp = com.cp
-con = com.con
+con0 = com.con0
+con1 = com.con1
+con2 = com.con2
+con3 = com.con3
 
 if not os.path.exists(cachepath):
     os.makedirs(cachepath)
