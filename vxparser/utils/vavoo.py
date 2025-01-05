@@ -11,7 +11,6 @@ from multiprocessing import Process, Queue
 from utils.common import get_ip_address as ip
 from utils.common import Logger as Logger
 import utils.common as com
-import resolveurl as resolver
 
 unicode = str
 urllib3.disable_warnings()
@@ -132,7 +131,6 @@ def callApi2(action, params):
 
 def getStream(url):
     link = None
-    link = resolver.resolve(url)
     return link
 
 

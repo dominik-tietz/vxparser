@@ -4,6 +4,8 @@
 
 # Update Verlauf:
 
+### Update to 1.4.0:
+- Remove Xstream part zwecks Anti Mailware detection ...
 ### Update v1.3.0 -> v.1.3.2:
 - epg.xml.gz export bug fixx ... Jetzt läuft's wieder gut ;-)
 ### Update v1.3.0:

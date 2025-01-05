@@ -1,17 +1,15 @@
 import random, os, string, time, socket, sys, sqlite3, json
 from unidecode import unidecode
 
-VERSION = '1.3.8'
+VERSION = '1.4.0'
 unicode = str
 rp = os.path.normpath(os.path.dirname(os.path.abspath(__file__))+'/../')
 
 sys.path.append(rp)
-sys.path.append(os.path.join(rp, 'helper', 'resolveurl', 'lib'))
-sys.path.append(os.path.join(rp, 'helper', 'sites'))
 sys.path.append(os.path.join(rp, 'helper'))
 sys.path.append(os.path.join(rp, 'utils'))
 
-from helper import sites, sql
+from helper import sql
 
 dp = os.path.join(rp, 'data')
 cp = os.path.join(dp, 'cache')
@@ -173,16 +171,6 @@ def check_category_tables():
         test = cur.fetchone()
         if not test:
             cur.execute('INSERT INTO categories VALUES (NULL,"' + str('live') + '","' + str(g) + '","' + str('0') + '")')
-    for site in sites.sites:
-        name = site.SITE_IDENTIFIER
-        cur.execute('SELECT * FROM categories WHERE category_name="' + name + '" AND media_type="' + str('movie') + '"')
-        test = cur.fetchone()
-        if not test:
-            cur.execute('INSERT INTO categories VALUES (NULL,"' + str('movie') + '","' + str(name) + '","' + str('0') + '")')
-        cur.execute('SELECT * FROM categories WHERE category_name="' + name + '" AND media_type="' + str('tvshow') + '"')
-        test = cur.fetchone()
-        if not test:
-            cur.execute('INSERT INTO categories VALUES (NULL,"' + str('tvshow') + '","' + str(name) + '","' + str('0') + '")')
     cur.execute('SELECT * FROM categories WHERE category_name="' + str('vavoo') + '" AND media_type="' + str('movie') + '"')
     test = cur.fetchone()
     if not test:
@@ -219,10 +207,6 @@ def check_settings_tables():
         ('epg_rytec', 'Vavoo', '1', 'Provider IDs mit Rytec ersetzen', '1', 'bool', '{"1": "On", "0": "Off"}'),
         ('epg_logos', 'Vavoo', 'p', 'Logos bevorzugen', 'p', 'select', '{"o": "Original", "p": "Provider"}')
     ]
-    for site in sites.sites:
-        name = site.SITE_IDENTIFIER
-        sett.append((name+'_auto', 'Xstream', '1', 'Benutze %s Site in Automatic Modus' % name, '1', 'bool', '{"1": "On", "0": "Off"}'))
-        sett.append((name+'_search', 'Xstream', '1', 'Suche auf %s Site' % name, '1', 'bool', '{"1": "On", "0": "Off"}'))
     cur = con0.cursor()
     for row in sett:
         cur.execute('SELECT * FROM settings WHERE name="' + row[0] + '"')

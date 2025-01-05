@@ -2,7 +2,6 @@ import time, os, sys, signal, inquirer, asyncio, uvicorn, re
 from concurrent.futures import ProcessPoolExecutor
 from typing import Union
 from typing_extensions import Annotated
-from notifications_android_tv import Notifications
 
 from uvicorn import Server, Config
 from fastapi import FastAPI, HTTPException, Request, Response, Body, Form
@@ -13,13 +12,10 @@ from multiprocessing import Process
 
 import utils.common as common
 from utils.common import Logger as Logger
-import utils.xstream as xstream
 import utils.vavoo as vavoo
 import utils.video as video
 import utils.user as user
 
-import resolveurl as resolver
-from helper import sites
 import cli, services
 
 cachepath = common.cp
@@ -268,48 +264,7 @@ async def vod(typ: str, username: str, password: str, sid: str, ext: str):
     if password is None: password = "pass"
 
     user_data = user.auth(username, password)
-    cur = con2.cursor()
-    cur.execute('SELECT * FROM streams WHERE id="' + sid + '"')
-    data = cur.fetchone()
-    if not data:
-        raise HTTPException(status_code=404, detail="No Data")
-    if sid not in links:
-        urls = xstream.getHoster(data)
-        if urls:
-            links[sid] = urls
-            if sid not in linked: linked[sid] = {}
-            if username not in linked[sid]: linked[sid][username] = 0
-    if sid in links:
-        if len(links[sid]) > linked[sid][username]:
-            url = links[sid][linked[sid][username]]
-            if not "streamUrl" in url:
-                try:
-                    shost = xstream.getHosterUrl(url["link"], data['site'])
-                    if shost:
-                        url["streamUrl"] = shost[0]["streamUrl"]
-                except Exception:
-                    link = None
-            if "streamUrl" in url:
-                try:
-                    link = xstream.getStream(url["streamUrl"])
-                except Exception:
-                    link = None
-            linked[sid][username] += 1
-            if link is None:
-                notify = Notifications("0.0.0.0")
-                try:
-                    await notify.async_connect()
-                    await notify.async_send("Link (%s/%s) not found" %(str(linked[sid][username]), str(len(links[sid]))), title="Mastaaa's VX Parser")
-                except Exception:
-                    Logger(1, "Link (%s/%s) not found" %(str(linked[sid][username]), str(len(links[sid]))))
-                raise HTTPException(status_code=404, detail="Link (%s/%s) not found" %(str(linked[sid][username]), str(len(links[sid]))))
-            elif "voe" in link.lower():
-                link = re.sub('\|User-Agent=.*', '', link)
-            return link
-        elif len(links[sid]) > 1:
-            linked[sid][username] = 0
-            return
-    else: raise HTTPException(status_code=404, detail="Stream not found")
+    raise HTTPException(status_code=404, detail="No Data")
 
 
 @app.head("/xmltv.php")
@@ -390,45 +345,7 @@ async def channel(sid: str):
 @app.options("/stream/{sid}", status_code=201)
 @app.get("/stream/{sid}", response_class=RedirectResponse, status_code=302)
 async def stream(sid: str):
-    cur = con2.cursor()
-    cur.execute('SELECT * FROM streams WHERE id="' + sid + '"')
-    data = cur.fetchone()
-    if not data:
-        raise HTTPException(status_code=404, detail="No Data")
-    if sid not in links:
-        urls = xstream.getHoster(data)
-        if urls:
-            links[sid] = urls
-            if sid not in linked: linked[sid] = 0
-    if sid in links:
-        if len(links[sid]) > linked[sid]:
-            url = links[sid][linked[sid]]
-            if not "streamUrl" in url:
-                try:
-                    shost = xstream.getHosterUrl(url["link"], data['site'])
-                    if shost:
-                        url["streamUrl"] = shost[0]["streamUrl"]
-                except Exception:
-                    link = None
-            if "streamUrl" in url:
-                try:
-                    link = xstream.getStream(url["streamUrl"])
-                except Exception:
-                    link = None
-            linked[sid] += 1
-            if link is None:
-                notify = Notifications("0.0.0.0")
-                try:
-                    await notify.async_connect()
-                    await notify.async_send("Link (%s/%s) not found" %(str(linked[sid]), str(len(links[sid]))), title="Mastaaa's VX Parser")
-                except Exception:
-                    Logger(1, "Link (%s/%s) not found" %(str(linked[sid]), str(len(links[sid]))))
-                raise HTTPException(status_code=404, detail="Link (%s/%s) not found" %(str(linked[sid]), str(len(links[sid]))))
-            return link
-        elif len(links[sid]) > 1:
-            linked[sid] = 0
-            return
-    else: raise HTTPException(status_code=404, detail="Stream not found")
+    raise HTTPException(status_code=404, detail="No Data")
 
 
 @app.get("/{name}.{ext}")
