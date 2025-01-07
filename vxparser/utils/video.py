@@ -1,4 +1,4 @@
-import time, re, os, base64
+import time, re, os, base64, json
 from datetime import datetime, timedelta
 from xml.dom import minidom
 
@@ -202,7 +202,9 @@ def get_all_channels():
             else: name = d['name']
             if not str(d['logo']) == '': logo = d['logo']
         if not str(d['cid']) == '':
-            cur0.execute('SELECT * FROM categories WHERE category_id="' + str(d['cid']) + '"')
+            cids = json.loads(str(d['cid']))
+            cid = cids[0]
+            cur0.execute('SELECT * FROM categories WHERE category_id="' + str(cid) + '"')
             cat = cur0.fetchone()
             cat_name = cat['category_name']
         else: cat_name = ''
@@ -218,7 +220,7 @@ def get_all_channels():
             "epg_channel_id": tid,
             "added": None,
             "category_name": str(cat_name),
-            "category_id": str(d['cid']),
+            "category_id": str(cid),
             "series_no": None,
             "live": "1",
             "container_extension": "mp4",
@@ -501,6 +503,8 @@ def get_live_streams(category_id=None):
                 if m3u8_name == '1': name = d['display']
                 else: name = d['name']
                 if not str(d['logo']) == '': logo = d['logo']
+            cids = json.loads(d['cid'])
+            cid = cids[0]
             num += 1
             ret.append({
                 "num": int(num),
@@ -510,7 +514,7 @@ def get_live_streams(category_id=None):
                 "stream_icon": logo,
                 "epg_channel_id": tid,
                 "added": None,
-                "category_id": str(d['cid']),
+                "category_id": str(cid),
                 "custom_sid": "",
                 "tv_archive": 0,
                 "direct_source": "",

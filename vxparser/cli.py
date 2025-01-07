@@ -7,19 +7,68 @@ import utils.vavoo as vavoo
 import services
 
 con = common.con0
+con1 = common.con1
 cache = common.cp
 
 def mainMenu():
     c = []
     c.append((" ","0"))
-    c.append(("Settings =>","settings"))
-    c.append(("Vavoo (LiveTV) =>","submenu_vavoo"))
+    c.append(("Main Settings =>","main_settings"))
+    c.append(("Vavoo Settings =>","vavoo_settings"))
+    c.append(("List|Group|Stream Submenu =>","submenu_lgs"))
+    c.append(("Generate M3U8 Lists","gen_list"))
+    c.append(("Get epg.xml.gz", "get_epg"))
     c.append(("Stop Services", "stop_service"))
     c.append(("Restart Services", "restart_service"))
+    c.append(("- Clean Database (LiveTV)","clean_tv_db"))
     c.append(("- Clean Database (Settings)","clean_db"))
-    c.append(("- Clear Cache Path","clear_cache"))
+    c.append(("- Clear Data Path","clear_data"))
     c.append(("<= Shutdown","shutdown"))
     q = [ inquirer.List("item", message="Main Menu", choices=c, carousel=True) ]
+    quest = inquirer.prompt(q)
+    return quest['item']
+
+
+def lgsMenu():
+    c = []
+    c.append((" ","0"))
+    c.append(("M3U List Menu =>","lmenu"))
+    c.append(("Group Menu =>","gmenu"))
+    c.append(("Stream Menu =>","smenu"))
+    c.append(("<= Main Menu","back"))
+    q = [ inquirer.List("item", message="List|Group|Stream Menu", choices=c, carousel=True) ]
+    quest = inquirer.prompt(q)
+    return quest['item']
+
+
+def lMenu():
+    c = []
+    c.append(("<= Back","back"))
+    c.append(("Add New List","add_list"))
+    c.append(("Edit List","edit_list"))
+    c.append(("Delete List","del_list"))
+    q = [ inquirer.List("item", message="M3U8 List Menu", choices=c, carousel=True) ]
+    quest = inquirer.prompt(q)
+    return quest['item']
+
+
+def gMenu():
+    c = []
+    c.append(("<= Back","back"))
+    c.append(("Add New Group","add_group"))
+    c.append(("Edit Group","edit_group"))
+    c.append(("Delete Group","del_group"))
+    q = [ inquirer.List("item", message="Group Menu", choices=c, carousel=True) ]
+    quest = inquirer.prompt(q)
+    return quest['item']
+
+
+def sMenu():
+    c = []
+    c.append(("<= Back","back"))
+    c.append(("Add Streams to Group","add_streams"))
+    c.append(("Edit Streams in List","edit_streams"))
+    q = [ inquirer.List("item", message="Stream Menu", choices=c, carousel=True) ]
     quest = inquirer.prompt(q)
     return quest['item']
 
@@ -77,19 +126,6 @@ def mainSettings():
             common.set_setting(row["name"], quest2["item"], 'Main')
     else: return 'back'
     return True
-
-
-def vavooMenu():
-    c = []
-    c.append((" ","0"))
-    c.append(("Settings =>","settings"))
-    c.append(("Get LiveTV Lists","get_list"))
-    c.append(("Get epg.xml.gz", "get_epg"))
-    c.append(("- Clean Database (LiveTV)","clean_db"))
-    c.append(("<= Main Menu","back"))
-    q = [ inquirer.List("item", message="Sky Live TV", choices=c, carousel=True) ]
-    quest = inquirer.prompt(q)
-    return quest['item']
 
 
 def vavooSettings():
@@ -157,8 +193,8 @@ def menu():
         if menu == 'main':
             time.sleep(0.2)
             item = mainMenu()
-            if item == 'submenu_vavoo': menu = 'vavoo'
-            if item == 'settings':
+            if item == 'submenu_lgs': menu = 'lgs'
+            if item == 'main_settings':
                 menu = 'msettings'
                 quest = mainSettings()
                 if not quest: Logger(3, 'Error!', 'main', 'settings')
@@ -182,33 +218,26 @@ def menu():
                     clean = common.clean_tables('settings')
                     if not clean: Logger(3, 'Error!', 'db', 'clean')
                     else: Logger(0, 'Successful ...', 'db', 'clean')
-            if item == 'clear_cache':
+            if item == 'clear_data':
                 c = []
                 c.append((" ","0"))
                 c.append(("Yes","yes"))
                 c.append(("No", "no"))
                 c.append(("<= Back","back"))
-                q = [ inquirer.List("item", message="Really Clear Cache?", choices=c, carousel=True) ]
+                q = [ inquirer.List("item", message="Really Clear data Path?", choices=c, carousel=True) ]
                 quest = inquirer.prompt(q)
                 if quest['item'] == 'yes':
                     services.handler('kill')
                     clear = common.clear_cache()
                     break
-        if menu == 'vsettings':
-            quest = vavooSettings()
-            if not quest: Logger(3, 'Error!', 'vavoo', 'settings')
-            elif quest == 'back': menu = 'vavoo'
-        if menu == 'vavoo':
-            item = vavooMenu()
-            if item == 'back': menu = 'main'
-            if item == 'get_list': services.handler('m3u8_start')
+            if item == 'gen_list': services.handler('m3u8_start')
             if item == 'get_epg': services.handler('epg_start')
-            if item == 'settings':
+            if item == 'vavoo_settings':
                 menu = 'vsettings'
                 quest = vavooSettings()
                 if not quest: Logger(3, 'Error!', 'vavoo', 'settings')
-                elif quest == 'back': menu = 'vavoo'
-            if item == 'clean_db':
+                elif quest == 'back': menu = 'main'
+            if item == 'clean_tv_db':
                 c = []
                 c.append((" ","0"))
                 c.append(("Yes","yes"))
@@ -220,3 +249,193 @@ def menu():
                     clean = common.clean_tables('live')
                     if not clean: Logger(3, 'Error!', 'db', 'clean')
                     else: Logger(0, 'Successful ...', 'db', 'clean')
+        if menu == 'lgs':
+            item = lgsMenu()
+            if item == 'back': menu = 'main'
+            if item == 'lmenu': menu = 'lmenu'
+            if item == 'gmenu': menu = 'gmenu'
+            if item == 'smenu': menu = 'smenu'
+        if menu == 'lmenu':
+            item = lMenu()
+            if item == 'back': menu = 'lgs'
+            if item == 'add_list':
+                q = [ inquirer.Text("input", message="List Name", default='') ]
+                quest = inquirer.prompt(q)
+                cur = con.cursor()
+                if quest["input"] == '': Logger(3, 'Error!', 'add', 'list')
+                else:
+                    cur.execute('INSERT INTO lists VALUES (NULL,"' + str(quest["input"]) + '","' + str('1') + '")')
+                    con.commit()
+                    Logger(0, 'Successful ...', 'add', 'list')
+            if item == 'edit_list':
+                c = []
+                c.append(("<= Back","-1"))
+                cur = con.cursor()
+                cur.execute('SELECT * FROM lists WHERE custom="1" ORDER BY id ASC')
+                rows = cur.fetchall()
+                for d in rows:
+                    c.append((str(d['name']),str(d['id'])))
+                q = [ inquirer.List("item", message="Edit Playlist", choices=c, carousel=True) ]
+                quest = inquirer.prompt(q)
+                if not quest['item'] == '-1':
+                    cur.execute('SELECT * FROM lists WHERE id="' + quest["item"] + '"')
+                    dat = cur.fetchone()
+                    if dat:
+                        q2 = [ inquirer.Text("input", message="edit", default=dat["name"]) ]
+                        quest2 = inquirer.prompt(q2)
+                        if quest2["input"] == '': Logger(3, 'Error!', 'edit', 'list')
+                        else:
+                            cur.execute('UPDATE lists SET name="' + quest2["input"] + '" WHERE id="' + quest["item"] + '"')
+                            con.commit()
+                            Logger(0, 'Successful ...', 'edit', 'list')
+            if item == 'del_list':
+                cur = con.cursor()
+                c = []
+                c.append(("<= Back","-1"))
+                cur.execute('SELECT * FROM lists WHERE custom="1" ORDER BY id ASC')
+                rows = cur.fetchall()
+                for d in rows:
+                    c.append((str(d['name']),str(d['id'])))
+                q = [ inquirer.List("item", message="Delete Playlist", choices=c, carousel=True) ]
+                quest = inquirer.prompt(q)
+                if not quest['item'] == '-1':
+                    cur.execute('DELETE FROM lists WHERE id="'+ quest["item"] +'"')
+                    con.commit()
+                    Logger(0, 'Successful ...', 'delete', 'list')
+        if menu == 'gmenu':
+            item = gMenu()
+            if item == 'back': menu = 'lgs'
+            if item == 'add_group':
+                c = []
+                c.append(("<= Back","-1"))
+                cur = con.cursor()
+                for d in cur.execute('SELECT * FROM lists'):
+                    c.append((str(d['name']),str(d['id'])))
+                q = [ inquirer.List("item", message="Select Playlist", choices=c, carousel=True) ]
+                quest = inquirer.prompt(q)
+                if not quest['item'] == '-1':
+                    lid = quest['item']
+                    q2 = [ inquirer.Text("input", message="Group Name", default='') ]
+                    quest2 = inquirer.prompt(q2)
+                    if quest2["input"] == '': Logger(3, 'Error!', 'add', 'group')
+                    else:
+                        cur.execute('INSERT INTO categories VALUES (NULL,"live","' + str(quest2["input"]) + '","' + str(lid) + '","1")')
+                        con.commit()
+                        Logger(0, 'Successful ...', 'add', 'group')
+            if item == 'edit_group':
+                cur = con.cursor()
+                c = []
+                c.append(("<= Back","-1"))
+                tlid = None
+                cur.execute('SELECT * FROM categories WHERE custom="1" ORDER BY lid ASC')
+                rows = cur.fetchall()
+                for d in rows:
+                    if not d['lid'] == tlid:
+                        cur.execute('SELECT * FROM lists WHERE id="' + str(d['lid']) + '"')
+                        data = cur.fetchone()
+                        c.append((data['name'] + ":",""))
+                        tlid = d['lid']
+                    c.append((str(d['category_name']),str(d['category_id'])))
+                q = [ inquirer.List("item", message="Select Group", choices=c, carousel=True) ]
+                quest = inquirer.prompt(q)
+                if not quest["item"] == '' and not quest["item"] == '-1':
+                    cur.execute('SELECT * FROM categories WHERE category_id="' + quest["item"] + '"')
+                    dat = cur.fetchone()
+                    if dat:
+                        q2 = [ inquirer.Text("input", message="edit", default=dat["category_name"]) ]
+                        quest2 = inquirer.prompt(q2)
+                        if quest2["input"] == '': Logger(3, 'Error!', 'edit', 'group')
+                        else:
+                            cur.execute('UPDATE categories SET category_name="' + quest2["input"] + '" WHERE category_id="' + quest["item"] + '"')
+                            con.commit()
+                            Logger(0, 'Successful ...', 'edit', 'group')
+            if item == 'del_group':
+                cur = con.cursor()
+                c = []
+                c.append(("<= Back","-1"))
+                tlid = None
+                cur.execute('SELECT * FROM categories WHERE custom="1" ORDER BY lid ASC')
+                rows = cur.fetchall()
+                for d in rows:
+                    if not d['lid'] == tlid:
+                        cur.execute('SELECT * FROM lists WHERE id="' + str(d['lid']) + '"')
+                        data = cur.fetchone()
+                        c.append((data['name'] + ":",""))
+                        tlid = d['lid']
+                    c.append((str(d['category_name']),str(d['category_id'])))
+                q = [ inquirer.List("item", message="Select Group", choices=c, carousel=True) ]
+                quest = inquirer.prompt(q)
+                if not quest["item"] == '' and not quest["item"] == '-1':
+                    cur.execute('DELETE FROM categories WHERE category_id="'+ quest["item"] +'"')
+                    con.commit()
+                    Logger(0, 'Successful ...', 'delete', 'group')
+        if menu == 'smenu':
+            item = sMenu()
+            if item == 'back': menu = 'lgs'
+            if item == 'add_streams':
+                cur = con.cursor()
+                c = []
+                c.append(("<= Back","-1"))
+                tlid = None
+                cur.execute('SELECT * FROM categories WHERE custom="1" ORDER BY lid ASC')
+                rows = cur.fetchall()
+                for d in rows:
+                    if not d['lid'] == tlid:
+                        cur.execute('SELECT * FROM lists WHERE id="' + str(d['lid']) + '"')
+                        data = cur.fetchone()
+                        c.append((data['name'] + ":",""))
+                        tlid = d['lid']
+                    c.append((str(d['category_name']),str(d['category_id'])))
+                q = [ inquirer.List("item", message="Select Group", choices=c, carousel=True) ]
+                quest = inquirer.prompt(q)
+                if not quest["item"] == '' and not quest["item"] == '-1':
+                    c = []
+                    c.append(("<= Back","-1"))
+                    cur.execute('SELECT * FROM lists WHERE custom="0" ORDER BY id ASC')
+                    rows = cur.fetchall()
+                    for d in rows:
+                        c.append((str(d['name']),str(d['name'])))
+                    q = [ inquirer.List("item", message="Select Stream Country", choices=c, carousel=True) ]
+                    quest2 = inquirer.prompt(q)
+                    if not quest2["item"] == '' and not quest2["item"] == '-1':
+                        c = []
+                        d = []
+                        e = []
+                        cur1 = con1.cursor()
+                        cur1.execute('SELECT * FROM channel WHERE country="'+ quest2["item"] +'" ORDER BY name ASC')
+                        rows1 = cur1.fetchall()
+                        for ch in rows1:
+                            cids = json.loads(ch['cid'])
+                            c.append((str(ch['name']), str(ch['id'])))
+                            if int(quest['item']) in cids: d.append(str(ch['id']))
+                            e.append(str(ch['id']))
+                        q = [ inquirer.Checkbox("check", message="Add Streams", choices=c, default=d, carousel=True) ]
+                        quest3 = inquirer.prompt(q)
+                        for i in e:
+                            if i in quest3["check"] and not i in d:
+                                cur1.execute('SELECT * FROM channel WHERE id="'+ i +'"')
+                                row = cur1.fetchone()
+                                if row:
+                                    cids = json.loads(row['cid'])
+                                    cids.append(int(quest["item"]))
+                                    cur1.execute('UPDATE channel SET cid="' + str(cids) + '" WHERE id="' + i + '"')
+                            if i in d and not i in quest3["check"]:
+                                cur1.execute('SELECT * FROM channel WHERE id="'+ i +'"')
+                                row = cur1.fetchone()
+                                if row:
+                                    cids = json.loads(row['cid'])
+                                    z = 0
+                                    for u in range(0, len(cids)-1):
+                                        if cids[u] == int(quest["item"]):
+                                            break
+                                        z += 1
+                                    del cids[z]
+                                    cur1.execute('UPDATE channel SET cid="' + str(cids) + '" WHERE id="' + i + '"')
+                        con1.commit()
+                        Logger(0, 'Successful ...', 'add', 'streams')
+            # if item == 'edit_streams':
+        if menu == 'vsettings':
+            quest = vavooSettings()
+            if not quest: Logger(3, 'Error!', 'vavoo', 'settings')
+            elif quest == 'back': menu = 'main'
+

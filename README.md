@@ -4,6 +4,8 @@
 
 # Update Verlauf:
 
+### Update to 1.4.1:
+- Added LiveTV funktion um eigene m3u8 listen & gruppen zu erstellen + stream links hinzu zufügen ...
 ### Update to 1.4.0:
 - Remove Xstream part zwecks Anti Mailware detection ...
 ### Update v1.3.0 -> v.1.3.2:

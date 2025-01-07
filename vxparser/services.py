@@ -114,7 +114,7 @@ def handler(typ, name=None):
                 Logger(1, 'terminate ...', 'm3u8', 'process')
                 proc['m3u8_p'].terminate()
                 proc['m3u8_p'] = None
-        proc['m3u8_p'] = Process(target=vavoo.sky_m3u8)
+        proc['m3u8_p'] = Process(target=vavoo.gen_m3u8)
         proc['m3u8_p'].start()
         Logger(1, 'Successful started...', 'm3u8', 'process')
     return
@@ -126,7 +126,7 @@ def loop_m3u8():
         last = int(com.get_setting('m3u8', 'Loop'))
         sleep = int(com.get_setting('m3u8_sleep', 'Main'))
         if now > last + sleep * 60 * 60:
-            vavoo.sky_m3u8()
+            vavoo.sky_dbfill()
             com.set_setting('m3u8', str(now), 'Loop')
         else:
             Logger(1, 'sleeping for %s sec...' % str(last + sleep * 60 * 60 - now), 'm3u8', 'service')

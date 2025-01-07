@@ -184,11 +184,9 @@ def getLinks(action, params):
                 #except:
                     #return
 
-
-def sky_m3u8():
+def sky_dbfill():
     hurl = 'http://'+str(com.get_setting('server_ip', 'Main'))+':'+str(com.get_setting('server_port', 'Main'))
-    Logger(1, 'Starting with URL: %s ...' % str(hurl), 'm3u8', 'process')
-    #url = 'https://www2.vavoo.to/live2/index'
+    Logger(1, 'Filling Database with data ...', 'db', 'process')
     matches1 = ["13TH", "AXN", "A&E", "INVESTIGATION", "TNT", "DISNEY", "SKY", "WARNER"]
     matches2 = ["BUNDESLIGA", "SPORT", "TELEKOM"]
     matches3 = ["CINE", "EAGLE", "KINO", "FILMAX", "POPCORN"]
@@ -215,10 +213,17 @@ def sky_m3u8():
         group = country
         if group not in groups:
             groups.append(group)
+            cur0.execute('SELECT * FROM lists WHERE name="' + group + '"')
+            test = cur0.fetchone()
+            if not test:
+                cur0.execute('INSERT INTO lists VALUES (NULL,"' + str(group) + '","' + str('0') + '")')
             cur0.execute('SELECT * FROM categories WHERE category_name="' + group + '" AND media_type="' + str('live') + '"')
             test = cur0.fetchone()
             if not test:
-                cur0.execute('INSERT INTO categories VALUES (NULL,"' + str('live') + '","' + str(group) + '",NULL)')
+                cur0.execute('SELECT * FROM lists WHERE name="' + group + '"')
+                data = cur0.fetchone()
+                lid = data['id']
+                cur0.execute('INSERT INTO categories VALUES (NULL,"' + str('live') + '","' + str(group) + '","' + str(lid) + '","0")')
         if group == 'Germany':
             if any(x in c['name'] for x in matches1):
                 group = 'Sky'
@@ -241,147 +246,116 @@ def sky_m3u8():
                 test = cur3.fetchone()
                 if test:
                     tid = str(test['id'])
-            cur1.execute('INSERT INTO channel VALUES(NULL,"' + c['name'].encode('ascii', 'ignore').decode('ascii') + '","' + group + '","' + logo + '","' + tid + '","' + c['url'] + '","' + name + '","' + str(country) + '","' + str(cid) + '","' + str(ti) + '")')
+            cur1.execute('INSERT INTO channel VALUES(NULL,"' + c['name'].encode('ascii', 'ignore').decode('ascii') + '","' + group + '","' + logo + '","' + tid + '","' + c['url'] + '","' + name + '","' + str(country) + '","[' + str(cid) + ']","' + str(ti) + '")')
         else:
             cur1.execute('UPDATE channel SET url="' + c['url'] + '" WHERE name="' + c['name'].encode('ascii', 'ignore').decode('ascii') + '" AND grp="' + group + '"')
     con0.commit()
     con1.commit()
     con3.commit()
 
+    global channels
+    channels = []
+    def _getchannels(group, cursor=0):
+        global channels
+        _headers={"user-agent":"WATCHED/1.8.3 (android)", "accept": "application/json", "content-type": "application/json; charset=utf-8", "cookie": "lng=", "watched-sig": getWatchedSig()}
+        _data={"adult": True,"cursor": cursor,"filter": {"group": group},"sort": "name"}
+        r = requests.post("https://www.oha.to/oha-tv-index/directory.watched", data=json.dumps(_data), headers=_headers).json()
+        nextCursor = r.get("nextCursor")
+        items = r.get("items")
+        for item in items:
+            channels.append(item)
+        if nextCursor: _getchannels(group, nextCursor)
+
     for group in groups:
-        if os.path.exists("%s/%s.m3u8" % (_path, re.sub(' ', '_', group))):
-            os.remove("%s/%s.m3u8" % (_path, re.sub(' ', '_', group)))
-        Logger(1, 'creating %s.m3u8 ...' % str(re.sub(' ', '_', group)))
-        tf = open("%s/%s.m3u8" % (_path, re.sub(' ', '_', group)), "w")
+        _getchannels(group)
+
+    for c in channels:
+        u = re.sub('.*/', '', c['url'])
+        uid = u[:len(u)-12]
+        cur1.execute('SELECT * FROM channel WHERE url LIKE "%' + uid + '%" OR hls="' + c['url'] + '"')
+        test = cur1.fetchone()
+        if not test:
+            country = c['group']
+            group = country
+            if group not in groups:
+                groups.append(group)
+                cur0.execute('SELECT * FROM lists WHERE name="' + group + '"')
+                test = cur0.fetchone()
+                if not test:
+                    cur0.execute('INSERT INTO lists VALUES (NULL,"' + str(group) + '","' + str('0') + '")')
+                cur0.execute('SELECT * FROM categories WHERE category_name="' + group + '" AND media_type="' + str('live') + '"')
+                test = cur0.fetchone()
+                if not test:
+                    cur0.execute('SELECT * FROM lists WHERE name="' + group + '"')
+                    data = cur0.fetchone()
+                    lid = data['id']
+                    cur0.execute('INSERT INTO categories VALUES (NULL,"' + str('live') + '","' + str(group) + '","' + str(lid) + '","0")')
+            if group == 'Germany':
+                if any(x in c['name'] for x in matches1):
+                    group = 'Sky'
+                if any(x in c['name'] for x in matches2):
+                    group = 'Sport'
+                if any(x in c['name'] for x in matches3):
+                    group = 'Cine'
+            cur0.execute('SELECT * FROM categories WHERE category_name="' + group + '" AND media_type="' + str('live') + '"')
+            data = cur0.fetchone()
+            cid = data['category_id']
+            name = re.sub('( (\\|.*|AUSTRIA|AT|HEVC|RAW|SD|HD|FHD|UHD|H265|GERMANY|DEUTSCHLAND|1080|DE|S-ANHALT|SACHSEN|MATCH TIME))|(\\+)|( \\(BACKUP\\))|\\(BACKUP\\)|( \\([\\w ]+\\))|\\([\\d+]\\)', '', c['name'].encode('ascii', 'ignore').decode('ascii'))
+            logo = c['logo']
+            tid = ''
+            ti = ''
+            if c['group'] == 'Germany':
+                cur3.execute('SELECT * FROM epgs WHERE name="' + name + '" OR name1="' + name + '" OR name2="' + name + '" OR name3="' + name + '" OR name4="' + name + '" OR name5="' + name + '"')
+                test = cur3.fetchone()
+                if test:
+                    tid = str(test['id'])
+            cur1.execute('INSERT INTO channel VALUES(NULL,"' + c['name'].encode('ascii', 'ignore').decode('ascii') + '","' + group + '","' + logo + '","' + tid + '","' + str(ti) + '","' + name + '","' + str(country) + '","[' + str(cid) + ']","' + c['url'] + '")')
+        else:
+            cur1.execute('UPDATE channel SET hls="' + c['url'] + '" WHERE id="' + str(test['id']) + '"')
+    con0.commit()
+    con1.commit()
+    con3.commit()
+
+    Logger(0, 'Done!', 'db', 'process')
+
+def gen_m3u8():
+    hurl = 'http://'+str(com.get_setting('server_ip', 'Main'))+':'+str(com.get_setting('server_port', 'Main'))
+    Logger(1, 'Starting with URL: %s ...' % str(hurl), 'm3u8', 'process')
+    epg_logos = com.get_setting('epg_logos')
+    epg_rytec = com.get_setting('epg_rytec')
+    m3u8_name = com.get_setting('m3u8_name')
+    epg_provider = com.get_setting('epg_provider')
+
+    cur0 = con0.cursor() # common.db
+    cur1 = con1.cursor() # live.db
+    cur3 = con3.cursor() # epg.db
+
+    cur0.execute('SELECT * FROM lists ORDER BY id ASC')
+    dat1 = cur0.fetchall()
+    for l in dat1:
+        lid = l['id']
+        lname = l['name']
+        if os.path.exists("%s/%s.m3u8" % (_path, re.sub(' ', '_', lname))):
+            os.remove("%s/%s.m3u8" % (_path, re.sub(' ', '_', lname)))
+        if os.path.exists("%s/%s_hls.m3u8" % (_path, re.sub(' ', '_', lname))):
+            os.remove("%s/%s_hls.m3u8" % (_path, re.sub(' ', '_', lname)))
+        Logger(1, 'creating %s.m3u8 & %s_hls.m3u8 ...' % (str(re.sub(' ', '_', lname)), str(re.sub(' ', '_', lname))))
+        tf = open("%s/%s.m3u8" % (_path, re.sub(' ', '_', lname)), "w")
         tf.write("#EXTM3U")
         tf.close()
-
-    for c in channel:
-        group = c['group']
-        if c['group'] not in groups:
-            groups.append(c['group'])
-        if c['group'] == 'Germany':
-            if any(x in c['name'] for x in matches1):
-                group = 'Sky'
-            if any(x in c['name'] for x in matches2):
-                group = 'Sport'
-            if any(x in c['name'] for x in matches3):
-                group = 'Cine'
-
-        cur1.execute('SELECT * FROM channel WHERE name="' + c['name'].encode('ascii', 'ignore').decode('ascii') + '" AND grp="' + group + '"')
-        row = cur1.fetchone()
-        if row:
-            tid = None
-            name = None
-            logo = None
-            if not str(row['tid']) == '':
-                cur3.execute('SELECT * FROM epgs WHERE id="' + row['tid'] + '"')
-                dat = cur3.fetchone()
-                if epg_rytec == '1': tid = dat['rid']
-                elif epg_provider == 'm':
-                    if not dat['mn'] == None: tid = dat['mn']
-                elif epg_provider == 't':
-                    if not dat['tn'] == None: tid = dat['tn']
-                if epg_logos == 'p':
-                    if epg_provider == 'm':
-                        if not dat['ml'] == None: logo = dat['ml']
-                    elif epg_provider == 't':
-                        if not dat['tl'] == None: logo = dat['tl']
-                elif epg_logos == 'o':
-                    if not dat['ol'] == None: logo = dat['ol']
-                if m3u8_name == '1':
-                    if not dat['display'] == None: name = dat['display']
-                    else: name = row['display']
-                else: name = row['name']
-            else:
-                if m3u8_name == '1': name = row['display']
-                else: name = row['name']
-                if not str(row['logo']) == '': logo = row['logo']
-
-            tf = open("%s/%s.m3u8" % (_path, re.sub(' ', '_', c['group'])), "a")
-            if not logo == None and not tid == None:
-                tf.write('\n#EXTINF:-1 tvg-name="%s" group-title="%s" tvg-logo="%s" tvg-id="%s",%s' % (row['name'], row['grp'], logo, tid, name))
-            elif not logo == None and tid == None:
-                tf.write('\n#EXTINF:-1 tvg-name="%s" group-title="%s" tvg-logo="%s",%s' % (row['name'], row['grp'], logo, name))
-            elif not tid == None and logo == None:
-                tf.write('\n#EXTINF:-1 tvg-name="%s" group-title="%s" tvg-id="%s",%s' % (row['name'], row['grp'], tid, name))
-            else:
-                tf.write('\n#EXTINF:-1 tvg-name="%s" group-title="%s",%s' % (row['name'], row['grp'], name))
-            tf.write('\n#EXTVLCOPT:http-user-agent=VAVOO/2.6')
-            tf.write('\n%s/channel/%s' % (hurl, row['id']))
-            tf.close()
-        else:
-            Logger(3, 'Error!', 'm3u8', 'process')
-
-    if int(com.get_setting('m3u8_hls')) == 1:
-        global channels
-        channels = []
-        def _getchannels(group, cursor=0):
-            global channels
-            _headers={"user-agent":"WATCHED/1.8.3 (android)", "accept": "application/json", "content-type": "application/json; charset=utf-8", "cookie": "lng=", "watched-sig": getWatchedSig()}
-            _data={"adult": True,"cursor": cursor,"filter": {"group": group},"sort": "name"}
-            r = requests.post("https://www.oha.to/oha-tv-index/directory.watched", data=json.dumps(_data), headers=_headers).json()
-            nextCursor = r.get("nextCursor")
-            items = r.get("items")
-            for item in items:
-                channels.append(item)
-            if nextCursor: _getchannels(group, nextCursor)
-
-        for group in groups:
-            _getchannels(group)
-
-        for c in channels:
-            u = re.sub('.*/', '', c['url'])
-            uid = u[:len(u)-12]
-            cur1.execute('SELECT * FROM channel WHERE url LIKE "%' + uid + '%" OR hls="' + c['url'] + '"')
-            test = cur1.fetchone()
-            if not test:
-                country = c['group']
-                group = country
-                if group not in groups:
-                    groups.append(group)
-                    cur0.execute('SELECT * FROM categories WHERE category_name="' + group + '" AND media_type="' + str('live') + '"')
-                    test = cur0.fetchone()
-                    if not test:
-                        cur0.execute('INSERT INTO categories VALUES (NULL,"' + str('live') + '","' + str(group) + '",NULL)')
-                if group == 'Germany':
-                    if any(x in c['name'] for x in matches1):
-                        group = 'Sky'
-                    if any(x in c['name'] for x in matches2):
-                        group = 'Sport'
-                    if any(x in c['name'] for x in matches3):
-                        group = 'Cine'
-                cur0.execute('SELECT * FROM categories WHERE category_name="' + group + '" AND media_type="' + str('live') + '"')
-                data = cur0.fetchone()
-                cid = data['category_id']
-                name = re.sub('( (\\|.*|AUSTRIA|AT|HEVC|RAW|SD|HD|FHD|UHD|H265|GERMANY|DEUTSCHLAND|1080|DE|S-ANHALT|SACHSEN|MATCH TIME))|(\\+)|( \\(BACKUP\\))|\\(BACKUP\\)|( \\([\\w ]+\\))|\\([\\d+]\\)', '', c['name'].encode('ascii', 'ignore').decode('ascii'))
-                logo = c['logo']
-                tid = ''
-                ti = ''
-                if c['group'] == 'Germany':
-                    cur3.execute('SELECT * FROM epgs WHERE name="' + name + '" OR name1="' + name + '" OR name2="' + name + '" OR name3="' + name + '" OR name4="' + name + '" OR name5="' + name + '"')
-                    test = cur3.fetchone()
-                    if test:
-                        tid = str(test['id'])
-                cur1.execute('INSERT INTO channel VALUES(NULL,"' + c['name'].encode('ascii', 'ignore').decode('ascii') + '","' + group + '","' + logo + '","' + tid + '","' + str(ti) + '","' + name + '","' + str(country) + '","' + str(cid) + '","' + c['url'] + '")')
-            else:
-                cur1.execute('UPDATE channel SET hls="' + c['url'] + '" WHERE id="' + str(test['id']) + '"')
-        con0.commit()
-        con1.commit()
-        con3.commit()
-
-        for group in groups:
-            if os.path.exists("%s/%s_hls.m3u8" % (_path, re.sub(' ', '_', group))):
-                os.remove("%s/%s_hls.m3u8" % (_path, re.sub(' ', '_', group)))
-            Logger(1, 'creating %s_hls.m3u8 ...' % str(re.sub(' ', '_', group)))
-            tf = open("%s/%s_hls.m3u8" % (_path, re.sub(' ', '_', group)), "w")
-            tf.write("#EXTM3U")
-            tf.close()
-
-        for c in channels:
-            cur1.execute('SELECT * FROM channel WHERE hls="' + c['url'] + '"')
-            row = cur1.fetchone()
-            if row:
+        tf = open("%s/%s_hls.m3u8" % (_path, re.sub(' ', '_', lname)), "w")
+        tf.write("#EXTM3U")
+        tf.close()
+        tf1 = open("%s/%s.m3u8" % (_path, re.sub(' ', '_', lname)), "a")
+        tf2 = open("%s/%s_hls.m3u8" % (_path, re.sub(' ', '_', lname)), "a")
+        cur0.execute('SELECT * FROM categories WHERE lid="'+ str(lid) +'" ORDER BY category_name ASC')
+        dat2 = cur0.fetchall()
+        for r in dat2:
+            cid = r['category_id']
+            cname = r['category_name']
+            cur1.execute('SELECT * FROM channel WHERE cid LIKE "%['+ str(cid) +',%" OR cid LIKE "% '+ str(cid) +',%" OR cid LIKE "% '+ str(cid) +']%" OR cid LIKE "%['+ str(cid) +']%"')
+            dat3 = cur1.fetchall()
+            for row in dat3:
                 tid = None
                 name = None
                 logo = None
@@ -408,20 +382,28 @@ def sky_m3u8():
                     if m3u8_name == '1': name = row['display']
                     else: name = row['name']
                     if not str(row['logo']) == '': logo = row['logo']
-
-                tf = open("%s/%s_hls.m3u8" % (_path, re.sub(' ', '_', c['group'])), "a")
-                if not logo == None and not tid == None:
-                    tf.write('\n#EXTINF:-1 tvg-name="%s" group-title="%s" tvg-logo="%s" tvg-id="%s",%s' % (row['name'], row['grp'], logo, tid, name))
-                elif not logo == None and tid == None:
-                    tf.write('\n#EXTINF:-1 tvg-name="%s" group-title="%s" tvg-logo="%s",%s' % (row['name'], row['grp'], logo, name))
-                elif not tid == None and logo == None:
-                    tf.write('\n#EXTINF:-1 tvg-name="%s" group-title="%s" tvg-id="%s",%s' % (row['name'], row['grp'], tid, name))
-                else:
-                    tf.write('\n#EXTINF:-1 tvg-name="%s" group-title="%s",%s' % (row['name'], row['grp'], name))
-                tf.write('\n%s/hls/%s' % (hurl, row['id']))
-                tf.close()
-            else:
-                Logger(3, 'Error!', 'm3u8', 'process')
-
+                if not row['url'] == '':
+                    if not logo == None and not tid == None:
+                        tf1.write('\n#EXTINF:-1 tvg-name="%s" group-title="%s" tvg-logo="%s" tvg-id="%s",%s' % (row['name'], cname, logo, tid, name))
+                    elif not logo == None and tid == None:
+                        tf1.write('\n#EXTINF:-1 tvg-name="%s" group-title="%s" tvg-logo="%s",%s' % (row['name'], cname, logo, name))
+                    elif not tid == None and logo == None:
+                        tf1.write('\n#EXTINF:-1 tvg-name="%s" group-title="%s" tvg-id="%s",%s' % (row['name'], cname, tid, name))
+                    else:
+                        tf1.write('\n#EXTINF:-1 tvg-name="%s" group-title="%s",%s' % (row['name'], cname, name))
+                    tf1.write('\n#EXTVLCOPT:http-user-agent=VAVOO/2.6')
+                    tf1.write('\n%s/channel/%s' % (hurl, row['id']))
+                if not row['hls'] == '':
+                    if not logo == None and not tid == None:
+                        tf2.write('\n#EXTINF:-1 tvg-name="%s" group-title="%s" tvg-logo="%s" tvg-id="%s",%s' % (row['name'], cname, logo, tid, name))
+                    elif not logo == None and tid == None:
+                        tf2.write('\n#EXTINF:-1 tvg-name="%s" group-title="%s" tvg-logo="%s",%s' % (row['name'], cname, logo, name))
+                    elif not tid == None and logo == None:
+                        tf2.write('\n#EXTINF:-1 tvg-name="%s" group-title="%s" tvg-id="%s",%s' % (row['name'], cname, tid, name))
+                    else:
+                        tf2.write('\n#EXTINF:-1 tvg-name="%s" group-title="%s",%s' % (row['name'], cname, name))
+                    tf2.write('\n%s/hls/%s' % (hurl, row['id']))
+        tf1.close()
+        tf2.close()
     Logger(0, 'Done!', 'm3u8', 'process')
 

@@ -1,7 +1,7 @@
 import random, os, string, time, socket, sys, sqlite3, json
 from unidecode import unidecode
 
-VERSION = '1.4.0'
+VERSION = '1.4.1'
 unicode = str
 rp = os.path.normpath(os.path.dirname(os.path.abspath(__file__))+'/../')
 
@@ -136,7 +136,8 @@ def clean_tables(item=None):
 def add_tables():
     cur = con0.cursor()
     cur.execute('CREATE TABLE IF NOT EXISTS settings ("name" TEXT, "grp" TEXT, "value" TEXT, "info" TEXT, "default" TEXT, "type" TEXT, "values" TEXT)')
-    cur.execute('CREATE TABLE IF NOT EXISTS categories ("category_id" INTEGER PRIMARY KEY AUTOINCREMENT, "media_type" TEXT, "category_name" TEXT, "parent_id" INTEGER)')
+    cur.execute('CREATE TABLE IF NOT EXISTS lists ("id" INTEGER PRIMARY KEY AUTOINCREMENT, "name" TEXT, "custom" INTEGER)')
+    cur.execute('CREATE TABLE IF NOT EXISTS categories ("category_id" INTEGER PRIMARY KEY AUTOINCREMENT, "media_type" TEXT, "category_name" TEXT, "lid" INTEGER, "custom" TEXT)')
     con0.commit()
     cur = con1.cursor()
     cur.execute('CREATE TABLE IF NOT EXISTS channel ("id" INTEGER PRIMARY KEY AUTOINCREMENT, "name" TEXT, "grp" TEXT, "logo" TEXT, "tid" TEXT, "url" TEXT, "display" TEXT, "country" TEXT, "cid" INTEGER, "hls" TEXT)')
@@ -166,19 +167,29 @@ def check_epg_tables():
 def check_category_tables():
     cur = con0.cursor()
     groups = ['Sky','Sport','Cine','Germany']
+    cur.execute('SELECT * FROM lists WHERE name="Germany"')
+    test = cur.fetchone()
+    if not test:
+        cur.execute('INSERT INTO lists VALUES (NULL,"' + str('Germany') + '","' + str('0') + '")')
+    cur.execute('SELECT * FROM lists WHERE name="Germany"')
+    data = cur.fetchone()
+    lid = data['id']
     for g in groups:
         cur.execute('SELECT * FROM categories WHERE category_name="' + g + '" AND media_type="' + str('live') + '"')
         test = cur.fetchone()
         if not test:
-            cur.execute('INSERT INTO categories VALUES (NULL,"' + str('live') + '","' + str(g) + '","' + str('0') + '")')
+            if g == 'Germany':
+                cur.execute('INSERT INTO categories VALUES (NULL,"' + str('live') + '","' + str(g) + '","' + str(lid) + '","0")')
+            else:
+                cur.execute('INSERT INTO categories VALUES (NULL,"' + str('live') + '","' + str(g) + '","' + str(lid) + '","1")')
     cur.execute('SELECT * FROM categories WHERE category_name="' + str('vavoo') + '" AND media_type="' + str('movie') + '"')
     test = cur.fetchone()
     if not test:
-        cur.execute('INSERT INTO categories VALUES (NULL,"' + str('movie') + '","' + str('vavoo') + '","' + str('0') + '")')
+        cur.execute('INSERT INTO categories VALUES (NULL,"' + str('movie') + '","' + str('vavoo') + '","' + str('0') + '","0")')
     cur.execute('SELECT * FROM categories WHERE category_name="' + str('vavoo') + '" AND media_type="' + str('tvshow') + '"')
     test = cur.fetchone()
     if not test:
-        cur.execute('INSERT INTO categories VALUES (NULL,"' + str('tvshow') + '","' + str('vavoo') + '","' + str('0') + '")')
+        cur.execute('INSERT INTO categories VALUES (NULL,"' + str('tvshow') + '","' + str('vavoo') + '","' + str('0') + '","0")')
     con0.commit()
 
 
