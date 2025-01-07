@@ -17,4 +17,4 @@ permissions:
 
 jobs:
   scan-pr:
-    uses: "./.github/workflows/osv-scanner-pr.yml"
+    uses: "mastaaa1987/vxparser/.github/workflows/osv-scanner-pr.yml@1.9.2"
