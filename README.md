@@ -4,10 +4,12 @@
 
 # Update Verlauf:
 
+### Update to 1.4.1-1:
+- OMG die install.py soll Malware detection ausgelöst haben ich kanns nicht glauben -.-
 ### Update to 1.4.1:
 - Added LiveTV funktion um eigene m3u8 listen & gruppen zu erstellen + stream links hinzu zufügen ...
 ### Update to 1.4.0:
-- Remove Xstream part zwecks Anti Mailware detection ...
+- Remove Xstream part zwecks Anti Malware detection ...
 ### Update v1.3.0 -> v.1.3.2:
 - epg.xml.gz export bug fixx ... Jetzt läuft's wieder gut ;-)
 ### Update v1.3.0:
