@@ -138,6 +138,7 @@ def add_tables():
     cur.execute('CREATE TABLE IF NOT EXISTS settings ("name" TEXT, "grp" TEXT, "value" TEXT, "info" TEXT, "default" TEXT, "type" TEXT, "values" TEXT)')
     cur.execute('CREATE TABLE IF NOT EXISTS lists ("id" INTEGER PRIMARY KEY AUTOINCREMENT, "name" TEXT, "custom" INTEGER)')
     cur.execute('CREATE TABLE IF NOT EXISTS categories ("category_id" INTEGER PRIMARY KEY AUTOINCREMENT, "media_type" TEXT, "category_name" TEXT, "lid" INTEGER, "custom" TEXT)')
+    cur.execute('CREATE TABLE IF NOT EXISTS epgs ( "id" INTEGER PRIMARY KEY AUTOINCREMENT, "rid" TEXT, "mid" TEXT, "mn" TEXT, "tid" TEXT, "tn" TEXT, "display" TEXT, "ol" TEXT, "ml" TEXT, "tl" TEXT, "name" TEXT, "name1" TEXT, "name2" TEXT, "name3" TEXT, "name4" TEXT, "name5" TEXT)')
     con0.commit()
     cur = con1.cursor()
     cur.execute('CREATE TABLE IF NOT EXISTS channel ("id" INTEGER PRIMARY KEY AUTOINCREMENT, "name" TEXT, "grp" TEXT, "logo" TEXT, "tid" TEXT, "url" TEXT, "display" TEXT, "country" TEXT, "cid" INTEGER, "hls" TEXT)')
@@ -148,20 +149,19 @@ def add_tables():
     con2.commit()
     cur = con3.cursor()
     cur.execute('CREATE TABLE IF NOT EXISTS epg ( "id" INTEGER PRIMARY KEY AUTOINCREMENT, "cid" TEXT, "start" INTEGER, "end" INTEGER, "title" TEXT, "desc" TEXT, "lang" TEXT)')
-    cur.execute('CREATE TABLE IF NOT EXISTS epgs ( "id" INTEGER PRIMARY KEY AUTOINCREMENT, "rid" TEXT, "mid" TEXT, "mn" TEXT, "tid" TEXT, "tn" TEXT, "display" TEXT, "ol" TEXT, "ml" TEXT, "tl" TEXT, "name" TEXT, "name1" TEXT, "name2" TEXT, "name3" TEXT, "name4" TEXT, "name5" TEXT)')
     con3.commit()
     return True
 
 
 def check_epg_tables():
     epg = sql.epg
-    cur = con3.cursor()
+    cur = con0.cursor()
     for row in epg:
         cur.execute('SELECT * FROM epgs WHERE rid="' + row[1] + '"')
         data = cur.fetchone()
         if not data:
             cur.execute('INSERT INTO epgs VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', row)
-    con3.commit()
+    con0.commit()
 
 
 def check_category_tables():

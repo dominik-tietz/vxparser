@@ -20,7 +20,6 @@ BASEURL = "https://www2.vavoo.to/ccapi/"
 cachepath = com.cp
 con0 = com.con0
 con1 = com.con1
-con3 = com.con3
 _path = com.lp
 
 
@@ -198,7 +197,6 @@ def sky_dbfill():
 
     cur0 = con0.cursor()
     cur1 = con1.cursor()
-    cur3 = con3.cursor()
 
     ssl._create_default_https_context = ssl._create_unverified_context
     req = Request('https://www2.vavoo.to/live2/index?output=json', headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.100 Safari/537.36'})
@@ -242,8 +240,8 @@ def sky_dbfill():
             tid = ''
             ti = ''
             if c['group'] == 'Germany':
-                cur3.execute('SELECT * FROM epgs WHERE name="' + name + '" OR name1="' + name + '" OR name2="' + name + '" OR name3="' + name + '" OR name4="' + name + '" OR name5="' + name + '"')
-                test = cur3.fetchone()
+                cur0.execute('SELECT * FROM epgs WHERE name="' + name + '" OR name1="' + name + '" OR name2="' + name + '" OR name3="' + name + '" OR name4="' + name + '" OR name5="' + name + '"')
+                test = cur0.fetchone()
                 if test:
                     tid = str(test['id'])
             cur1.execute('INSERT INTO channel VALUES(NULL,"' + c['name'].encode('ascii', 'ignore').decode('ascii') + '","' + group + '","' + logo + '","' + tid + '","' + c['url'] + '","' + name + '","' + str(country) + '","[' + str(cid) + ']","' + str(ti) + '")')
@@ -251,7 +249,6 @@ def sky_dbfill():
             cur1.execute('UPDATE channel SET url="' + c['url'] + '" WHERE name="' + c['name'].encode('ascii', 'ignore').decode('ascii') + '" AND grp="' + group + '"')
     con0.commit()
     con1.commit()
-    con3.commit()
 
     global channels
     channels = []
@@ -305,8 +302,8 @@ def sky_dbfill():
             tid = ''
             ti = ''
             if c['group'] == 'Germany':
-                cur3.execute('SELECT * FROM epgs WHERE name="' + name + '" OR name1="' + name + '" OR name2="' + name + '" OR name3="' + name + '" OR name4="' + name + '" OR name5="' + name + '"')
-                test = cur3.fetchone()
+                cur0.execute('SELECT * FROM epgs WHERE name="' + name + '" OR name1="' + name + '" OR name2="' + name + '" OR name3="' + name + '" OR name4="' + name + '" OR name5="' + name + '"')
+                test = cur0.fetchone()
                 if test:
                     tid = str(test['id'])
             cur1.execute('INSERT INTO channel VALUES(NULL,"' + c['name'].encode('ascii', 'ignore').decode('ascii') + '","' + group + '","' + logo + '","' + tid + '","' + str(ti) + '","' + name + '","' + str(country) + '","[' + str(cid) + ']","' + c['url'] + '")')
@@ -314,7 +311,6 @@ def sky_dbfill():
             cur1.execute('UPDATE channel SET hls="' + c['url'] + '" WHERE id="' + str(test['id']) + '"')
     con0.commit()
     con1.commit()
-    con3.commit()
 
     Logger(0, 'Done!', 'db', 'process')
 
@@ -328,7 +324,6 @@ def gen_m3u8():
 
     cur0 = con0.cursor() # common.db
     cur1 = con1.cursor() # live.db
-    cur3 = con3.cursor() # epg.db
 
     cur0.execute('SELECT * FROM lists ORDER BY id ASC')
     dat1 = cur0.fetchall()
@@ -360,8 +355,8 @@ def gen_m3u8():
                 name = None
                 logo = None
                 if not str(row['tid']) == '':
-                    cur3.execute('SELECT * FROM epgs WHERE id="' + row['tid'] + '"')
-                    dat = cur3.fetchone()
+                    cur0.execute('SELECT * FROM epgs WHERE id="' + row['tid'] + '"')
+                    dat = cur0.fetchone()
                     if epg_rytec == '1': tid = dat['rid']
                     elif epg_provider == 'm':
                         if not dat['mn'] == None: tid = dat['mn']

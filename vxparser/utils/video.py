@@ -39,8 +39,8 @@ def get_m3u8(username, password, out, typ, of):
             name = ''
             logo = ''
             if not str(d['tid']) == '':
-                cur3.execute('SELECT * FROM epgs WHERE id="' + d['tid'] + '"')
-                eat = cur3.fetchone()
+                cur0.execute('SELECT * FROM epgs WHERE id="' + d['tid'] + '"')
+                eat = cur0.fetchone()
                 if epg_rytec == '1': tid = eat['rid']
                 elif epg_provider == 'm':
                     if not eat['mn'] == None: tid = eat['mn']
@@ -83,8 +83,8 @@ def get_m3u8(username, password, out, typ, of):
         for d in dat:
             name = ''
             if not str(d['tid']) == '':
-                cur3.execute('SELECT * FROM epgs WHERE id="' + d['tid'] + '"')
-                eat = cur3.fetchone()
+                cur0.execute('SELECT * FROM epgs WHERE id="' + d['tid'] + '"')
+                eat = cur0.fetchone()
                 if m3u8_name == '1':
                     if not eat['display'] == None: name = eat['display']
                     else: name = d['display']
@@ -179,8 +179,8 @@ def get_all_channels():
         name = ''
         logo = ''
         if not str(d['tid']) == '':
-            cur3.execute('SELECT * FROM epgs WHERE id="' + d['tid'] + '"')
-            eat = cur3.fetchone()
+            cur0.execute('SELECT * FROM epgs WHERE id="' + d['tid'] + '"')
+            eat = cur0.fetchone()
             if epg_rytec == '1': tid = eat['rid']
             elif epg_provider == 'm':
                 if not eat['mn'] == None: tid = eat['mn']
@@ -481,8 +481,8 @@ def get_live_streams(category_id=None):
             name = ''
             logo = ''
             if not str(d['tid']) == '':
-                cur3.execute('SELECT * FROM epgs WHERE id="' + d['tid'] + '"')
-                eat = cur3.fetchone()
+                cur0.execute('SELECT * FROM epgs WHERE id="' + d['tid'] + '"')
+                eat = cur0.fetchone()
                 if epg_rytec == '1': tid = eat['rid']
                 elif epg_provider == 'm':
                     if not eat['mn'] == None: tid = eat['mn']
@@ -532,8 +532,8 @@ def get_live_streams(category_id=None):
             name = ''
             logo = ''
             if not str(d['tid']) == '':
-                cur3.execute('SELECT * FROM epgs WHERE id="' + d['tid'] + '"')
-                eat = cur3.fetchone()
+                cur0.execute('SELECT * FROM epgs WHERE id="' + d['tid'] + '"')
+                eat = cur0.fetchone()
                 if epg_rytec == '1': tid = eat['rid']
                 elif epg_provider == 'm':
                     if not eat['mn'] == None: tid = eat['mn']
@@ -590,8 +590,8 @@ def get_short_epg(stream_id, limit=None):
     chan = cur1.fetchone()
     if chan:
         if not chan['tid'] == '':
-            cur3.execute('SELECT * FROM epgs WHERE id="' + str(chan['tid']) + '"')
-            cat = cur3.fetchone()
+            cur0.execute('SELECT * FROM epgs WHERE id="' + str(chan['tid']) + '"')
+            cat = cur0.fetchone()
             if rytec == '1': cid = cat['rid']
             else: cid = chan['tid']
 
@@ -636,8 +636,8 @@ def get_simple_data_table(stream_id):
     chan = cur1.fetchone()
     if chan:
         if not chan['tid'] == '':
-            cur3.execute('SELECT * FROM epgs WHERE id="' + str(chan['tid']) + '"')
-            cat = cur3.fetchone()
+            cur0.execute('SELECT * FROM epgs WHERE id="' + str(chan['tid']) + '"')
+            cat = cur0.fetchone()
             if rytec == '1': cid = cat['rid']
             else: cid = chan['tid']
 
