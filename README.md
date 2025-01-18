@@ -7,6 +7,8 @@
 <details>
 <summary>Klick HIER für Content.</summary>
 
+### Update to 1.4.2:
+- Xstream Conten wieder hinzu gefügt + site plugins to aktueller version (4.1.2) updated ...
 ### Update to 1.4.1-1:
 - OMG die install.py soll Malware detection ausgelöst haben ich kanns nicht glauben -.-
 ### Update to 1.4.1:
