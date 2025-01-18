@@ -61,11 +61,11 @@ def handler(typ, name=None):
         if proc['m3u8']:
             proc['m3u8'].join(timeout=0)
             if proc['m3u8'].is_alive():
-                Logger(1, 'terminate ...', 'm3u8', 'service')
+                Logger(1, 'terminate ...', 'db', 'service')
                 proc['m3u8'].terminate()
                 proc['m3u8'] = None
-            else: Logger(1, 'not running ...', 'm3u8', 'service')
-        else: Logger(1, 'not running ...', 'm3u8', 'service')
+            else: Logger(1, 'not running ...', 'db', 'service')
+        else: Logger(1, 'not running ...', 'db', 'service')
         if proc['epg']:
             proc['epg'].join(timeout=0)
             if proc['epg'].is_alive():
@@ -79,13 +79,13 @@ def handler(typ, name=None):
             if proc['m3u8']:
                 proc['m3u8'].join(timeout=0)
                 if proc['m3u8'].is_alive():
-                    Logger(1, 'terminate ...', 'm3u8', 'service')
+                    Logger(1, 'terminate ...', 'db', 'service')
                     proc['m3u8'].terminate()
                     proc['m3u8'] = None
             proc['m3u8'] = Process(target=loop_m3u8)
             proc['m3u8'].start()
-            Logger(1, 'Successful started...', 'm3u8', 'service')
-        else: Logger(1, 'Service disabled ...', 'm3u8', 'service')
+            Logger(1, 'Successful started...', 'db', 'service')
+        else: Logger(1, 'Service disabled ...', 'db', 'service')
         if bool(int(com.get_setting('epg_service', 'Main'))) == True:
             if proc['epg']:
                 proc['epg'].join(timeout=0)
@@ -111,12 +111,12 @@ def handler(typ, name=None):
         if proc['m3u8_p']:
             proc['m3u8_p'].join(timeout=0)
             if proc['m3u8_p'].is_alive():
-                Logger(1, 'terminate ...', 'm3u8', 'process')
+                Logger(1, 'terminate ...', 'db', 'process')
                 proc['m3u8_p'].terminate()
                 proc['m3u8_p'] = None
         proc['m3u8_p'] = Process(target=vavoo.gen_m3u8)
         proc['m3u8_p'].start()
-        Logger(1, 'Successful started...', 'm3u8', 'process')
+        Logger(1, 'Successful started...', 'db', 'process')
     return
 
 
@@ -129,7 +129,7 @@ def loop_m3u8():
             vavoo.sky_dbfill()
             com.set_setting('m3u8', str(now), 'Loop')
         else:
-            Logger(1, 'sleeping for %s sec...' % str(last + sleep * 60 * 60 - now), 'm3u8', 'service')
+            Logger(1, 'sleeping for %s sec...' % str(last + sleep * 60 * 60 - now), 'db', 'service')
             time.sleep(int(last + sleep * 60 * 60 - now))
     pass
 

@@ -3,6 +3,7 @@ from datetime import timedelta
 
 import utils.common as common
 from utils.common import Logger as Logger
+import utils.xstream as xstream
 import utils.vavoo as vavoo
 import services
 
@@ -10,12 +11,13 @@ con = common.con0
 con1 = common.con1
 cache = common.cp
 
-def mainMenu():
+def mainMenu2():
     c = []
     c.append((" ","0"))
+
+    c.append(("Xstream Submenu (VoD's & Series) =>", "submenu_xstream"))
     c.append(("Main Settings =>","main_settings"))
     c.append(("Vavoo Settings =>","vavoo_settings"))
-    c.append(("List|Group|Stream Submenu =>","submenu_lgs"))
     c.append(("Generate M3U8 Lists","gen_list"))
     c.append(("Get epg.xml.gz", "get_epg"))
     c.append(("Stop Services", "stop_service"))
@@ -29,13 +31,56 @@ def mainMenu():
     return quest['item']
 
 
-def lgsMenu():
+def mainMenu():
     c = []
     c.append((" ","0"))
+    c.append(("Settings =>","settings"))
+    c.append(("Vavoo (LiveTV) =>","submenu_vavoo"))
+    c.append(("Xstream (VoD's & Series) =>", "submenu_xstream"))
+    c.append(("Stop Services", "stop_service"))
+    c.append(("Restart Services", "restart_service"))
+    c.append(("- Clean Database (Settings)","clean_db"))
+    c.append(("- Clear Data Path","clear_data"))
+    c.append(("<= Shutdown","shutdown"))
+    q = [ inquirer.List("item", message="Main Menu", choices=c, carousel=True) ]
+    quest = inquirer.prompt(q)
+    return quest['item']
+
+
+def vavooMenu():
+    c = []
+    c.append((" ","0"))
+    c.append(("Settings =>","settings"))
+    c.append(("List|Group|Stream Submenu =>","submenu_lgs"))
+    c.append(("Generate M3U8 Lists","gen_list"))
+    c.append(("Get epg.xml.gz", "get_epg"))
+    c.append(("- Clean Database (LiveTV)","clean_db"))
+    c.append(("<= Main Menu","back"))
+    q = [ inquirer.List("item", message="Sky Live TV", choices=c, carousel=True) ]
+    quest = inquirer.prompt(q)
+    return quest['item']
+
+
+def xstreamMenu():
+    c = []
+    c.append((" ","0"))
+    c.append(("Settings =>","settings"))
+    c.append(("Global Search","search"))
+    c.append(("Get New VoD & Series","get_new"))
+    c.append(("ReCreate vod+series.m3u8","gen_lists"))
+    c.append(("- Clean Database (Streams)","clean_db"))
+    c.append(("<= Main Menu","back"))
+    q = [ inquirer.List("item", message="VoD & Series", choices=c, carousel=True) ]
+    quest = inquirer.prompt(q)
+    return quest['item']
+
+
+def lgsMenu():
+    c = []
+    c.append(("<= Back","back"))
     c.append(("M3U List Menu =>","lmenu"))
     c.append(("Group Menu =>","gmenu"))
     c.append(("Stream Menu =>","smenu"))
-    c.append(("<= Main Menu","back"))
     q = [ inquirer.List("item", message="List|Group|Stream Menu", choices=c, carousel=True) ]
     quest = inquirer.prompt(q)
     return quest['item']
@@ -71,6 +116,32 @@ def sMenu():
     q = [ inquirer.List("item", message="Stream Menu", choices=c, carousel=True) ]
     quest = inquirer.prompt(q)
     return quest['item']
+
+
+def xstreamSettings():
+    cur = con.cursor()
+    c = []
+    d = []
+    keys = []
+    vals = []
+    x = 0
+    for row in cur.execute('SELECT * FROM settings WHERE grp="' + str('Xstream') + '"'):
+        site = re.sub('_auto|_search', '', row['name'])
+        if "_auto" in row['name']: name = site+': auto list creation?'
+        else: name = site+': global search?'
+        c.append((name, str(x)))
+        if int(row['value']) == 1: d.append(str(x))
+        keys.append(row['name'])
+        vals.append(row['value'])
+        x += 1
+    q = [ inquirer.Checkbox("check", message="Site Settings", choices=c, default=d, carousel=True) ]
+    quest = inquirer.prompt(q)
+    for y in range(0, x):
+        if str(y) in quest["check"] and not str(y) in d:
+            common.set_setting(keys[y], str(1), 'Xstream')
+        if not str(y) in quest["check"] and str(y) in d:
+            common.set_setting(keys[y], str(0), 'Xstream')
+    return True
 
 
 def mainSettings():
@@ -193,8 +264,9 @@ def menu():
         if menu == 'main':
             time.sleep(0.2)
             item = mainMenu()
-            if item == 'submenu_lgs': menu = 'lgs'
-            if item == 'main_settings':
+            if item == 'submenu_vavoo': menu = 'vavoo'
+            if item == 'submenu_xstream': menu = 'xstream'
+            if item == 'settings':
                 menu = 'msettings'
                 quest = mainSettings()
                 if not quest: Logger(3, 'Error!', 'main', 'settings')
@@ -230,13 +302,49 @@ def menu():
                     services.handler('kill')
                     clear = common.clear_cache()
                     break
+        if menu == 'xstream':
+            item = xstreamMenu()
+            if item == 'settings':
+                quest = xstreamSettings()
+                if not quest: Logger(3, 'Error!', 'vod', 'settings')
+                else: Logger(1, 'Successful ...', 'vod', 'settings')
+            if item == 'back': menu = 'main'
+            if item == 'clean_db':
+                c = []
+                c.append((" ","0"))
+                c.append(("Yes","yes"))
+                c.append(("No", "no"))
+                c.append(("<= Back","back"))
+                q = [ inquirer.List("item", message="Really clean Stream Database?", choices=c, carousel=True) ]
+                quest = inquirer.prompt(q)
+                if quest['item'] == 'yes':
+                    clean = common.clean_tables('streams')
+                    if not clean: Logger(3, 'Error!', 'db', 'clean')
+                    else: Logger(0, 'Successful ...', 'db', 'clean')
+            if item == 'get_new':
+                st = int(time.time())
+                movies = xstream.getMovies()
+                if not movies: Logger(3, 'Error!', 'vod', 'get')
+                else: Logger(0, 'Successful ...', 'vod', 'get')
+                Logger(1, 'Completed in %s' % timedelta(seconds=int(time.time())-st), 'vod', 'get')
+            if item == 'gen_lists':
+                lists = xstream.genLists()
+                if not lists: Logger(3, 'Error!', 'vod', 'gen')
+                else: Logger(0, 'Successful ...', 'vod', 'gen')
+            if item == 'search':
+                quest = inquirer.prompt([inquirer.Text("item", message="Search for?")])
+                ser = xstream.search(quest['item'])
+        if menu == 'vavoo':
+            item = vavooMenu()
+            if item == 'back': menu = 'main'
+            if item == 'submenu_lgs': menu = 'lgs'
             if item == 'gen_list': services.handler('m3u8_start')
             if item == 'get_epg': services.handler('epg_start')
-            if item == 'vavoo_settings':
+            if item == 'settings':
                 menu = 'vsettings'
                 quest = vavooSettings()
                 if not quest: Logger(3, 'Error!', 'vavoo', 'settings')
-                elif quest == 'back': menu = 'main'
+                elif quest == 'back': menu = 'vavoo'
             if item == 'clean_tv_db':
                 c = []
                 c.append((" ","0"))
@@ -249,9 +357,13 @@ def menu():
                     clean = common.clean_tables('live')
                     if not clean: Logger(3, 'Error!', 'db', 'clean')
                     else: Logger(0, 'Successful ...', 'db', 'clean')
+        if menu == 'vsettings':
+            quest = vavooSettings()
+            if not quest: Logger(3, 'Error!', 'vavoo', 'settings')
+            elif quest == 'back': menu = 'vavoo'
         if menu == 'lgs':
             item = lgsMenu()
-            if item == 'back': menu = 'main'
+            if item == 'back': menu = 'vavoo'
             if item == 'lmenu': menu = 'lmenu'
             if item == 'gmenu': menu = 'gmenu'
             if item == 'smenu': menu = 'smenu'
@@ -434,8 +546,4 @@ def menu():
                         con1.commit()
                         Logger(0, 'Successful ...', 'add', 'streams')
             # if item == 'edit_streams':
-        if menu == 'vsettings':
-            quest = vavooSettings()
-            if not quest: Logger(3, 'Error!', 'vavoo', 'settings')
-            elif quest == 'back': menu = 'main'
 
