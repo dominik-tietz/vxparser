@@ -29,7 +29,7 @@ def load():
     ret = []
     ret.append({"site": SITE_IDENTIFIER, "url": URL_NEW, "typ": 1, "key": "showEntries", "title": "New Movies"})
     ret.append({"site": SITE_IDENTIFIER, "url": URL_KINO, "typ": 1, "key": "showEntries", "title": "Current films in the cinema"})
-    ret.append({"site": SITE_IDENTIFIER, "url": URL_FAVOURITE_MOVIE_PAGE, "typ": 1, "key": "showEntries", "title": "Favorite Movies"})
+    ret.append({"site": SITE_IDENTIFIER, "url": URL_SERIES, "typ": 2, "key": "showSeries", "title": "Series"})
     return ret
 
 
@@ -38,7 +38,7 @@ def showEntries(entryUrl=False, sGui=False, sSearchText=False):
     isTvshow = False
     if not entryUrl: return
     oRequest = cRequestHandler(entryUrl, ignoreErrors=True)
-    oRequest.cacheTime = 60 * 60 * 24  # HTML Cache Zeit 6 Stunden
+    oRequest.cacheTime = 60 * 60 * 6  # HTML Cache Zeit 6 Stunden
     sHtmlContent = oRequest.request()
     pattern = 'class="thumb".*?title="([^"]+).*?href="([^"]+).*?src="([^"]+).*?_year">([^<]+)'
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
@@ -55,10 +55,74 @@ def showEntries(entryUrl=False, sGui=False, sSearchText=False):
         oGuiElement["name"] = sName
         oGuiElement["site"] = SITE_IDENTIFIER
         oGuiElement["key"] = 'showHosters'
-        oGuiElement["thumb"] = URL_MAIN + sThumbnail
-        oGuiElement["url"] = sUrl
+        oGuiElement["thumb"] = sThumbnail
         oGuiElement["mediatype"] = 'movie'
         oGuiElement["total"] = total
+        oGuiElement["url"] = sUrl
+        oGuiElement["year"] = sYear
+        #if isDuration: oGuiElement["duration"] = sDuration
+        folder.append(oGuiElement)
+    return folder
+
+
+def showEntries(entryUrl=False, sSearchText=False):
+    folder = []
+    isTvshow = False
+    if not entryUrl: return
+    oRequest = cRequestHandler(entryUrl, ignoreErrors=True)
+    oRequest.cacheTime = 60 * 60 * 6  # HTML Cache Zeit 6 Stunden
+    sHtmlContent = oRequest.request()
+    pattern = 'class="thumb".*?title="([^"]+).*?href="([^"]+).*?src="([^"]+).*?_year">([^<]+)'
+    isMatch, aResult = cParser.parse(sHtmlContent, pattern)
+    if not isMatch: return
+
+    total = len(aResult)
+    for sName, sUrl, sThumbnail, sYear in aResult:
+        if sSearchText and not cParser.search(sSearchText, sName):
+            continue
+        if sThumbnail[0] == '/':
+            sThumbnail = sThumbnail[1:]
+
+        oGuiElement = {}
+        oGuiElement["name"] = sName
+        oGuiElement["site"] = SITE_IDENTIFIER
+        oGuiElement["key"] = 'showHosters'
+        oGuiElement["thumb"] = sThumbnail
+        oGuiElement["mediatype"] = 'movie'
+        oGuiElement["total"] = total
+        oGuiElement["url"] = sUrl
+        oGuiElement["year"] = sYear
+        #if isDuration: oGuiElement["duration"] = sDuration
+        folder.append(oGuiElement)
+    return folder
+
+
+def showSeries(entryUrl=False, sSearchText=False): # Neu eingebaut da auf der Webseite nicht erkennbar ist was Serien sind und was nicht
+    folder = []
+    isTvshow = True
+    if not entryUrl: return
+    oRequest = cRequestHandler(entryUrl, ignoreErrors=True)
+    oRequest.cacheTime = 60 * 60 * 6  # HTML Cache Zeit 6 Stunden
+    sHtmlContent = oRequest.request()
+    pattern = 'class="thumb".*?title="([^"]+).*?href="([^"]+).*?src="([^"]+).*?_year">([^<]+)'
+    isMatch, aResult = cParser.parse(sHtmlContent, pattern)
+    if not isMatch: return
+
+    total = len(aResult)
+    for sName, sUrl, sThumbnail, sYear in aResult:
+        if sSearchText and not cParser.search(sSearchText, sName):
+            continue
+        if sThumbnail[0] == '/':
+            sThumbnail = sThumbnail[1:]
+
+        oGuiElement = {}
+        oGuiElement["name"] = sName
+        oGuiElement["site"] = SITE_IDENTIFIER
+        oGuiElement["key"] = 'showEpisodes'
+        oGuiElement["thumb"] = sThumbnail
+        oGuiElement["mediatype"] = 'tvshow'
+        oGuiElement["total"] = total
+        oGuiElement["url"] = sUrl
         oGuiElement["year"] = sYear
         folder.append(oGuiElement)
     return folder
@@ -69,7 +133,7 @@ def showSeries(entryUrl=False, sSearchText=False): # Neu eingebaut da auf der We
     isTvshow = True
     if not entryUrl: return
     oRequest = cRequestHandler(entryUrl, ignoreErrors=True)
-    oRequest.cacheTime = 60 * 60 * 24  # HTML Cache Zeit 6 Stunden
+    oRequest.cacheTime = 60 * 60 * 6  # HTML Cache Zeit 6 Stunden
     sHtmlContent = oRequest.request()
     pattern = 'class="thumb".*?title="([^"]+).*?href="([^"]+).*?src="([^"]+).*?_year">([^<]+)'
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
@@ -77,18 +141,47 @@ def showSeries(entryUrl=False, sSearchText=False): # Neu eingebaut da auf der We
 
     total = len(aResult)
     for sName, sUrl, sThumbnail, sYear in aResult:
-        oGuiElement = {}
         if sSearchText and not cParser.search(sSearchText, sName):
             continue
         if sThumbnail[0] == '/':
             sThumbnail = sThumbnail[1:]
+
+        oGuiElement = {}
         oGuiElement["name"] = sName
         oGuiElement["site"] = SITE_IDENTIFIER
         oGuiElement["key"] = 'showEpisodes'
-        oGuiElement["thumb"] = URL_MAIN + sThumbnail
-        oGuiElement["url"] = sUrl
+        oGuiElement["thumb"] = sThumbnail
         oGuiElement["mediatype"] = 'tvshow'
         oGuiElement["total"] = total
+        oGuiElement["url"] = sUrl
+        oGuiElement["year"] = sYear
+        folder.append(oGuiElement)
+    return folder
+
+
+def showEpisodes(entryUrl=False, sThumbnail=False):
+    folder = []
+    sHtmlContent = cRequestHandler(entryUrl).request()
+    isMatch, aResult = cParser.parse(sHtmlContent, 'data-num="([^"]+)')
+    if not isMatch: return
+
+    total = len(aResult)
+    for sName in aResult:
+        oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showHosters')
+        oGuiElement.setThumbnail(sThumbnail)
+        oGuiElement.setMediaType('episode')
+        params.setParam('entryUrl', entryUrl)
+        params.setParam('episode', sName)
+        cGui().addFolder(oGuiElement, params, False, total)
+
+        oGuiElement = {}
+        oGuiElement["name"] = sName
+        oGuiElement["site"] = SITE_IDENTIFIER
+        oGuiElement["key"] = 'showHosters'
+        oGuiElement["thumb"] = sThumbnail
+        oGuiElement["mediatype"] = 'episode'
+        oGuiElement["total"] = total
+        oGuiElement["url"] = entryUrl
         folder.append(oGuiElement)
     return folder
 
@@ -106,20 +199,20 @@ def showEpisodes(entryUrl=False, sThumbnail=False):
         oGuiElement["site"] = SITE_IDENTIFIER
         oGuiElement["key"] = 'showHosters'
         oGuiElement["thumb"] = sThumbnail
-        oGuiElement["url"] = entryUrl
-        oGuiElement["p2"] = sName
         oGuiElement["mediatype"] = 'episode'
         oGuiElement["total"] = total
+        oGuiElement["url"] = entryUrl
+        oGuiElement["episode"] = sName
         folder.append(oGuiElement)
     return folder
 
 
 def showHosters(entryUrl=False, episode=False):
     hosters = []
-    sUrl = entryUrl # ParameterHandler().getValue('entryUrl')
+    if not entryUrl: return
+    sUrl = entryUrl
     sHtmlContent = cRequestHandler(sUrl).request()
-    if episode: #ParameterHandler().exist('episode'): #kommt aus showSeries
-        #episode = ParameterHandler().getValue('episode')
+    if ParameterHandler().exist('episode'): #kommt aus showSeries
         pattern = 'data-num="{0}".*?allowfull'.format(episode)
         isMatch, sHtmlContent = cParser.parseSingleResult(sHtmlContent, pattern)
     else:
@@ -127,10 +220,8 @@ def showHosters(entryUrl=False, episode=False):
         isMatch, sHtmlContainer = cParser.parseSingleResult(sHtmlContent, pattern)
         if isMatch:
             isMatch, aResult = cParser.parse(sHtmlContainer, 'src="([^"]+)')
-            try:
-                sUrl = aResult[0]
-            except:
-                pass
+            try: sUrl = aResult[0]
+            except: pass
         if not isMatch: return
         sHtmlContent = cRequestHandler(sUrl).request()
 
@@ -139,8 +230,7 @@ def showHosters(entryUrl=False, episode=False):
         for sUrl in aResult:
             sName = cParser.urlparse(sUrl)
             if 'youtube' in sUrl: continue
-            elif sUrl.startswith('//'):
-                 sUrl = 'https:' + sUrl
+            elif sUrl.startswith('//'): sUrl = 'https:' + sUrl
             hoster = {'link': sUrl, 'name': cParser.urlparse(sUrl)}
             hosters.append(hoster)
     if hosters:

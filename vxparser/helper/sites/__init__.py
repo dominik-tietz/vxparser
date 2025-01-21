@@ -1,3 +1,3 @@
-from . import dokus4, einschalten, filmpalast, hdfilme, kinokiste, kkiste, megakino, movie2k, movie4k, serienstream, streamcloud, xcine
-# hdfilme_1, moflix-stream, topstreamfilm
-sites = [dokus4, einschalten, filmpalast, hdfilme, kinokiste, kkiste, megakino, movie2k, movie4k, serienstream, streamcloud, xcine]
+from . import dokus4, einschalten, hdfilme, kinokiste, kkiste, megakino, movie2k, serienstream, xcine
+# hdfilme_1, moflix-stream, topstreamfilm, filmpalast, movie4k, streamcloud,
+sites = [dokus4, einschalten, hdfilme, kinokiste, kkiste, megakino, movie2k, serienstream, xcine]
