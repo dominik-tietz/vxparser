@@ -36,76 +36,76 @@ def handler(typ, name=None):
             proc['api'] = UvicornServer(config=Config("api:app", host=ip, port=port, log_level="info", reload=True))
             proc['api'].start()
             Logger(1, 'Successful started...' if lang == 1 else 'Erfolgreich gestartet...', 'api', 'service')
-        elif proc['api']: Logger(1, 'Service allready running ...' if lang == 1 else 'Service läuft schon ...', 'api', 'service')
+        elif proc['api']: Logger(1, 'Service allready running ...' if lang == 1 else 'Service lÃ¤uft schon ...', 'api', 'service')
         if not proc['m3u8'] and bool(int(com.get_setting('m3u8_service', 'Main'))) == True:
             proc['m3u8'] = Process(target=loop_m3u8)
             proc['m3u8'].start()
             Logger(1, 'Successful started...' if lang == 1 else 'Erfolgreich gestartet...', 'db', 'service')
-        elif proc['m3u8']: Logger(1, 'Service allready running ...' if lang == 1 else 'Service läuft schon ...', 'db', 'service')
+        elif proc['m3u8']: Logger(1, 'Service allready running ...' if lang == 1 else 'Service lÃ¤uft schon ...', 'db', 'service')
         elif bool(int(com.get_setting('m3u8_service', 'Main'))) == False: Logger(1, 'Service disabled ...' if lang == 1 else 'Service deaktiviert ...', 'db', 'service')
         if not proc['epg'] and bool(int(com.get_setting('epg_service', 'Main'))) == True:
             proc['epg'] = Process(target=loop_epg)
             proc['epg'].start()
             Logger(1, 'Successful started...' if lang == 1 else 'Erfolgreich gestartet...', 'epg', 'service')
-        elif proc['epg']: Logger(1, 'Service allready running ...' if lang == 1 else 'Service läuft schon ...', 'epg', 'service')
+        elif proc['epg']: Logger(1, 'Service allready running ...' if lang == 1 else 'Service lÃ¤uft schon ...', 'epg', 'service')
         elif bool(int(com.get_setting('epg_service', 'Main'))) == False: Logger(1, 'Service disabled ...' if lang == 1 else 'Service deaktiviert ...', 'epg', 'service')
         if not proc['vod'] and bool(int(com.get_setting('vod_service', 'Main'))) == True:
             proc['vod'] = Process(target=loop_vod)
             proc['vod'].start()
             Logger(1, 'Successful started...' if lang == 1 else 'Erfolgreich gestartet...', 'vod', 'service')
-        elif proc['vod']: Logger(1, 'Service allready running ...' if lang == 1 else 'Service läuft schon ...', 'vod', 'service')
+        elif proc['vod']: Logger(1, 'Service allready running ...' if lang == 1 else 'Service lÃ¤uft schon ...', 'vod', 'service')
         elif bool(int(com.get_setting('vod_service', 'Main'))) == False: Logger(1, 'Service disabled ...' if lang == 1 else 'Service deaktiviert ...', 'vod', 'service')
     if typ == 'kill':
         for p in procs:
             if proc[p]:
                 proc[p].join(timeout=0)
                 if proc[p].is_alive():
-                    if '_p' in p: Logger(1, 'terminate ...' if lang == 1 else 'töte ...', re.sub('_p', '', p), 'process')
-                    else: Logger(1, 'terminate ...' if lang == 1 else 'töte ...', p, 'service')
+                    if '_p' in p: Logger(1, 'terminate ...' if lang == 1 else 'tÃ¶te ...', re.sub('_p', '', p), 'process')
+                    else: Logger(1, 'terminate ...' if lang == 1 else 'tÃ¶te ...', p, 'service')
                     proc[p].terminate()
                     proc[p] = None
         if len(jobs) > 0:
             for job in jobs:
                 job.join(timeout=0)
                 if job.is_alive():
-                    Logger(1, 'terminate ...' if lang == 1 else 'töte ...', 'process', 'jobs')
+                    Logger(1, 'terminate ...' if lang == 1 else 'tÃ¶te ...', 'process', 'jobs')
                     job.terminate()
                     job = None
         if proc['api']:
-            Logger(1, 'terminate ...' if lang == 1 else 'töte ...', 'api', 'service')
+            Logger(1, 'terminate ...' if lang == 1 else 'tÃ¶te ...', 'api', 'service')
             proc['api'].stop()
             proc['api'] = None
     if typ == 'service_stop':
         if proc['m3u8']:
             proc['m3u8'].join(timeout=0)
             if proc['m3u8'].is_alive():
-                Logger(1, 'terminate ...' if lang == 1 else 'töte ...', 'db', 'service')
+                Logger(1, 'terminate ...' if lang == 1 else 'tÃ¶te ...', 'db', 'service')
                 proc['m3u8'].terminate()
                 proc['m3u8'] = None
-            else: Logger(1, 'not running ...' if lang == 1 else 'läuft noch nicht ...', 'db', 'service')
-        else: Logger(1, 'not running ...' if lang == 1 else 'läuft noch nicht ...', 'db', 'service')
+            else: Logger(1, 'not running ...' if lang == 1 else 'lÃ¤uft noch nicht ...', 'db', 'service')
+        else: Logger(1, 'not running ...' if lang == 1 else 'lÃ¤uft noch nicht ...', 'db', 'service')
         if proc['epg']:
             proc['epg'].join(timeout=0)
             if proc['epg'].is_alive():
-                Logger(1, 'terminate ...' if lang == 1 else 'töte ...', 'epg', 'service')
+                Logger(1, 'terminate ...' if lang == 1 else 'tÃ¶te ...', 'epg', 'service')
                 proc['epg'].terminate()
                 proc['epg'] = None
-            else: Logger(1, 'not running ...' if lang == 1 else 'läuft noch nicht ...', 'epg', 'service')
-        else: Logger(1, 'not running ...' if lang == 1 else 'läuft noch nicht ...', 'epg', 'service')
+            else: Logger(1, 'not running ...' if lang == 1 else 'lÃ¤uft noch nicht ...', 'epg', 'service')
+        else: Logger(1, 'not running ...' if lang == 1 else 'lÃ¤uft noch nicht ...', 'epg', 'service')
         if proc['vod']:
             proc['vod'].join(timeout=0)
             if proc['vod'].is_alive():
-                Logger(1, 'terminate ...' if lang == 1 else 'töte ...', 'vod', 'service')
+                Logger(1, 'terminate ...' if lang == 1 else 'tÃ¶te ...', 'vod', 'service')
                 proc['vod'].terminate()
                 proc['vod'] = None
-            else: Logger(1, 'not running ...' if lang == 1 else 'läuft noch nicht ...', 'vod', 'service')
-        else: Logger(1, 'not running ...' if lang == 1 else 'läuft noch nicht ...', 'vod', 'service')
+            else: Logger(1, 'not running ...' if lang == 1 else 'lÃ¤uft noch nicht ...', 'vod', 'service')
+        else: Logger(1, 'not running ...' if lang == 1 else 'lÃ¤uft noch nicht ...', 'vod', 'service')
     if typ == 'service_restart':
         if bool(int(com.get_setting('m3u8_service', 'Main'))) == True:
             if proc['m3u8']:
                 proc['m3u8'].join(timeout=0)
                 if proc['m3u8'].is_alive():
-                    Logger(1, 'terminate ...' if lang == 1 else 'töte ...', 'db', 'service')
+                    Logger(1, 'terminate ...' if lang == 1 else 'tÃ¶te ...', 'db', 'service')
                     proc['m3u8'].terminate()
                     proc['m3u8'] = None
             proc['m3u8'] = Process(target=loop_m3u8)
@@ -116,7 +116,7 @@ def handler(typ, name=None):
             if proc['epg']:
                 proc['epg'].join(timeout=0)
                 if proc['epg'].is_alive():
-                    Logger(1, 'terminate ...' if lang == 1 else 'töte ...', 'epg', 'service')
+                    Logger(1, 'terminate ...' if lang == 1 else 'tÃ¶te ...', 'epg', 'service')
                     proc['epg'].terminate()
                     proc['epg'] = None
             proc['epg'] = Process(target=loop_epg)
@@ -127,7 +127,7 @@ def handler(typ, name=None):
             if proc['vod']:
                 proc['vod'].join(timeout=0)
                 if proc['vod'].is_alive():
-                    Logger(1, 'terminate ...' if lang == 1 else 'töte ...', 'vod', 'service')
+                    Logger(1, 'terminate ...' if lang == 1 else 'tÃ¶te ...', 'vod', 'service')
                     proc['vod'].terminate()
                     proc['vod'] = None
             proc['vod'] = Process(target=loop_vod)
@@ -138,7 +138,7 @@ def handler(typ, name=None):
         if proc['epg_p']:
             proc['epg_p'].join(timeout=0)
             if proc['epg_p'].is_alive():
-                Logger(1, 'terminate ...' if lang == 1 else 'töte ...', 'epg', 'process')
+                Logger(1, 'terminate ...' if lang == 1 else 'tÃ¶te ...', 'epg', 'process')
                 proc['epg_p'].terminate()
                 proc['epg_p'] = None
         proc['epg_p'] = Process(target=epg.run_grabber)
@@ -148,7 +148,7 @@ def handler(typ, name=None):
         if proc['m3u8_p']:
             proc['m3u8_p'].join(timeout=0)
             if proc['m3u8_p'].is_alive():
-                Logger(1, 'terminate ...' if lang == 1 else 'töte ...', 'db', 'process')
+                Logger(1, 'terminate ...' if lang == 1 else 'tÃ¶te ...', 'db', 'process')
                 proc['m3u8_p'].terminate()
                 proc['m3u8_p'] = None
         proc['m3u8_p'] = Process(target=vavoo.gen_m3u8)
@@ -158,7 +158,7 @@ def handler(typ, name=None):
         if proc['vod_p']:
             proc['vod_p'].join(timeout=0)
             if proc['vod_p'].is_alive():
-                Logger(1, 'terminate ...' if lang == 1 else 'töte ...', 'vod', 'process')
+                Logger(1, 'terminate ...' if lang == 1 else 'tÃ¶te ...', 'vod', 'process')
                 proc['vod_p'].terminate()
                 proc['vod_p'] = None
         proc['vod_p'] = Process(target=xstream.getMovies)
@@ -177,7 +177,7 @@ def loop_m3u8():
             vavoo.sky_dbfill()
             com.set_setting('m3u8', str(now), 'Loop')
         else:
-            Logger(1, 'sleeping for %s ...' % str(datetime.timedelta(seconds=last + sleep * 60 * 60 - now)) if lang == 1 else 'schlafe für %s ...' % str(datetime.timedelta(seconds=last + sleep * 60 * 60 - now)), 'db', 'service')
+            Logger(1, 'sleeping for %s ...' % str(datetime.timedelta(seconds=last + sleep * 60 * 60 - now)) if lang == 1 else 'schlafe fÃ¼r %s ...' % str(datetime.timedelta(seconds=last + sleep * 60 * 60 - now)), 'db', 'service')
             time.sleep(int(last + sleep * 60 * 60 - now))
     pass
 
@@ -192,7 +192,7 @@ def loop_epg():
             epg.run_grabber()
             com.set_setting('epg', str(now), 'Loop')
         else:
-            Logger(1, 'sleeping for %s ...' % str(datetime.timedelta(seconds=last + sleep * 24 * 60 * 60 - now)) if lang == 1 else 'schlafe für %s ...' % str(datetime.timedelta(seconds=last + sleep * 24 * 60 * 60 - now)), 'epg', 'service')
+            Logger(1, 'sleeping for %s ...' % str(datetime.timedelta(seconds=last + sleep * 24 * 60 * 60 - now)) if lang == 1 else 'schlafe fÃ¼r %s ...' % str(datetime.timedelta(seconds=last + sleep * 24 * 60 * 60 - now)), 'epg', 'service')
             time.sleep(int(last + sleep * 24 * 60 * 60 - now))
     pass
 
@@ -204,11 +204,10 @@ def loop_vod():
         sleep = int(com.get_setting('vod_sleep', 'Main'))
         lang = int(com.get_setting('lang', 'Hidden'))
         if now > last + sleep * 60 * 60:
-            movies = xstream.getMovies()
-            if not movies: Logger(3, 'Error!' if lang == 1 else 'Fehler!', 'vod', 'get')
-            else: com.set_setting('vod', str(now), 'Loop')
+            xstream.getMovies()
+            com.set_setting('vod', str(now), 'Loop')
         else:
-            Logger(1, 'sleeping for %s ...' % str(datetime.timedelta(seconds=last + sleep * 60 * 60 - now)) if lang == 1 else 'schlafe für %s ...' % str(datetime.timedelta(seconds=last + sleep * 60 * 60 - now)), 'vod', 'service')
+            Logger(1, 'sleeping for %s ...' % str(datetime.timedelta(seconds=last + sleep * 60 * 60 - now)) if lang == 1 else 'schlafe fÃ¼r %s ...' % str(datetime.timedelta(seconds=last + sleep * 60 * 60 - now)), 'vod', 'service')
             time.sleep(int(last + sleep * 60 * 60 - now))
     pass
 

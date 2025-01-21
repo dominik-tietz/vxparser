@@ -77,6 +77,7 @@ def updateDB(loads):
                             if "quality" in entry: quality = entry["quality"]
                             else: quality = ''
                             cur2.execute('INSERT INTO info VALUES (NULL,"'+str(entry["site"])+'","'+str(cid)+'","'+str(tmdb)+'","'+str(media_type)+'","'+str(name)+'","'+str(originalName)+'","'+str(releaseDate)+'","'+str(genres)+'","'+str(description)+'","'+str(countries)+'","'+str(rating)+'","'+str(votes)+'","'+str(duration)+'","'+str(poster)+'","'+str(backdrop)+'","'+str(quality)+'")')
+                            con2.commit()
                             i += 1
                             cur2.execute('SELECT * FROM info WHERE name="' + str(name) + '" AND site="' + str(entry["site"]) + '" AND media_type="' + str(media_type) + '"')
                             row = cur2.fetchone()
@@ -91,6 +92,7 @@ def updateDB(loads):
                             if "thumb" in entry: thumb = entry["thumb"]
                             else: thumb = ''
                             cur2.execute('INSERT INTO streams VALUES (NULL,"'+str(sid)+'","'+str(entry["site"])+'","'+str(entry["key"])+'","'+str(p2)+'","'+str(media_type)+'",NULL,NULL,"'+str(name)+'","'+str(entry["url"])+'","'+str(thumb)+'")')
+                            con2.commit()
                             s += 1
                         else: m += 1
                     if entry["key"] == 'showSeasons' and "entries" in entry:
@@ -121,9 +123,9 @@ def updateDB(loads):
                                                 elif "thumb" in entry: thumb = entry["thumb"]
                                                 else: thumb = ''
                                                 cur2.execute('INSERT INTO streams VALUES (NULL,"'+str(sid)+'","'+str(entry["site"])+'","'+str(episode["key"])+'","'+str(p2)+'","'+str(media_type)+'","'+str(se)+'","'+str(ep)+'","'+str(name)+'","'+str(episode["url"])+'","'+str(thumb)+'")')
+                                                con2.commit()
                                                 s += 1
                                             else: m += 1
-                                    con2.commit()
                     if entry["key"] == 'showEpisodes' and "entries" in entry:
                         if not entry['entries'] == None:
                             x = 0
@@ -144,8 +146,10 @@ def updateDB(loads):
                                     elif "thumb" in entry: thumb = entry["thumb"]
                                     else: thumb = ''
                                     cur2.execute('INSERT INTO streams VALUES (NULL,"'+str(sid)+'","'+str(entry["site"])+'","'+str(episode["key"])+'","'+str(p2)+'","'+str(media_type)+'","'+str(se)+'","'+str(ep)+'","'+str(name)+'","'+str(episode["url"])+'","'+str(thumb)+'")')
+                                    con2.commit()
                                     s += 1
-                                else: m += 1                        
+                                else: m += 1
+        con2.commit()
     if site == None:
         if "site" in loads[0]: site = loads[0]["site"]
         elif "entries" in loads[0]:
@@ -167,9 +171,9 @@ def jobber(site, loads):
                     if entry["mediatype"] == 'movie' or entry["mediatype"] == 'tvshow':
                         if bool(int(com.get_setting('get_tmdb', 'Main'))) == True:
                             try:
-                                if "year" in entry: 
+                                if "year" in entry:
                                     meta = cTMDB().get_meta(str(entry["mediatype"]), str(entry["name"]), year=str(entry["year"]), advanced='false')
-                                else: 
+                                else:
                                     meta = cTMDB().get_meta(str(entry["mediatype"]), str(entry["name"]), advanced='false')
                             except Exception:
                                 meta = None
@@ -213,15 +217,10 @@ def getMovies():
         if bool(int(com.get_setting(site.SITE_IDENTIFIER+'_auto', 'Xstream'))) == True:
             load = site.load()
             if load:
-                job = Process(target=jobber, args=(site, load,))
-                jobs.append(job)
-                job.start()
-    if len(jobs) > 0:
-        for job in jobs:
-            job.join()
+                jobber(site, load)
     lang = int(com.get_setting('lang', 'Hidden'))
     genLists()
-    Logger(1, 'All jobs done ...' if lang == 1 else 'Alle Aufträge abgeschlossen ...', 'new', 'get')
+    Logger(1, 'All jobs done ...' if lang == 1 else 'Alle AuftrÃ¤ge abgeschlossen ...', 'new', 'get')
     return True
 
 
@@ -233,11 +232,14 @@ def genLists():
     hurl = 'http://'+str(ip())+':'+str(com.get_setting('server_port', 'Main'))
     cur2 = con2.cursor()
     i = 0
-    for row in cur2.execute('SELECT * FROM streams WHERE media_type="movie" ORDER BY id'):
-        if row['thumb'].startswith('http'): tf.write('\n#EXTINF:-1 group-title="%s" tvg-logo="%s" tvg-id="vod%s",%s' % (row['site'], row['thumb'], row['id'], row['name']))
-        else: tf.write('\n#EXTINF:-1 group-title="%s" tvg-id="vod%s",%s' % (row['site'], row['id'], row['name']))
-        tf.write('\n%s/stream/%s' % (hurl, row['id']))
-        i += 1
+    cur2.execute('SELECT * FROM streams WHERE media_type="movie" ORDER BY id')
+    rows = cur2.fetchall()
+    if rows:
+        for row in rows:
+            if row['thumb'].startswith('http'): tf.write('\n#EXTINF:-1 group-title="%s" tvg-logo="%s" tvg-id="vod%s",%s' % (row['site'], row['thumb'], row['id'], row['name']))
+            else: tf.write('\n#EXTINF:-1 group-title="%s" tvg-id="vod%s",%s' % (row['site'], row['id'], row['name']))
+            tf.write('\n%s/stream/%s' % (hurl, row['id']))
+            i += 1
     tf.close()
     lang = int(com.get_setting('lang', 'Hidden'))
     Logger(1, 'vod.m3u8 successful created! (%s Items)' % str(i) if lang == 1 else 'vod.m3u8 erfolgreich erstellt! (%s Items)' % str(i))
@@ -248,16 +250,19 @@ def genLists():
     tf.write("#EXTM3U")
     hurl = 'http://'+str(ip())+':'+str(com.get_setting('server_port', 'Main'))
     j = 0
-    for row in cur2.execute('SELECT * FROM streams WHERE media_type="tvshow" ORDER BY site, name, season, episode'):
-        if "Episoden" in row['episode']: ep = re.sub('Episoden ', '', row['episode'])
-        else: ep = row['episode']
-        if row['season'] == '' or row['season'] == 'NULL' or row['season'] == None: se = 0
-        else: se = row['season']
-        name = 'S'+se+'E'+ep
-        if row['thumb'].startswith('http'): tf.write('\n#EXTINF:-1 group-title="%s" tvg-logo="%s" tvg-id="show%s",%s' % (row['name'], row['thumb'], row['id'], name))
-        else: tf.write('\n#EXTINF:-1 group-title="%s" tvg-id="s%s",%s' % (row['name'], row['id'], name))
-        tf.write('\n%s/stream/%s' % (hurl, row['id']))
-        j += 1
+    cur2.execute('SELECT * FROM streams WHERE media_type="tvshow" ORDER BY site, name, season, episode')
+    rows = cur2.fetchall()
+    if rows:
+        for row in rows:
+            if "Episoden" in row['episode']: ep = re.sub('Episoden ', '', row['episode'])
+            else: ep = row['episode']
+            if row['season'] == '' or row['season'] == 'NULL' or row['season'] == None: se = 0
+            else: se = row['season']
+            name = 'S'+se+'E'+ep
+            if row['thumb'].startswith('http'): tf.write('\n#EXTINF:-1 group-title="%s" tvg-logo="%s" tvg-id="show%s",%s' % (row['name'], row['thumb'], row['id'], name))
+            else: tf.write('\n#EXTINF:-1 group-title="%s" tvg-id="s%s",%s' % (row['name'], row['id'], name))
+            tf.write('\n%s/stream/%s' % (hurl, row['id']))
+            j += 1
     tf.close()
     Logger(1, 'series.m3u8 successful created! (%s Items)' % str(j) if lang == 1 else 'series.m3u8 erfolgreich erstellt! (%s Items)' % str(j))
 
@@ -330,9 +335,9 @@ def search(search):
         if "mediatype" in select:
             if select["mediatype"] == 'movie' or select["mediatype"] == 'tvshow':
                 try:
-                    if "year" in select: 
+                    if "year" in select:
                         meta = cTMDB().get_meta(str(select["mediatype"]), str(select["name"]), year=str(select["year"]), advanced='false')
-                    else: 
+                    else:
                         meta = cTMDB().get_meta(str(select["mediatype"]), str(select["name"]), advanced='false')
                 except Exception:
                     meta = None
@@ -340,8 +345,9 @@ def search(search):
         e.append(select)
     if len(e) > 0:
         ee["entries"] = e
-        
+
         E.append(ee)
         db = updateDB(E)
         if db: return True
     return False
+

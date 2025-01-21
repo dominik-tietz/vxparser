@@ -16,7 +16,7 @@ def initMenu():
     lang = int(com.get_setting('lang', 'Hidden'))
     c.append(("German" if lang == 1 else "Deutsch","0"))
     c.append(("English" if lang == 1 else "Englisch","1"))
-    q = [ inquirer.List("item", message="Select Menu Language (Hit [ENTER] to select Item)" if lang == 1 else "Wähle Menü Sprache (Zum bestätigen [ENTER])", choices=c, carousel=True) ]
+    q = [ inquirer.List("item", message="Select Menu Language (Hit [ENTER] to select Item)" if lang == 1 else "WÃ¤hle MenÃ¼ Sprache (Zum bestÃ¤tigen [ENTER])", choices=c, carousel=True) ]
     quest = inquirer.prompt(q)
     return quest['item']
 
@@ -32,7 +32,7 @@ def initMenu2():
         c.append((info[lang], row['name']))
         if int(row['value']) == 1: d.append(row['name'])
         k.append(row['name'])
-    q = [ inquirer.Checkbox("check", message="Services first Config. (Hit [RIGHT] to select, [LEFT] to deselect & [ENTER] to save)" if lang == 1 else "Service erst Einstellung. (Zum makieren [RECHTS], zum demakieren [LINKS] & zum bestätigen [ENTER])", choices=c, default=d, carousel=True) ]
+    q = [ inquirer.Checkbox("check", message="Services first Config. (Hit [RIGHT] to select, [LEFT] to deselect & [ENTER] to save)" if lang == 1 else "Service erst Einstellung. (Zum makieren [RECHTS], zum demakieren [LINKS] & zum bestÃ¤tigen [ENTER])", choices=c, default=d, carousel=True) ]
     quest = inquirer.prompt(q)
     for key in k:
         if str(key) in quest["check"] and not str(key) in d:
@@ -46,12 +46,12 @@ def mainMenu():
     c = []
     c.append((" ","0"))
     c.append(("Settings =>" if lang == 1 else "Einstellungen =>","settings"))
-    c.append(("Vavoo Submenü (LiveTV) =>" if lang == 1 else "Vavoo Untermenü (LiveTV) =>","submenu_vavoo"))
-    c.append(("Xstream Submenü (VoD's & Series) =>" if lang == 1 else "Xstream Untermenü (VoD's & Series) =>", "submenu_xstream"))
+    c.append(("Vavoo SubmenÃ¼ (LiveTV) =>" if lang == 1 else "Vavoo UntermenÃ¼ (LiveTV) =>","submenu_vavoo"))
+    c.append(("Xstream SubmenÃ¼ (VoD's & Series) =>" if lang == 1 else "Xstream UntermenÃ¼ (VoD's & Series) =>", "submenu_xstream"))
     c.append(("Stop Services", "stop_service"))
     c.append(("Restart Services" if lang == 1 else "Starte Services Neu", "restart_service"))
     c.append(("- Clean Database (Settings)" if lang == 1 else "- Leere Datenbank (Einstellungen)","clean_db"))
-    c.append(("- Clear Data Path" if lang == 1 else "- Lösche Data Ordner","clear_data"))
+    c.append(("- Clear Data Path" if lang == 1 else "- LÃ¶sche Data Ordner","clear_data"))
     c.append(("<= Shutdown" if lang == 1 else "<= Herunterfahren","shutdown"))
     q = [ inquirer.List("item", message="Main Menu" if lang == 1 else "Haupt Menu", choices=c, carousel=True) ]
     quest = inquirer.prompt(q)
@@ -63,10 +63,10 @@ def vavooMenu():
     c = []
     c.append((" ","0"))
     c.append(("Settings =>" if lang == 1 else "Einstellungen =>","settings"))
-    c.append(("List|Group|Stream Submenü =>" if lang == 1 else "List|Group|Stream Untermenü =>","submenu_lgs"))
+    c.append(("List|Group|Stream SubmenÃ¼ =>" if lang == 1 else "List|Group|Stream UntermenÃ¼ =>","submenu_lgs"))
     c.append(("Generate M3U8 Lists" if lang == 1 else "Erstelle M3U8 Listen","gen_list"))
     c.append(("Get epg.xml.gz" if lang == 1 else "Hole epg.xml.gz", "get_epg"))
-    c.append(("- Clean Database (LiveTV)" if lang == 1 else "- Lösche Datenbank (LiveTV)","clean_db"))
+    c.append(("- Clean Database (LiveTV)" if lang == 1 else "- LÃ¶sche Datenbank (LiveTV)","clean_db"))
     c.append(("<= Main Menu" if lang == 1 else "<= Haupt Menu","back"))
     q = [ inquirer.List("item", message="Sky Live TV", choices=c, carousel=True) ]
     quest = inquirer.prompt(q)
@@ -81,7 +81,7 @@ def xstreamMenu():
     c.append(("Global Search" if lang == 1 else "Globale Suche","search"))
     c.append(("Get New VoD & Series" if lang == 1 else "Hole neue VoD & Serien Daten","get_new"))
     c.append(("ReCreate vod+series.m3u8" if lang == 1 else "Erstelle vod+series.m3u8 erneut","gen_lists"))
-    c.append(("- Clean Database (Streams)" if lang == 1 else "- Lösche Datenbank (Streams)","clean_db"))
+    c.append(("- Clean Database (Streams)" if lang == 1 else "- LÃ¶sche Datenbank (Streams)","clean_db"))
     c.append(("<= Main Menu","back"))
     q = [ inquirer.List("item", message="VoD & Series", choices=c, carousel=True) ]
     quest = inquirer.prompt(q)
@@ -91,10 +91,10 @@ def xstreamMenu():
 def lgsMenu():
     lang = int(com.get_setting('lang', 'Hidden'))
     c = []
-    c.append(("<= Back" if lang == 1 else "<= Zurück","back"))
-    c.append(("M3U List Menü =>" if lang == 1 else "M3U8 Listen Menü =>","lmenu"))
-    c.append(("Group Menü =>" if lang == 1 else "Gruppen Menü =>","gmenu"))
-    c.append(("Stream Menü =>" if lang == 1 else "Stream Menü =>","smenu"))
+    c.append(("<= Back" if lang == 1 else "<= ZurÃ¼ck","back"))
+    c.append(("M3U List MenÃ¼ =>" if lang == 1 else "M3U8 Listen MenÃ¼ =>","lmenu"))
+    c.append(("Group MenÃ¼ =>" if lang == 1 else "Gruppen MenÃ¼ =>","gmenu"))
+    c.append(("Stream MenÃ¼ =>" if lang == 1 else "Stream MenÃ¼ =>","smenu"))
     q = [ inquirer.List("item", message="List|Group|Stream Menu", choices=c, carousel=True) ]
     quest = inquirer.prompt(q)
     return quest['item']
@@ -103,10 +103,10 @@ def lgsMenu():
 def lMenu():
     lang = int(com.get_setting('lang', 'Hidden'))
     c = []
-    c.append(("<= Back" if lang == 1 else "<= Zurück","back"))
-    c.append(("Add New List" if lang == 1 else "Neue M3u8 Liste hinzufügen","add_list"))
+    c.append(("<= Back" if lang == 1 else "<= ZurÃ¼ck","back"))
+    c.append(("Add New List" if lang == 1 else "Neue M3u8 Liste hinzufÃ¼gen","add_list"))
     c.append(("Edit List" if lang == 1 else "Bearbeite M3u8 Liste","edit_list"))
-    c.append(("Delete List" if lang == 1 else "Lösche M3u8 Liste","del_list"))
+    c.append(("Delete List" if lang == 1 else "LÃ¶sche M3u8 Liste","del_list"))
     q = [ inquirer.List("item", message="M3U8 List Menu" if lang == 1 else "M3u8 Listen Menu", choices=c, carousel=True) ]
     quest = inquirer.prompt(q)
     return quest['item']
@@ -115,10 +115,10 @@ def lMenu():
 def gMenu():
     lang = int(com.get_setting('lang', 'Hidden'))
     c = []
-    c.append(("<= Back" if lang == 1 else "<= Zurück","back"))
-    c.append(("Add New Group" if lang == 1 else "Neue Gruppe hinzufügen","add_group"))
+    c.append(("<= Back" if lang == 1 else "<= ZurÃ¼ck","back"))
+    c.append(("Add New Group" if lang == 1 else "Neue Gruppe hinzufÃ¼gen","add_group"))
     c.append(("Edit Group" if lang == 1 else "Bearbeite eine Gruppe","edit_group"))
-    c.append(("Delete Group" if lang == 1 else "Lösche eine Gruppe","del_group"))
+    c.append(("Delete Group" if lang == 1 else "LÃ¶sche eine Gruppe","del_group"))
     q = [ inquirer.List("item", message="Group Menu" if lang == 1 else "Gruppen Menu", choices=c, carousel=True) ]
     quest = inquirer.prompt(q)
     return quest['item']
@@ -127,8 +127,8 @@ def gMenu():
 def sMenu():
     lang = int(com.get_setting('lang', 'Hidden'))
     c = []
-    c.append(("<= Back" if lang == 1 else "<= Zurück","back"))
-    c.append(("Add Streams to Group" if lang == 1 else "Füge Streams zu einer Gruppe hinzu","add_streams"))
+    c.append(("<= Back" if lang == 1 else "<= ZurÃ¼ck","back"))
+    c.append(("Add Streams to Group" if lang == 1 else "FÃ¼ge Streams zu einer Gruppe hinzu","add_streams"))
     c.append(("Edit Streams in List" if lang == 1 else "Bearbeite Streams in M3u8 Liste","edit_streams"))
     q = [ inquirer.List("item", message="Stream Menu", choices=c, carousel=True) ]
     quest = inquirer.prompt(q)
@@ -169,7 +169,7 @@ def mainSettings():
     rows = []
     x = 0
     l = 0
-    c.append(("<= Back" if lang == 1 else "<= Zurück","-1"))
+    c.append(("<= Back" if lang == 1 else "<= ZurÃ¼ck","-1"))
     for row in cur.execute('SELECT * FROM settings WHERE grp="' + str('Main') + '"'):
         if row['type'] == 'text':
             val = row['value']
@@ -212,7 +212,7 @@ def mainSettings():
             values = json.loads(row['values'])
             for v in values:
                 c2.append(('['+values[v]+']', v))
-            q2 = [ inquirer.List("item", message="select: "+row['name'] if lang == 1 else "gewählt: "+row['name'], choices=c2, carousel=True) ]
+            q2 = [ inquirer.List("item", message="select: "+row['name'] if lang == 1 else "gewÃ¤hlt: "+row['name'], choices=c2, carousel=True) ]
             quest2 = inquirer.prompt(q2)
             com.set_setting(row["name"], quest2["item"], 'Main')
     else: return 'back'
@@ -226,7 +226,7 @@ def vavooSettings():
     rows = []
     x = 0
     l = 0
-    c.append(("<= Back" if lang == 1 else "<= Zurück","-1"))
+    c.append(("<= Back" if lang == 1 else "<= ZurÃ¼ck","-1"))
     for row in cur.execute('SELECT * FROM settings WHERE grp="' + str('Vavoo') + '"'):
         if row['type'] == 'text':
             val = row['value']
@@ -269,7 +269,7 @@ def vavooSettings():
             values = json.loads(row['values'])
             for v in values:
                 c2.append(('['+values[v]+']', v))
-            q2 = [ inquirer.List("item", message="select: "+row['name'] if lang == 1 else "wähle: "+row["name"], choices=c2, carousel=True) ]
+            q2 = [ inquirer.List("item", message="select: "+row['name'] if lang == 1 else "wÃ¤hle: "+row["name"], choices=c2, carousel=True) ]
             quest2 = inquirer.prompt(q2)
             com.set_setting(row["name"], quest2["item"], 'Vavoo')
     else: return 'back'
@@ -302,24 +302,24 @@ def premenu():
 
 def menu():
     lang = int(com.get_setting('lang', 'Hidden'))
-    menü = 'main'
+    menÃ¼ = 'main'
     while True:
-        if menü == 'msettings':
+        if menÃ¼ == 'msettings':
             quest = mainSettings()
             if not quest: Logger(3, 'Error!' if lang == 1 else 'Fehler!', 'main', 'settings')
-            elif quest == 'back': menü = 'main'
-        if menü == 'main':
+            elif quest == 'back': menÃ¼ = 'main'
+        if menÃ¼ == 'main':
             time.sleep(0.2)
             item = mainMenu()
-            if item == 'submenu_vavoo': menü = 'vavoo'
-            if item == 'submenu_xstream': menü = 'xstream'
+            if item == 'submenu_vavoo': menÃ¼ = 'vavoo'
+            if item == 'submenu_xstream': menÃ¼ = 'xstream'
             if item == 'settings':
-                menü = 'msettings'
+                menÃ¼ = 'msettings'
                 quest = mainSettings()
                 if not quest: Logger(3, 'Error!' if lang == 1 else 'Fehler!', 'main', 'settings')
-                elif quest == 'back': menü = 'main'
+                elif quest == 'back': menÃ¼ = 'main'
             if item == 'shutdown':
-                Logger(0, "Quitting Now..." if lang == 1 else "Schließe sofort...")
+                Logger(0, "Quitting Now..." if lang == 1 else "SchlieÃŸe sofort...")
                 services.handler('kill')
                 con.close()
                 break
@@ -330,8 +330,8 @@ def menu():
                 c.append((" ","0"))
                 c.append(("Yes" if lang == 1 else "Ja","yes"))
                 c.append(("No" if lang == 1 else "Nein", "no"))
-                c.append(("<= Back" if lang == 1 else "<= Zurück","back"))
-                q = [ inquirer.List("item", message="Really Clean settings Database?" if lang == 1 else "Einstellungen wirklich aus Datenbank löschen?", choices=c, carousel=True) ]
+                c.append(("<= Back" if lang == 1 else "<= ZurÃ¼ck","back"))
+                q = [ inquirer.List("item", message="Really Clean settings Database?" if lang == 1 else "Einstellungen wirklich aus Datenbank lÃ¶schen?", choices=c, carousel=True) ]
                 quest = inquirer.prompt(q)
                 if quest['item'] == 'yes':
                     clean = com.clean_tables('settings')
@@ -342,38 +342,38 @@ def menu():
                 c.append((" ","0"))
                 c.append(("Yes" if lang == 1 else "Ja","yes"))
                 c.append(("No" if lang == 1 else "Nein", "no"))
-                c.append(("<= Back" if lang == 1 else "<= Zurück","back"))
-                q = [ inquirer.List("item", message="Really Clear data Path?" if lang == 1 else "Daten Ordner wirklich löschen?", choices=c, carousel=True) ]
+                c.append(("<= Back" if lang == 1 else "<= ZurÃ¼ck","back"))
+                q = [ inquirer.List("item", message="Really Clear data Path?" if lang == 1 else "Daten Ordner wirklich lÃ¶schen?", choices=c, carousel=True) ]
                 quest = inquirer.prompt(q)
                 if quest['item'] == 'yes':
                     services.handler('kill')
                     clear = com.clear_cache()
                     break
-        if menü == 'xstream':
+        if menÃ¼ == 'xstream':
             item = xstreamMenu()
             if item == 'settings':
                 quest = xstreamSettings()
                 if not quest: Logger(3, 'Error!' if lang == 1 else 'Fehler!', 'vod', 'settings')
                 else: Logger(1, 'Successful ...' if lang == 1 else 'Erfolgreich ...', 'vod', 'settings')
-            if item == 'back': menü = 'main'
+            if item == 'back': menÃ¼ = 'main'
             if item == 'clean_db':
                 c = []
                 c.append((" ","0"))
                 c.append(("Yes" if lang == 1 else "Ja","yes"))
                 c.append(("No" if lang == 1 else "Nein", "no"))
-                c.append(("<= Back" if lang == 1 else "<= Zurück","back"))
-                q = [ inquirer.List("item", message="Really clean Stream Database?" if lang == 1 else "Streams wirklich aus Datenbank löschen?", choices=c, carousel=True) ]
+                c.append(("<= Back" if lang == 1 else "<= ZurÃ¼ck","back"))
+                q = [ inquirer.List("item", message="Really clean Stream Database?" if lang == 1 else "Streams wirklich aus Datenbank lÃ¶schen?", choices=c, carousel=True) ]
                 quest = inquirer.prompt(q)
                 if quest['item'] == 'yes':
                     clean = com.clean_tables('streams')
                     if not clean: Logger(3, 'Error!' if lang == 1 else 'Fehler!', 'db', 'clean')
                     else: Logger(0, 'Successful ...' if lang == 1 else 'Erfolgreich ...', 'db', 'clean')
-            if item == 'get_new':
-                st = int(time.time())
-                movies = xstream.getMovies()
-                if not movies: Logger(3, 'Error!' if lang == 1 else 'Fehler!', 'vod', 'get')
-                else: Logger(0, 'Successful ...' if lang == 1 else 'Erfolgreich ...', 'vod', 'get')
-                Logger(1, 'Completed in %s' % timedelta(seconds=int(time.time())-st) if lang == 1 else 'Fertig in %s' % timedelta(seconds=int(time.time())-st), 'vod', 'get')
+            if item == 'get_new': services.handler('vod_start')
+                #st = int(time.time())
+                #movies = xstream.getMovies()
+                #if not movies: Logger(3, 'Error!' if lang == 1 else 'Fehler!', 'vod', 'get')
+                #else: Logger(0, 'Successful ...' if lang == 1 else 'Erfolgreich ...', 'vod', 'get')
+                #Logger(1, 'Completed in %s' % timedelta(seconds=int(time.time())-st) if lang == 1 else 'Fertig in %s' % timedelta(seconds=int(time.time())-st), 'vod', 'get')
             if item == 'gen_lists':
                 lists = xstream.genLists()
                 if not lists: Logger(3, 'Error!' if lang == 1 else 'Fehler!', 'vod', 'gen')
@@ -381,42 +381,42 @@ def menu():
             if item == 'search':
                 quest = inquirer.prompt([inquirer.Text("item", message="Search for?" if lang == 1 else "Suche nach?")])
                 ser = xstream.search(quest['item'])
-        if menü == 'vavoo':
+        if menÃ¼ == 'vavoo':
             item = vavooMenu()
-            if item == 'back': menü = 'main'
-            if item == 'submenu_lgs': menü = 'lgs'
+            if item == 'back': menÃ¼ = 'main'
+            if item == 'submenu_lgs': menÃ¼ = 'lgs'
             if item == 'gen_list': services.handler('m3u8_start')
             if item == 'get_epg': services.handler('epg_start')
             if item == 'settings':
-                menü = 'vsettings'
+                menÃ¼ = 'vsettings'
                 quest = vavooSettings()
                 if not quest: Logger(3, 'Error!' if lang == 1 else 'Fehler!', 'vavoo', 'settings')
-                elif quest == 'back': menü = 'vavoo'
+                elif quest == 'back': menÃ¼ = 'vavoo'
             if item == 'clean_tv_db':
                 c = []
                 c.append((" ","0"))
                 c.append(("Yes" if lang == 1 else "Ja","yes"))
                 c.append(("No" if lang == 1 else "Nein", "no"))
-                c.append(("<= Back" if lang == 1 else "<= Zurück","back"))
-                q = [ inquirer.List("item", message="Really clean LiveTV Database?" if lang == 1 else "Wirklich LiveTV daten aus Datenbank löschen?", choices=c, carousel=True) ]
+                c.append(("<= Back" if lang == 1 else "<= ZurÃ¼ck","back"))
+                q = [ inquirer.List("item", message="Really clean LiveTV Database?" if lang == 1 else "Wirklich LiveTV daten aus Datenbank lÃ¶schen?", choices=c, carousel=True) ]
                 quest = inquirer.prompt(q)
                 if quest['item'] == 'yes':
                     clean = com.clean_tables('live')
                     if not clean: Logger(3, 'Error!' if lang == 1 else 'Fehler!', 'db', 'clean')
                     else: Logger(0, 'Successful ...' if lang == 1 else 'Erfolgreich ...', 'db', 'clean')
-        if menü == 'vsettings':
+        if menÃ¼ == 'vsettings':
             quest = vavooSettings()
             if not quest: Logger(3, 'Error!' if lang == 1 else 'Fehler!', 'vavoo', 'settings')
-            elif quest == 'back': menü = 'vavoo'
-        if menü == 'lgs':
+            elif quest == 'back': menÃ¼ = 'vavoo'
+        if menÃ¼ == 'lgs':
             item = lgsMenu()
-            if item == 'back': menü = 'vavoo'
-            if item == 'lmenu': menü = 'lmenu'
-            if item == 'gmenu': menü = 'gmenu'
-            if item == 'smenu': menü = 'smenu'
-        if menü == 'lmenu':
+            if item == 'back': menÃ¼ = 'vavoo'
+            if item == 'lmenu': menÃ¼ = 'lmenu'
+            if item == 'gmenu': menÃ¼ = 'gmenu'
+            if item == 'smenu': menÃ¼ = 'smenu'
+        if menÃ¼ == 'lmenu':
             item = lMenu()
-            if item == 'back': menü = 'lgs'
+            if item == 'back': menÃ¼ = 'lgs'
             if item == 'add_list':
                 q = [ inquirer.Text("input", message="List Name", default='') ]
                 quest = inquirer.prompt(q)
@@ -450,27 +450,27 @@ def menu():
             if item == 'del_list':
                 cur = con.cursor()
                 c = []
-                c.append(("<= Back" if lang == 1 else "<= Zurück","-1"))
+                c.append(("<= Back" if lang == 1 else "<= ZurÃ¼ck","-1"))
                 cur.execute('SELECT * FROM lists WHERE custom="1" ORDER BY id ASC')
                 rows = cur.fetchall()
                 for d in rows:
                     c.append((str(d['name']),str(d['id'])))
-                q = [ inquirer.List("item", message="Delete Playlist" if lang == 1 else "Lösche Playlist", choices=c, carousel=True) ]
+                q = [ inquirer.List("item", message="Delete Playlist" if lang == 1 else "LÃ¶sche Playlist", choices=c, carousel=True) ]
                 quest = inquirer.prompt(q)
                 if not quest['item'] == '-1':
                     cur.execute('DELETE FROM lists WHERE id="'+ quest["item"] +'"')
                     con.commit()
                     Logger(0, 'Successful ...' if lang == 1 else 'Erfolgreich ...', 'delete', 'list')
-        if menü == 'gmenu':
+        if menÃ¼ == 'gmenu':
             item = gMenu()
-            if item == 'back': menü = 'lgs'
+            if item == 'back': menÃ¼ = 'lgs'
             if item == 'add_group':
                 c = []
-                c.append(("<= Back" if lang == 1 else "<= Zurück","-1"))
+                c.append(("<= Back" if lang == 1 else "<= ZurÃ¼ck","-1"))
                 cur = con.cursor()
                 for d in cur.execute('SELECT * FROM lists'):
                     c.append((str(d['name']),str(d['id'])))
-                q = [ inquirer.List("item", message="Select Playlist" if lang == 1 else "Wähle Playlist aus", choices=c, carousel=True) ]
+                q = [ inquirer.List("item", message="Select Playlist" if lang == 1 else "WÃ¤hle Playlist aus", choices=c, carousel=True) ]
                 quest = inquirer.prompt(q)
                 if not quest['item'] == '-1':
                     lid = quest['item']
@@ -484,7 +484,7 @@ def menu():
             if item == 'edit_group':
                 cur = con.cursor()
                 c = []
-                c.append(("<= Back" if lang == 1 else "<= Zurück","-1"))
+                c.append(("<= Back" if lang == 1 else "<= ZurÃ¼ck","-1"))
                 tlid = None
                 cur.execute('SELECT * FROM categories WHERE custom="1" ORDER BY lid ASC')
                 rows = cur.fetchall()
@@ -495,7 +495,7 @@ def menu():
                         c.append((data['name'] + ":",""))
                         tlid = d['lid']
                     c.append((str(d['category_name']),str(d['category_id'])))
-                q = [ inquirer.List("item", message="Select Group" if lang == 1 else "Wähle Gruppe", choices=c, carousel=True) ]
+                q = [ inquirer.List("item", message="Select Group" if lang == 1 else "WÃ¤hle Gruppe", choices=c, carousel=True) ]
                 quest = inquirer.prompt(q)
                 if not quest["item"] == '' and not quest["item"] == '-1':
                     cur.execute('SELECT * FROM categories WHERE category_id="' + quest["item"] + '"')
@@ -511,7 +511,7 @@ def menu():
             if item == 'del_group':
                 cur = con.cursor()
                 c = []
-                c.append(("<= Back" if lang == 1 else "<= Zurück","-1"))
+                c.append(("<= Back" if lang == 1 else "<= ZurÃ¼ck","-1"))
                 tlid = None
                 cur.execute('SELECT * FROM categories WHERE custom="1" ORDER BY lid ASC')
                 rows = cur.fetchall()
@@ -522,19 +522,20 @@ def menu():
                         c.append((data['name'] + ":",""))
                         tlid = d['lid']
                     c.append((str(d['category_name']),str(d['category_id'])))
-                q = [ inquirer.List("item", message="Select Group" if lang == 1 else "Wähle Gruppe", choices=c, carousel=True) ]
+                q = [ inquirer.List("item", message="Select Group" if lang == 1 else "WÃ¤hle Gruppe", choices=c, carousel=True) ]
                 quest = inquirer.prompt(q)
                 if not quest["item"] == '' and not quest["item"] == '-1':
                     cur.execute('DELETE FROM categories WHERE category_id="'+ quest["item"] +'"')
                     con.commit()
                     Logger(0, 'Successful ...' if lang == 1 else 'Erfolgreich ...', 'delete', 'group')
-        if menü == 'smenu':
+        if menÃ¼ == 'smenu':
             item = sMenu()
-            if item == 'back': menü = 'lgs'
+            lang = int(com.get_setting('lang', 'Hidden'))
+            if item == 'back': menÃ¼ = 'lgs'
             if item == 'add_streams':
                 cur = con.cursor()
                 c = []
-                c.append(("<= Back","-1"))
+                c.append(("<= Back" if lang == 1 else "<= ZurÃ¼ck","-1"))
                 tlid = None
                 cur.execute('SELECT * FROM categories WHERE custom="1" ORDER BY lid ASC')
                 rows = cur.fetchall()
@@ -545,7 +546,7 @@ def menu():
                         c.append((data['name'] + ":",""))
                         tlid = d['lid']
                     c.append((str(d['category_name']),str(d['category_id'])))
-                q = [ inquirer.List("item", message="Select Group" if lang == 1 else "Wähle Gruppe", choices=c, carousel=True) ]
+                q = [ inquirer.List("item", message="Select Group" if lang == 1 else "WÃ¤hle Gruppe", choices=c, carousel=True) ]
                 quest = inquirer.prompt(q)
                 if not quest["item"] == '' and not quest["item"] == '-1':
                     c = []
@@ -554,7 +555,7 @@ def menu():
                     rows = cur.fetchall()
                     for d in rows:
                         c.append((str(d['name']),str(d['name'])))
-                    q = [ inquirer.List("item", message="Select Stream Country" if lang == 1 else "Wähle Streams vom Country", choices=c, carousel=True) ]
+                    q = [ inquirer.List("item", message="Select Stream Country" if lang == 1 else "WÃ¤hle Streams vom Country", choices=c, carousel=True) ]
                     quest2 = inquirer.prompt(q)
                     if not quest2["item"] == '' and not quest2["item"] == '-1':
                         c = []
@@ -568,7 +569,7 @@ def menu():
                             c.append((str(ch['name']), str(ch['id'])))
                             if int(quest['item']) in cids: d.append(str(ch['id']))
                             e.append(str(ch['id']))
-                        q = [ inquirer.Checkbox("check", message="Add Streams" if lang == 1 else "Füge Streams hinzu", choices=c, default=d, carousel=True) ]
+                        q = [ inquirer.Checkbox("check", message="Add Streams" if lang == 1 else "FÃ¼ge Streams hinzu", choices=c, default=d, carousel=True) ]
                         quest3 = inquirer.prompt(q)
                         for i in e:
                             if i in quest3["check"] and not i in d:
