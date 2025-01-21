@@ -8,8 +8,6 @@ from urllib.request import HTTPHandler, HTTPSHandler, HTTPCookieProcessor, build
 from http.cookiejar import LWPCookieJar, Cookie
 from http.client import HTTPException
 
-#from utils.common import Logger as Logger
-
 
 class cRequestHandler:
     def __init__(self, sUrl, caching=True, ignoreErrors=False, compression=True, jspost=False, ssl_verify=False):
@@ -92,7 +90,7 @@ class cRequestHandler:
         try:
             cookieJar.load(ignore_discard=self.__bIgnoreDiscard, ignore_expires=self.__bIgnoreExpired)
         except Exception as e:
-            print( e)
+            pass
         if self.jspost:
             sParameters = json.dumps(self._aParameters).encode()
         else:
@@ -138,27 +136,27 @@ class cRequestHandler:
                     opener.addheaders = [('User-agent', self._USER_AGENT), ('Referer', self._sUrl)]
                     oResponse = opener.open(self._sUrl, sParameters if len(sParameters) > 0 else None)
                     if not oResponse:
-                        print( ' -> [requestHandler]: Failed DDOS-GUARD active: ' + self._sUrl)
+                        #print( ' -> [requestHandler]: Failed DDOS-GUARD active: ' + self._sUrl)
                         return 'DDOS-GUARD ACTIVE'
                 elif 'cloudflare' in str(e.headers):
-                    print( ' -> [requestHandler]: Failed Cloudflare active: ' + self._sUrl)
+                    #print( ' -> [requestHandler]: Failed Cloudflare active: ' + self._sUrl)
                     return 'CF-DDOS-GUARD ACTIVE'
                 else:
-                    if not self.ignoreErrors:
+                    #if not self.ignoreErrors:
                         #xbmcgui.Dialog().ok('xStream', cConfig().getLocalizedString(30259) + ' {0} {1}'.format(self._sUrl, str(e)))
-                        print( ' -> [requestHandler]: HTTPError ' + str(e) + ' Url: ' + self._sUrl)
+                        #print( ' -> [requestHandler]: HTTPError ' + str(e) + ' Url: ' + self._sUrl)
                     return 'SEITE NICHT ERREICHBAR'
             else:
                 oResponse = e
         except URLError as e:
             #if not self.ignoreErrors:
                 #xbmcgui.Dialog().ok('xStream', str(e.reason))
-            print( ' -> [requestHandler]: URLError ' + str(e.reason) + ' Url: ' + self._sUrl)
+            #print( ' -> [requestHandler]: URLError ' + str(e.reason) + ' Url: ' + self._sUrl)
             return 'URL FEHLER'
         except HTTPException as e:
             #if not self.ignoreErrors:
                 #xbmcgui.Dialog().ok('xStream', str(e))
-            print( ' -> [requestHandler]: HTTPException ' + str(e) + ' Url: ' + self._sUrl)
+            #print( ' -> [requestHandler]: HTTPException ' + str(e) + ' Url: ' + self._sUrl)
             return 'TIMEOUT'
 
         self._sResponseHeader = oResponse.info()
@@ -171,12 +169,13 @@ class cRequestHandler:
             bf = cBF().resolve(self._sUrl, sContent, cookieJar, self._USER_AGENT, sParameters)
             if bf:
                 sContent = bf
-            else:
-                print( ' -> [requestHandler]: Failed Blazingfast active: ' + self._sUrl)
+            #else:
+                #print( ' -> [requestHandler]: Failed Blazingfast active: ' + self._sUrl)
         try:
             cookieJar.save(ignore_discard=self.__bIgnoreDiscard, ignore_expires=self.__bIgnoreExpired)
         except Exception as e:
-            print( ' -> [requestHandler]: Failed save cookie: %s' % e)
+            pass
+            #print( ' -> [requestHandler]: Failed save cookie: %s' % e)
         if self.__bRemoveNewLines:
             sContent = sContent.replace('\n', '').replace('\r\t', '')
         if self.__bRemoveBreakLines:
@@ -203,7 +202,8 @@ class cRequestHandler:
         try:
             cookieJar.load(self._cookiePath, self.__bIgnoreDiscard, self.__bIgnoreExpired)
         except Exception as e:
-            print( e)
+            pass
+            #print( e)
         for entry in cookieJar:
             if entry.name == sCookieName:
                 if sDomain == '':
@@ -219,7 +219,7 @@ class cRequestHandler:
             cookieJar.set_cookie(oCookie)
             cookieJar.save(self._cookiePath, self.__bIgnoreDiscard, self.__bIgnoreExpired)
         except Exception as e:
-            print( e)
+            pass
 
     def ignoreDiscard(self, bIgnoreDiscard):
         self.__bIgnoreDiscard = bIgnoreDiscard
@@ -243,9 +243,8 @@ class cRequestHandler:
                 with open(cacheFile, 'rb') as f:
                         content = f.read().decode('utf8')
             except Exception:
-                print( ' -> [requestHandler]: Could not read Cache')
+                pass
             if content:
-                #Logger(1, ' -> [requestHandler]: read html for %s from cache' % url)
                 return content
         return ''
 
@@ -255,7 +254,7 @@ class cRequestHandler:
             with open(os.path.join(self._cachePath, h), 'wb') as f:
                 f.write(content.encode('utf8'))
         except Exception:
-            print( ' -> [requestHandler]: Could not write Cache')
+            pass
 
     @staticmethod
     def getFileAge(cacheFile):
@@ -308,7 +307,8 @@ class cBF:
                 plain_text += decrypter.feed()
                 return hexlify(plain_text).decode()
         except Exception as e:
-            print( e)
+            pass
+            #print( e)
 
 
 class RedirectFilter(HTTPRedirectHandler):

@@ -14,7 +14,7 @@ SITE_IDENTIFIER = 'megakino'
 SITE_NAME = 'Megakino'
 SITE_ICON = 'megakino.png'
 
-URL_MAIN = 'https://megakino.rip/'
+URL_MAIN = 'https://megakino.team/'
 URL_KINO = URL_MAIN + 'kinofilme/'
 URL_MOVIES = URL_MAIN + 'films/'
 URL_SERIES = URL_MAIN + 'serials/'

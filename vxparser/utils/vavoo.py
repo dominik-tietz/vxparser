@@ -13,6 +13,7 @@ from utils.common import Logger as Logger
 import utils.common as com
 import resolveurl as resolver
 
+
 unicode = str
 urllib3.disable_warnings()
 session = requests.session()
@@ -186,8 +187,9 @@ def getLinks(action, params):
                     #return
 
 def sky_dbfill():
+    lang = int(com.get_setting('lang', 'Hidden'))
     hurl = 'http://'+str(com.get_setting('server_ip', 'Main'))+':'+str(com.get_setting('server_port', 'Main'))
-    Logger(1, 'Filling Database with data ...', 'db', 'process')
+    Logger(1, 'Filling Database with data ...' if lang == 1 else 'Fülle Datenbank mit Daten ...', 'db', 'process')
     matches1 = ["13TH", "AXN", "A&E", "INVESTIGATION", "TNT", "DISNEY", "SKY", "WARNER"]
     matches2 = ["BUNDESLIGA", "SPORT", "TELEKOM"]
     matches3 = ["CINE", "EAGLE", "KINO", "FILMAX", "POPCORN"]
@@ -314,11 +316,15 @@ def sky_dbfill():
     con0.commit()
     con1.commit()
 
-    Logger(0, 'Done!', 'db', 'process')
+    gen_m3u8()
+
+    lang = int(com.get_setting('lang', 'Hidden'))
+    Logger(0, 'Done!' if lang == 1 else 'Fertig!', 'db', 'process')
 
 def gen_m3u8():
+    lang = int(com.get_setting('lang', 'Hidden'))
     hurl = 'http://'+str(com.get_setting('server_ip', 'Main'))+':'+str(com.get_setting('server_port', 'Main'))
-    Logger(1, 'Starting with URL: %s ...' % str(hurl), 'm3u8', 'process')
+    Logger(1, 'Starting with URL: %s ...' % str(hurl) if lang == 1 else 'Starte mit URL: %s ...' % str(hurl), 'm3u8', 'process')
     epg_logos = com.get_setting('epg_logos')
     epg_rytec = com.get_setting('epg_rytec')
     m3u8_name = com.get_setting('m3u8_name')
@@ -336,7 +342,7 @@ def gen_m3u8():
             os.remove("%s/%s.m3u8" % (_path, re.sub(' ', '_', lname)))
         if os.path.exists("%s/%s_hls.m3u8" % (_path, re.sub(' ', '_', lname))):
             os.remove("%s/%s_hls.m3u8" % (_path, re.sub(' ', '_', lname)))
-        Logger(1, 'creating %s.m3u8 & %s_hls.m3u8 ...' % (str(re.sub(' ', '_', lname)), str(re.sub(' ', '_', lname))))
+        Logger(1, 'creating %s.m3u8 & %s_hls.m3u8 ...' % (str(re.sub(' ', '_', lname)), str(re.sub(' ', '_', lname))) if lang == 1 else 'erstelle %s.m3u8 & %s_hls.m3u8 ...' % (str(re.sub(' ', '_', lname)), str(re.sub(' ', '_', lname))))
         tf = open("%s/%s.m3u8" % (_path, re.sub(' ', '_', lname)), "w")
         tf.write("#EXTM3U")
         tf.close()
@@ -402,5 +408,7 @@ def gen_m3u8():
                     tf2.write('\n%s/hls/%s' % (hurl, row['id']))
         tf1.close()
         tf2.close()
-    Logger(0, 'Done!', 'm3u8', 'process')
+    lang = int(com.get_setting('lang', 'Hidden'))
+    Logger(0, 'Done!' if lang == 1 else 'Fertig!', 'm3u8', 'process')
+    return True
 

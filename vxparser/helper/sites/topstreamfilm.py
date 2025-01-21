@@ -43,7 +43,8 @@ def showMovieMenu(): # Menu structure of movie menu
 
 
 def showValue():
-    params = ParameterHandler()
+    folder = []
+    oGuiElement = {}
     oRequest = cRequestHandler(URL_MAIN)
     oRequest.cacheTime = 60 * 60 * 48 # 48 Stunden
     sHtmlContent = oRequest.request()
@@ -54,32 +55,28 @@ def showValue():
         isMatch, sHtmlContainer = cParser.parseSingleResult(sHtmlContent, pattern)
     if isMatch:
         isMatch, aResult = cParser.parse(sHtmlContainer, 'href="([^"]+).*?>([^<]+)')
-    if not isMatch:
-        cGui().showInfo()
-        return
+    if not isMatch: return
 
     for sUrl, sName in aResult:
         if sUrl.startswith('/'):
             sUrl = URL_MAIN + sUrl
-        params.setParam('sUrl', sUrl)
-        cGui().addFolder(cGuiElement(sName, SITE_IDENTIFIER, 'showEntries'), params)
-    cGui().setEndOfDirectory()
+        oGuiElement["url"] = sUrl
+        oGuiElement["name"] = sName
+        oGuiElement["site"] = SITE_IDENTIFIER
+        folder.append(oGuiElement)
+    return folder
 
 
-def showEntries(entryUrl=False, sGui=False, sSearchText=False):
-    oGui = sGui if sGui else cGui()
-    params = ParameterHandler()
+def showEntries(entryUrl=False, sSearchText=False):
+    folder = []
     isTvshow = False
-    if not entryUrl: entryUrl = params.getValue('sUrl')
-    oRequest = cRequestHandler(entryUrl, ignoreErrors=(sGui is not False))
-    if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
-        oRequest.cacheTime = 60 * 60 * 6 # 6 Stunden
+    if not entryUrl: return
+    oRequest = cRequestHandler(entryUrl, ignoreErrors=True)
+    oRequest.cacheTime = 60 * 60 * 6 # 6 Stunden
     sHtmlContent = oRequest.request()
     pattern = 'TPostMv">.*?href="([^"]+).*?data-src="([^"]+).*?Title">([^<]+)(.*?)</li>'
     isMatch, aResult = cParser().parse(sHtmlContent, pattern)
-    if not isMatch:
-        if not sGui: oGui.showInfo()
-        return
+    if not isMatch: return
 
     total = len(aResult)
     for sUrl, sThumbnail, sName, sDummy in aResult:
@@ -98,101 +95,75 @@ def showEntries(entryUrl=False, sGui=False, sSearchText=False):
         isQuality, sQuality = cParser.parseSingleResult(sDummy, 'Qlty">([^<]+)</span>') # Qualit\xc3\x83\xc2\xa4t
         isDesc, sDesc = cParser.parseSingleResult(sDummy, 'Description"><p>([^<]+)') # Beschreibung
         sThumbnail = URL_MAIN + sThumbnail
-        oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showSeasons' if isTvshow else 'showHosters')
-        if isYear:
-            oGuiElement.setYear(sYear)
-        if isDuration:
-            oGuiElement.addItemValue('duration', sDuration)
-        if isQuality:
-            oGuiElement.setQuality(sQuality)
-        if isDesc:
-            oGuiElement.setDescription(sDesc)
-        oGuiElement.setMediaType('tvshow' if isTvshow else 'movie')
-        oGuiElement.setThumbnail(sThumbnail)
-        params.setParam('entryUrl', sUrl)
-        params.setParam('sThumbnail', sThumbnail)
-        params.setParam('sDesc', sDesc)
-        oGui.addFolder(oGuiElement, params, isTvshow, total)
-        if not sGui:
-            isMatchNextPage, sNextUrl = cParser().parseSingleResult(sHtmlContent, 'href="([^"]+)">Next')
-            if isMatchNextPage:
-                params.setParam('sUrl', sNextUrl)
-            oGui.addNextPage(SITE_IDENTIFIER, 'showEntries', params)
-        oGui.setView('tvshows' if isTvshow else 'movies')
-    oGui.setEndOfDirectory()
+        oGuiElement = {}
+        if isYear: oGuiElement["year"] = sYear
+        if isDuration: oGuiElement["duration"] = sDuration
+        if isQuality: oGuiElement["quality"] = sQuality
+        if isDesc: if isDesc: oGuiElement["desc"] = sDesc
+        oGuiElement["mediatype"] = 'tvshow' if isTvshow else 'movie'
+        oGuiElement["thumb"] = sThumbnail
+        oGuiElement["url"] = sUrl
+        oGuiElement["total"] = total
+        folder.append(oGuiElement)
+    return folder
 
 
-def showSeasons():
-    params = ParameterHandler()
+def showSeasons(entryUrl=False, sThumbnail=False):
+    folder = []
     # Parameter laden
-    sUrl = params.getValue('entryUrl')
-    sThumbnail = params.getValue('sThumbnail')
-    isDesc = params.getValue('sDesc')
+    if not entryUrl: return
+    sUrl = entryUrl
     oRequest = cRequestHandler(sUrl)
-    if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
-        oRequest.cacheTime = 60 * 60 * 6 # HTML Cache Zeit 6 Stunden
+    oRequest.cacheTime = 60 * 60 * 6 # HTML Cache Zeit 6 Stunden
     sHtmlContent = oRequest.request()
     pattern = '<div class="tt_season">(.*)</ul>'
     isMatch, sHtmlContainer = cParser.parseSingleResult(sHtmlContent, pattern)
     if isMatch:
         isMatch, aResult = cParser.parse(sHtmlContainer, '"#season-(\d+)')
-    if not isMatch:
-        cGui().showInfo()
-        return
+    if not isMatch: return
     total = len(aResult)
     for sSeason in aResult:
-        oGuiElement = cGuiElement('Staffel ' + str(sSeason), SITE_IDENTIFIER, 'showEpisodes')
-        oGuiElement.setSeason(sSeason)
-        oGuiElement.setMediaType('season')
-        oGuiElement.setThumbnail(sThumbnail)
-        if isDesc:
-            oGuiElement.setDescription(isDesc)
-        cGui().addFolder(oGuiElement, params, True, total)
-        cGui().setView('seasons')
-    cGui().setEndOfDirectory()
+        oGuiElement = {}
+        oGuiElement["season"] = sSeason
+        oGuiElement["mediatype"] = 'season'
+        if sThumbnail: oGuiElement["thumb"] = sThumbnail
+        oGuiElement["total"] = total
+        oGuiElement["site"] = SITE_IDENTIFIER
+        oGuiElement["key"] = 'showEpisodes'
+        folder.append(oGuiElement)
+    return folder
 
 
-def showEpisodes():
-    params = ParameterHandler()
+def showEpisodes(entryUrl=False, sThumbnail=False, sSeason=False, isDesc=False):
+    folder = []
     # Parameter laden
-    entryUrl = params.getValue('entryUrl')
-    sThumbnail = params.getValue('sThumbnail')
-    sSeason = params.getValue('season')
-    isDesc = params.getValue('sDesc')
     oRequest = cRequestHandler(entryUrl)
-    if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
-        oRequest.cacheTime = 60 * 60 * 4 # HTML Cache Zeit 4 Stunden
+    oRequest.cacheTime = 60 * 60 * 4 # HTML Cache Zeit 4 Stunden
     sHtmlContent = oRequest.request()
     pattern = 'id="season-%s(.*?)</ul>' % sSeason
     isMatch, sHtmlContainer = cParser.parseSingleResult(sHtmlContent, pattern)
     if isMatch:
         isMatch, aResult = cParser.parse(sHtmlContainer, 'data-title="Episode\s(\d+)')
-    if not isMatch:
-        cGui().showInfo()
-        return
+    if not isMatch: return
 
     total = len(aResult)
     for sEpisode in aResult:
-        oGuiElement = cGuiElement('Episode ' + str(sEpisode), SITE_IDENTIFIER, 'showEpisodeHosters')
-        oGuiElement.setThumbnail(sThumbnail)
-        if isDesc:
-            oGuiElement.setDescription(isDesc)
-        oGuiElement.setMediaType('episode')
-        params.setParam('entryUrl', entryUrl)
-        params.setParam('season', sSeason)
-        params.setParam('episode', sEpisode)
-        cGui().addFolder(oGuiElement, params, False, total)
-        cGui().setView('episodes')
-    cGui().setEndOfDirectory()
+        oGuiElement = {}
+        oGuiElement["key"] = 'showEpisodeHosters'
+        if sThumbnail: oGuiElement["thumb"] = sThumbnail
+        if sSeason: oGuiElement["season"] = sSeason
+        if isDesc: oGuiElement["desc"] = isDesc
+        oGuiElement["site"] = SITE_IDENTIFIER
+        oGuiElement["mediatype"] = 'episode'
+        oGuiElement["e"] = str(sEpisode)
+        oGuiElement["total"] = total
+        folder.append(oGuiElement)
+    return folder
 
 
-def showEpisodeHosters():
+def showEpisodeHosters(entryUrl=False, sSeason=False, sEpisode=False):
     hosters = []
-    params = ParameterHandler()
     # Parameter laden
-    sUrl = params.getValue('entryUrl')
-    sSeason = params.getValue('season')
-    sEpisode = params.getValue('episode')
     sHtmlContent = cRequestHandler(sUrl).request()
     pattern = 'id="season-%s">(.*?)</ul>' % sSeason
     isMatch, sHtmlContainer = cParser.parseSingleResult(sHtmlContent, pattern)
@@ -216,10 +187,10 @@ def showEpisodeHosters():
     return hosters
 
 
-def showHosters():
+def showHosters(entryUrl=False):
     hosters = []
-    params = ParameterHandler()
-    sUrl = params.getValue('entryUrl')
+    if not entryUrl: return
+    sUrl = entryUrl
     sHtmlContent = cRequestHandler(sUrl).request()
     pattern = '"embed.*?src="([^"]+)'
     isMatch, hUrl = cParser.parseSingleResult(sHtmlContent, pattern)
@@ -243,6 +214,14 @@ def showHosters():
 
 def getHosterUrl(sUrl=False):
     return [{'streamUrl': sUrl, 'resolved': False}]
+
+
+def search(sSearchText):
+    find = showEntries(URL_SEARCH % cParser.quotePlus(sSearchText), sSearchText)
+    if find:
+        if len(find) > 0:
+            return find
+    return None
 
 
 def showSearch():

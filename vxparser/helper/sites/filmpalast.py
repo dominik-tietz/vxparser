@@ -15,7 +15,7 @@ SITE_IDENTIFIER = 'filmpalast'
 SITE_NAME = 'FilmPalast'
 SITE_ICON = 'filmpalast.png'
 
-URL_MAIN = 'https://filmpalast.to'
+URL_MAIN = 'https://filmpalast-to.net'
 URL_MOVIES = URL_MAIN + '/movies/%s'
 URL_SERIES = URL_MAIN + '/serien/view'
 URL_ENGLISH = URL_MAIN + '/search/genre/Englisch'

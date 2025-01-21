@@ -25,9 +25,7 @@ unicode = str
 
 def updateDB(loads):
     cur0 = con0.cursor()
-    cur1 = con1.cursor()
     cur2 = con2.cursor()
-    cur3 = con3.cursor()
     i = s = n = m = 0
     site = None
 
@@ -125,6 +123,7 @@ def updateDB(loads):
                                                 cur2.execute('INSERT INTO streams VALUES (NULL,"'+str(sid)+'","'+str(entry["site"])+'","'+str(episode["key"])+'","'+str(p2)+'","'+str(media_type)+'","'+str(se)+'","'+str(ep)+'","'+str(name)+'","'+str(episode["url"])+'","'+str(thumb)+'")')
                                                 s += 1
                                             else: m += 1
+                                    con2.commit()
                     if entry["key"] == 'showEpisodes' and "entries" in entry:
                         if not entry['entries'] == None:
                             x = 0
@@ -147,17 +146,13 @@ def updateDB(loads):
                                     cur2.execute('INSERT INTO streams VALUES (NULL,"'+str(sid)+'","'+str(entry["site"])+'","'+str(episode["key"])+'","'+str(p2)+'","'+str(media_type)+'","'+str(se)+'","'+str(ep)+'","'+str(name)+'","'+str(episode["url"])+'","'+str(thumb)+'")')
                                     s += 1
                                 else: m += 1                        
-        con0.commit()
-        con1.commit()
-        con2.commit()
-        con3.commit()
     if site == None:
         if "site" in loads[0]: site = loads[0]["site"]
         elif "entries" in loads[0]:
             if "site" in loads[0]["entries"][0]: site = loads[0]["entries"][0]["site"]
     if site == None: site = 'Unknown'
-    Logger(1, 'Database update successful! (%s Site)' % site)
-    Logger(1, 'Infos: %s + Streams: %s (duplicated: Infos: %s + Streams: %s)' %(str(i), str(s), str(n), str(m)))
+    lang = int(com.get_setting('lang', 'Hidden'))
+    Logger(1, '%s update successful! Infos: %s + Streams: %s (duplicated: Infos: %s + Streams: %s)' %(site, str(i), str(s), str(n), str(m)) if lang == 1 else '%s aktuallisiert! Infos: %s + Streams: %s (duplicated: Infos: %s + Streams: %s)' %(site, str(i), str(s), str(n), str(m)))
     return True
 
 
@@ -224,7 +219,9 @@ def getMovies():
     if len(jobs) > 0:
         for job in jobs:
             job.join()
-    Logger(1, 'All jobs done ...', 'new', 'get')
+    lang = int(com.get_setting('lang', 'Hidden'))
+    genLists()
+    Logger(1, 'All jobs done ...' if lang == 1 else 'Alle Aufträge abgeschlossen ...', 'new', 'get')
     return True
 
 
@@ -242,7 +239,8 @@ def genLists():
         tf.write('\n%s/stream/%s' % (hurl, row['id']))
         i += 1
     tf.close()
-    Logger(1, 'vod.m3u8 successful created! (%s Items)' % str(i))
+    lang = int(com.get_setting('lang', 'Hidden'))
+    Logger(1, 'vod.m3u8 successful created! (%s Items)' % str(i) if lang == 1 else 'vod.m3u8 erfolgreich erstellt! (%s Items)' % str(i))
 
     if os.path.exists(os.path.join(listpath, 'series.m3u8')):
         os.remove(os.path.join(listpath, 'series.m3u8'))
@@ -261,7 +259,7 @@ def genLists():
         tf.write('\n%s/stream/%s' % (hurl, row['id']))
         j += 1
     tf.close()
-    Logger(1, 'series.m3u8 successful created! (%s Items)' % str(j))
+    Logger(1, 'series.m3u8 successful created! (%s Items)' % str(j) if lang == 1 else 'series.m3u8 erfolgreich erstellt! (%s Items)' % str(j))
 
     return True
 

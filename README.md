@@ -7,6 +7,11 @@
 <details>
 <summary>Klick HIER für Content.</summary>
 
+### Update to 1.4.3:
+- Diverse site plugins den letzten schliff gegeben, damit es weitesgehend reibungslos abläuft.
+- Einen Service layer für VoD's & Serien hinzugefügt. Somit ist es jetzt möglich alle Bereiche vom vxparser voll automatisch laufen zu lassen.
+- Fist start PreMenu ein gebaut. Jetzt ist es beim ersten start vom vxparser nun die Menüsprache auf Deutsch oder Englisch stellen kann.
+- Danach besteht die möglichkeit alle Services zu deaktivieren, damit für den User erstmal ggf. nötige Einstellungen vorab zu tätigen. (wie z.b. Server ip zu setzen ...)
 ### Update to 1.4.2-1:
 - Xstream Conten wieder hinzu gefügt + site plugins to aktueller version (4.1.2) updated ...
 ### Update to 1.4.1-1:
@@ -75,57 +80,58 @@ Falls das Menü mal nicht Sichtbar sein sollte (zwecks output etc.), bekommt man
 - Main Menü:
 
 ```shell
-   Settings =>                       #Submenü
-   Vavoo (LiveTV) =>                 #Submenü
-   Xstream (VoDs & Series) =>        #Submenü
-   Stop Services                     #Services einschaltbar via Settings
-   Restart Services                  #epg_service / m3u8_service:
-   - Clean Database (Settings)       #Löscht aktuelle einstellungen aus der Sqlite Datenbank
-   - Clear Cache Path                #Löscht den aktuellen cache Ordner
-   <= Shutdown                       #Exit Programm
+   Einstellungen =>                     #Submenü
+   Vavoo Untermenü (LiveTV) =>          #Submenü
+   Xstream Untermenü (VoDs & Series) => #Submenü
+   Stop Services                        #Services einschaltbar via Settings
+   Starte Services Neu                  #epg_service / m3u8_service:
+   - Leere Datenbank (Einstellungen)    #Löscht aktuelle einstellungen aus der Sqlite Datenbank
+   - Lösche Data Ordner                 #Löscht den aktuellen cache Ordner
+   <= Herunterfahren                    #Exit Programm
 ```
 
 - Main Settings:
 
 ```shell
-   <= Back                           #Zurück zum Hauptmenü
-   [0.0.0.0]                         #FastAPI Server IP (0.0.0.0 = listen on all ips)
-   [192.168.2.67]                    #Server IP for M3U8 List Creation
-   [8080]                            #Server Port
-   [On]                              #Set Automatic Network IP to Server IP Setting
-   [Off]                             #LiveTV m3u8 Listen erstellung Background Service (0=Aus,1=Ein)
-   [12]                              #Warte Zeit für m3u8 Listen erstellung in Stunden.
-   [Info]                            #Log Level (1=Info,3=Error)
-   [Off]                             #Search in TMDB after VoD & Series Infos
-   []                                #Username of S.to User Accound
-   []                                #Password for S.to User Accound
-   [ts]                              #Bevorzugter codec für Xtream Codes
+   <= Back                              #Zurück zum Hauptmenü
+   [0.0.0.0]                            #FastAPI Server IP (0.0.0.0 = listen on all ips)
+   [192.168.2.67]                       #Server IP for M3U8 List Creation
+   [8080]                               #Server Port
+   [On]                                 #Set Automatic Network IP to Server IP Setting
+   [Off]                                #LiveTV m3u8 Listen Erstellung Background Service.
+   [12]                                 #Warte Zeit zwischen m3u8 Listen Erstellung in Stunden.
+   [Off]                                #VoD & Series m3u8 Listen Erstellung Background Service.
+   [112]                                #Warte Zeit zwischen VoD & Series Listen Erstellung in Stunden.
+   [Info]                               #Log Level (1=Info,3=Error)
+   [Off]                                #Search in TMDB after VoD & Series Infos
+   []                                   #Username of S.to User Accound
+   []                                   #Password for S.to User Accound
+   [ts]                                 #Bevorzugter codec für Xtream Codes
 ```
 
 - Vavoo Menü:
 
 ```shell
-Settings =>                          #Submenü
-List|Group|Stream Submenu =>         #Submenü
-Generate M3U8 Lists                  #Erstellt Sky LiveTV m3u8 Lists (alle Länder...)
-Get epg.xml.gz                       #Erstellt epg.xml.gz für Germany LiveTV
-Delete Signatur Key                  #Löscht aktuellen Vavoo Signatur Key
-Clean Database (LiveTV)              #Löscht alle LiveTV Einträge aus der Datenbank.
-<= Main Menu                         #Zurück zum Hauptmenü
+Einstellungen =>                        #Submenü
+List|Group|Stream Untermenü =>          #Submenü
+Erstelle M3U8 Listen                    #Erstellt Sky LiveTV m3u8 Lists (alle Länder...)
+Hole epg.xml.gz                         #Erstellt epg.xml.gz für Germany LiveTV
+- Lösche Datenbank (LiveTV)             #Löscht alle LiveTV Einträge aus der Datenbank.
+<= Haupt Menu                           #Zurück zum Hauptmenü
 ```
 
 - Vavoo Settings:
 
 ```shell
    <= Back
-   [On]                              #Generate HLS m3u8
-   [On]                              #Vavoo Channel Namen ersetzen
-   [Magenta]                         #Provider to get EPG Infos
-   [Off]                             #Start epg.xml.gz Creation for LiveTV als Service
-   [5]                               #Sleep Time for epg.xml.gz Creation Service in Tagen
-   [7]                               #Anzahl an Tagen für epg.xml.gz Erstellung
-   [On]                              #Provider IDs mit Rytec ersetzen
-   [Provider]                        #Logos bevorzugen
+   [On]                                 #Generate HLS m3u8
+   [On]                                 #Vavoo Channel Namen ersetzen
+   [Magenta]                            #Provider to get EPG Infos
+   [Off]                                #Start epg.xml.gz Creation for LiveTV als Service
+   [5]                                  #Sleep Time for epg.xml.gz Creation Service in Tagen
+   [7]                                  #Anzahl an Tagen für epg.xml.gz Erstellung
+   [On]                                 #Provider IDs mit Rytec ersetzen
+   [Provider]                           #Logos bevorzugen
 ```
 
 - Info:
@@ -135,10 +141,10 @@ ggf. "Delete Signatur Key" falls momentaner Signatur Key noch nicht ausgelaufen 
 - List|Group|Stream Menü:
 
 ```shell
-   <= Back                           #Zurück zum Vavoo Menü.
-   M3U List Menu =>                  #Menü um m3u8 Listen zu erstellen, zu bearbeiten & zu löschen.
-   Group Menu =>                     #Menü um Gruppen zu einer m3u8 Liste hinzu zufügen, zu bearbeiten & zu löschen.
-   Stream Menu =>                    #Menü um Ausgewählte Country Streams zu einer Gruppe hinzu zufügen, zu bearbeiten & zu löschen.
+   <= Zurück                            #Zurück zum Vavoo Menü.
+   M3U8 Listen Menü =>                  #Menü um m3u8 Listen zu erstellen, zu bearbeiten & zu löschen.
+   Gruppen Menü =>                      #Menü um Gruppen zu einer m3u8 Liste hinzu zufügen, zu bearbeiten & zu löschen.
+   Stream Menü =>                       #Menü um Ausgewählte Country Streams zu einer Gruppe hinzu zufügen, zu bearbeiten & zu löschen.
 ```
 
 - Info:
@@ -150,38 +156,38 @@ Genereller Ablauf ist wie folgt:
 - M3U List Menu:
 
 ```shell
-   <= Back                           #Zurück zum List|Group|Stream Menü.
-   Add New List                      #Erstellt eine neue m3u8 Liste (Die via http://<ip>:<port>/<list_name>.m3u8 ab zu rufen ist).
-   Edit List                         #Bearbeitet den Namen einer der selbst erstellen m3u8 Liste.
-   Delete List                       #Löscht eine selbst erstellte m3u8 Liste.
+   <= Zurück                            #Zurück zum List|Group|Stream Menü.
+   Neue M3u8 Liste hinzufügen           #Erstellt eine neue m3u8 Liste (Die via http://<ip>:<port>/<list_name>.m3u8 ab zu rufen ist).
+   Bearbeite M3u8 Liste                 #Bearbeitet den Namen einer der selbst erstellen m3u8 Liste.
+   Lösche M3u8 Liste                    #Löscht eine selbst erstellte m3u8 Liste.
 ```
 
 - Group Menu:
 
 ```shell
-   <= Back                           #Zurück zum List|Group|Stream Menü.
-   Add New Group                     #Erstellt eine neue Gruppe für eine selbst erstellte m3u8 Liste.
-   Edit Group                        #Bearbeitet den Namen einer der selbst erstellen Gruppe.
-   Delete Group                      #Löscht eine selbst erstellte Gruppe.
+   <= Zurück                            #Zurück zum List|Group|Stream Menü.
+   Neue Gruppe hinzufügen               #Erstellt eine neue Gruppe für eine selbst erstellte m3u8 Liste.
+   Bearbeite eine Gruppe                #Bearbeitet den Namen einer der selbst erstellen Gruppe.
+   Lösche eine Gruppe                   #Löscht eine selbst erstellte Gruppe.
 ```
 
 - Stream Menu:
 
 ```shell
-   <= Back                           #Zurück zum List|Group|Stream Menü.
-   Add Streams to Group              #Fügt Streams zu einer selbst erstellten Gruppe hinzu.
-   Edit Streams in List              #Dieser Menü Punkt hat momentan noch keine funktion.
+   <= Zurück                            #Zurück zum List|Group|Stream Menü.
+   Füge Streams zu einer Gruppe hinzu   #Fügt Streams zu einer selbst erstellten Gruppe hinzu.
+   Bearbeite Streams in M3u8 Liste      #Dieser Menü Punkt hat momentan noch keine funktion.
 ```
 
 - Xstream Menü:
 
 ```shell
-   Settings =>                       #Site Einstellungen, an/abschaltung einzelner Sites für Suche/Auto Generation.
-   Global Search                     #Site Suche um Movies und/oder Serien zur Datenbank hinzu zu fügen.
-   Get New VoD & Series              #Automatische Suche nach Inhalten in allen Sites (Sites unter Settings ein/abschaltbar)
-   ReCreate vod+series.m3u8          #Erstellt vod.m3u8 (für Filme) + series.m3u8 (für Serien) aus der Datenbank.
-   Clean Database (Streams)          #Löscht alle Stream's aus der Datenbank.
-   <= Main Menu                      #Zurück zum Hauptmenü
+   Einstellungen =>                     #Site Einstellungen, an/abschaltung einzelner Sites für Suche/Auto Generation.
+   Globale Suche                        #Site Suche um Movies und/oder Serien zur Datenbank hinzu zu fügen.
+   Hole neue VoD & Serien Daten         #Automatische Suche nach Inhalten in allen Sites (Sites unter Settings ein/abschaltbar)
+   Erstelle vod+series.m3u8 erneut      #Erstellt vod.m3u8 (für Filme) + series.m3u8 (für Serien) aus der Datenbank.
+   - Lösche Datenbank (Streams)         #Löscht alle Stream's aus der Datenbank.
+   <= Haupt Menü                        #Zurück zum Hauptmenü
 ```
 
 - Info:

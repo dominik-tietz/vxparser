@@ -1,7 +1,7 @@
 import random, os, string, time, socket, sys, sqlite3, json
 from unidecode import unidecode
 
-VERSION = '1.4.2'
+VERSION = '1.4.3'
 unicode = str
 rp = os.path.normpath(os.path.dirname(os.path.abspath(__file__))+'/../')
 
@@ -207,33 +207,37 @@ def check_category_tables():
 
 def check_settings_tables():
     sett = [
-        ('server_host', 'Main', '0.0.0.0', 'FastAPI Server IP (0.0.0.0 = listen on all ips)', '0.0.0.0', 'text', ''),
-        ('server_ip', 'Main', '', 'Server IP for M3U8 List Creation', '', 'text', ''),
-        ('server_port', 'Main', '8080', 'Server Port', '8080', 'text', ''),
-        ('server_service', 'Main', '1', 'Set Automatic Network IP to Server IP Setting', '1', 'bool', '{"1": "On", "0": "Off"}'),
-        ('m3u8_service', 'Main', '1', 'Automatic M3U8 List Creation for LiveTV als Service', '1', 'bool', '{"1": "On", "0": "Off"}'),
-        ('m3u8_sleep', 'Main', '96', 'Sleep Time for List Creation Service in Stunden', '96', 'text', ''),
-        ('log_lvl', 'Main', '1', 'LogLevel', '1', 'select', '{"1": "Info", "3": "Error"}'),
-        ('get_tmdb', 'Main', '0', 'Search in TMDB after VoD & Series Infos', '0', 'bool', '{"1": "On", "0": "Off"}'),
-        ('serienstream_username', 'Main', '', 'Username of S.to User Accound', '', 'text', ''),
-        ('serienstream_password', 'Main', '', 'Password for S.to User Accound', '', 'text', ''),
-        ('xtream_codec', 'Main', 'h', 'Bevorzugter codec für Xtream Codes', 'h', 'select', '{"t": "ts", "h": "hls"}'),
+        ('server_host', 'Main', '0.0.0.0', '["FastAPI Server IP (0.0.0.0 = alle ips)", "FastAPI Server IP (0.0.0.0 = listen on all ips)"]', '0.0.0.0', 'text', ''),
+        ('server_ip', 'Main', '', '["Genutze Server IP in den M3U8 Listen", "Server IP for M3U8 List Creation"]', '', 'text', ''),
+        ('server_port', 'Main', '8080', '["Server Port", "Server Port"]', '8080', 'text', ''),
+        ('server_service', 'Main', '1', '["Setze Server IP automatisch auf Netzwerk IP", "Set Automatic Network IP to Server IP Setting"]', '1', 'bool', '{"1": "On", "0": "Off"}'),
+        ('m3u8_service', 'Main', '1', '["LiveTV Listen Erstellung als Service starten", "Start LiveTV List Creation as Service"]', '1', 'bool', '{"1": "On", "0": "Off"}'),
+        ('m3u8_sleep', 'Main', '96', '["Zeit in Stunden zwischen LiveTV Listen Erstellung", "Sleep Time for Auto LiveTV List Creation Service in Hours"]', '96', 'text', ''),
+        ('vod_service', 'Main', '1', '["VoD & Serien Listen Erstellung als Service starten", "Start VoD & Series List Creation as Service"]', '1', 'bool', '{"1": "On", "0": "Off"}'),
+        ('vod_sleep', 'Main', '112', '["Zeit in Stunden zwischen automatischer VoD & Serien Listen erstellung", "Sleep Time for Auto List Creation Service for VoD & Series in Hours"]', '112', 'text', ''),
+        ('log_lvl', 'Main', '1', '["LogLevel", "LogLevel"]', '1', 'select', '{"1": "Info", "3": "Error"}'),
+        ('get_tmdb', 'Main', '0', '["Durchsuche TMDB für zusätzliche Informationen", "Search in TMDB after VoD & Series Infos"]', '0', 'bool', '{"1": "On", "0": "Off"}'),
+        ('serienstream_username', 'Main', 'michael.zauner@live.at', '["Benutzername vom serienstream Account (s.to)", "Username of S.to User Accound"]', '', 'text', ''),
+        ('serienstream_password', 'Main', 'michaz2455', '["Passwort für serienstream Account (s.to)", "Password for S.to User Accound"]', '', 'text', ''),
+        ('xtream_codec', 'Main', 'h', '["Bevorzugter codec für Xtream Codes api", "Preferred codec for xtream codes api"]', 'h', 'select', '{"t": "ts", "h": "hls"}'),
+        ('m3u8_hls', 'Vavoo', '1', '["Erstelle HLS m3u8 Listen", "Generate HLS m3u8 lists"]', '1', 'bool', '{"1": "On", "0": "Off"}'),
+        ('m3u8_name', 'Vavoo', '1', '["Vavoo Channel Namen ersetzen", "Replace Vavoo Channel Name"]', '1', 'bool', '{"1": "On", "0": "Off"}'),
+        ('epg_provider', 'Vavoo', 'm', '["Provider für EPG Informationen", "Provider for get EPG Infos"]', 'm', 'select', '{"m": "Magenta", "t": "TvSpielfilme"}'),
+        ('epg_service', 'Vavoo', '1', '["Starte epg.xml.gz Erstellung als Service", "Start epg.xml.gz Creation for LiveTV as Service"]', '1', 'bool', '{"1": "On", "0": "Off"}'),
+        ('epg_sleep', 'Vavoo', '5', '["Zeit zwischen epg.xml.gz erstellung (in Tagen)", "Sleep Time for epg.xml.gz Creation Service in Days"]', '5', 'text', ''),
+        ('epg_grab', 'Vavoo', '7', '["Anzahl an Tagen für epg.xml.gz Erstellung", "Count of Days for epg.xml.gz creation"]', '7', 'text', ''),
+        ('epg_rytec', 'Vavoo', '1', '["Ersetze Provider IDs mit Rytec", "Replace Provider IDs with Rytec"]', '1', 'bool', '{"1": "On", "0": "Off"}'),
+        ('epg_logos', 'Vavoo', 'p', '["Bevorzugte Logos", "Prefer Logos"]', 'p', 'select', '{"o": "Original", "p": "Provider"}'),
+        ('init', 'Hidden', '0', '', '', '', ''),
+        ('lang', 'Hidden', '0', '', '', '', ''),
         ('m3u8', 'Loop', '0', '', '', '', ''),
         ('epg', 'Loop', '0', '', '', '', ''),
-        ('osc_port', 'Hidden', '0', '', '', '', ''),
-        ('m3u8_hls', 'Vavoo', '1', 'Generate HLS m3u8', '1', 'bool', '{"1": "On", "0": "Off"}'),
-        ('m3u8_name', 'Vavoo', '1', 'Vavoo Channel Namen ersetzen', '1', 'bool', '{"1": "On", "0": "Off"}'),
-        ('epg_provider', 'Vavoo', 'm', 'Provider to get EPG Infos', 'm', 'select', '{"m": "Magenta", "t": "TvSpielfilme"}'),
-        ('epg_service', 'Vavoo', '1', 'Start epg.xml.gz Creation for LiveTV als Service', '1', 'bool', '{"1": "On", "0": "Off"}'),
-        ('epg_sleep', 'Vavoo', '5', 'Sleep Time for epg.xml.gz Creation Service in Tagen', '5', 'text', ''),
-        ('epg_grab', 'Vavoo', '7', 'Anzahl an Tagen für epg.xml.gz Erstellung', '7', 'text', ''),
-        ('epg_rytec', 'Vavoo', '1', 'Provider IDs mit Rytec ersetzen', '1', 'bool', '{"1": "On", "0": "Off"}'),
-        ('epg_logos', 'Vavoo', 'p', 'Logos bevorzugen', 'p', 'select', '{"o": "Original", "p": "Provider"}')
+        ('vod', 'Loop', '0', '', '', '', '')
     ]
     for site in sites.sites:
         name = site.SITE_IDENTIFIER
-        sett.append((name+'_auto', 'Xstream', '1', 'Benutze %s Site in Automatic Modus' % name, '1', 'bool', '{"1": "On", "0": "Off"}'))
-        sett.append((name+'_search', 'Xstream', '1', 'Suche auf %s Site' % name, '1', 'bool', '{"1": "On", "0": "Off"}'))
+        sett.append((name+'_auto', 'Xstream', '1', '["Benutze %s Site in Automatic Modus", "Use %s Site in Auto Mode"]' % (name, name), '1', 'bool', '{"1": "On", "0": "Off"}'))
+        sett.append((name+'_search', 'Xstream', '1', '["Suche auf %s Seite", "Search on %s Site"]' % (name, name), '1', 'bool', '{"1": "On", "0": "Off"}'))
     cur = con0.cursor()
     for row in sett:
         cur.execute('SELECT * FROM settings WHERE name="' + row[0] + '"')
