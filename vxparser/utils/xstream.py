@@ -220,7 +220,7 @@ def getMovies():
                 jobber(site, load)
     lang = int(com.get_setting('lang', 'Hidden'))
     genLists()
-    Logger(1, 'All jobs done ...' if lang == 1 else 'Alle AuftrÃ¤ge abgeschlossen ...', 'new', 'get')
+    Logger(1, 'All jobs done ...' if lang == 1 else 'Alle Aufträge abgeschlossen ...', 'new', 'get')
     return True
 
 
