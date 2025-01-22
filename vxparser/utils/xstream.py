@@ -6,6 +6,7 @@ from unidecode import unidecode
 
 from utils.common import get_ip_address as ip
 from utils.common import Logger as Logger
+from utils.common import set_cache, get_cache
 import resolveurl as resolver
 from helper import sites
 from helper.tmdb import cTMDB
@@ -207,8 +208,20 @@ def jobber(site, loads):
         except Exception:
             load["entries"] = None
 
-    #set_cache(site.SITE_IDENTIFIER, loads, 'sites')
-    updateDB(loads)
+    com.set_cache(site.SITE_IDENTIFIER, loads, 'sites')
+    #updateDB(loads)
+    return True
+
+
+def getMovies2():
+    for site in sites.sites:
+        if bool(int(com.get_setting(site.SITE_IDENTIFIER+'_auto', 'Xstream'))) == True:
+            load = site.load()
+            if load:
+                jobber(site, load)
+    lang = int(com.get_setting('lang', 'Hidden'))
+    genLists()
+    Logger(1, 'All jobs done ...' if lang == 1 else 'Alle Aufträge abgeschlossen ...', 'new', 'get')
     return True
 
 
@@ -217,9 +230,16 @@ def getMovies():
         if bool(int(com.get_setting(site.SITE_IDENTIFIER+'_auto', 'Xstream'))) == True:
             load = site.load()
             if load:
-                jobber(site, load)
+                job = Process(target=jobber, args=(site, load,))
+                jobs.append(job)
+                job.start()
+    if len(jobs) > 0:
+        for job in jobs:
+            job.join()
     lang = int(com.get_setting('lang', 'Hidden'))
-    genLists()
+    #job = Process(target=genLists)
+    #job.start()
+    #job.join()
     Logger(1, 'All jobs done ...' if lang == 1 else 'Alle Aufträge abgeschlossen ...', 'new', 'get')
     return True
 

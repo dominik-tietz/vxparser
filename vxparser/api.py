@@ -295,12 +295,7 @@ async def vod(typ: str, username: str, password: str, sid: str, ext: str):
                     link = None
             linked[sid][username] += 1
             if link is None:
-                notify = Notifications("0.0.0.0")
-                try:
-                    await notify.async_connect()
-                    await notify.async_send("Link (%s/%s) not found" %(str(linked[sid][username]), str(len(links[sid]))), title="Mastaaa's VX Parser")
-                except Exception:
-                    Logger(1, "Link (%s/%s) not found" %(str(linked[sid][username]), str(len(links[sid]))))
+                Logger(1, "Link (%s/%s) not found" %(str(linked[sid][username]), str(len(links[sid]))))
                 raise HTTPException(status_code=404, detail="Link (%s/%s) not found" %(str(linked[sid][username]), str(len(links[sid]))))
             elif "voe" in link.lower():
                 link = re.sub('\|User-Agent=.*', '', link)
@@ -416,12 +411,7 @@ async def stream(sid: str):
                     link = None
             linked[sid] += 1
             if link is None:
-                notify = Notifications("0.0.0.0")
-                try:
-                    await notify.async_connect()
-                    await notify.async_send("Link (%s/%s) not found" %(str(linked[sid]), str(len(links[sid]))), title="Mastaaa's VX Parser")
-                except Exception:
-                    Logger(1, "Link (%s/%s) not found" %(str(linked[sid]), str(len(links[sid]))))
+                Logger(1, "Link (%s/%s) not found" %(str(linked[sid]), str(len(links[sid]))))
                 raise HTTPException(status_code=404, detail="Link (%s/%s) not found" %(str(linked[sid]), str(len(links[sid]))))
             return link
         elif len(links[sid]) > 1:
