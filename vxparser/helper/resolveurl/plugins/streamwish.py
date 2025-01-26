@@ -25,15 +25,23 @@ class StreamWishResolver(ResolveGeneric):
     name = 'StreamWish'
     domains = ['streamwish.com', 'streamwish.to', 'ajmidyad.sbs', 'khadhnayad.sbs', 'yadmalik.sbs',
                'hayaatieadhab.sbs', 'kharabnahs.sbs', 'atabkhha.sbs', 'atabknha.sbs', 'atabknhk.sbs',
-               'atabknhs.sbs', 'abkrzkr.sbs', 'abkrzkz.sbs', 'wishembed.pro', 'mwish.pro',
-               'awish.pro', 'dwish.pro', 'vidmoviesb.xyz', 'embedwish.com', 'cilootv.store',
-               'tuktukcinema.store', 'doodporn.xyz', 'ankrzkz.sbs','volvovideo.top']
-    pattern = r'(?://|\.)((?:streamwish|ajmidyad|khadhnayad|yadmalik|hayaatieadhab|kharabnahs|' \
-              r'atabkhha|atabknha|atabknhk|atabknhs|abkrzkr|abkrzkz|wishembed|[mad]wish|vidmoviesb|' \
-              r'cilootv|tuktukcinema|embedwish|doodporn|ankrzkz|volvovideo)' \
-              r'\.(?:com|to|sbs|pro|xyz|store|top))/(?:e/|f/)?([0-9a-zA-Z$:/.]+)'
+               'atabknhs.sbs', 'abkrzkr.sbs', 'abkrzkz.sbs', 'wishembed.pro', 'mwish.pro', 'strmwis.xyz',
+               'awish.pro', 'dwish.pro', 'vidmoviesb.xyz', 'embedwish.com', 'cilootv.store', 'uqloads.xyz',
+               'tuktukcinema.store', 'doodporn.xyz', 'ankrzkz.sbs', 'volvovideo.top', 'streamwish.site',
+               'wishfast.top', 'ankrznm.sbs', 'sfastwish.com', 'eghjrutf.sbs', 'eghzrutw.sbs',
+               'playembed.online', 'egsyxurh.sbs', 'egtpgrvh.sbs', 'flaswish.com', 'obeywish.com',
+               'cdnwish.com', 'javsw.me', 'cinemathek.online', 'trgsfjll.sbs', 'fsdcmo.sbs',
+               'anime4low.sbs', 'mohahhda.site', 'ma2d.store', 'dancima.shop', 'swhoi.com',
+               'gsfqzmqu.sbs', 'jodwish.com', 'swdyu.com', 'strwish.com', 'asnwish.com',
+               'wishonly.site']
+    pattern = r'(?://|\.)((?:(?:stream|flas|obey|sfast|str|embed|[mad]|cdn|asn)?wish(?:embed|fast|only)?|ajmidyad|' \
+              r'atabkhha|atabknha|atabknhk|atabknhs|abkrzkr|abkrzkz|vidmoviesb|kharabnahs|hayaatieadhab|' \
+              r'cilootv|tuktukcinema|doodporn|ankrzkz|volvovideo|strmwis|ankrznm|yadmalik|khadhnayad|' \
+              r'eghjrutf|eghzrutw|playembed|egsyxurh|egtpgrvh|uqloads|javsw|cinemathek|trgsfjll|fsdcmo|' \
+              r'anime4low|mohahhda|ma2d|dancima|swhoi|gsfqzmqu|jodwish|swdyu)' \
+              r'\.(?:com|to|sbs|pro|xyz|store|top|site|online|me|shop))/(?:e/|f/|d/)?([0-9a-zA-Z$:/.]+)'
 
-    def get_media_url(self, host, media_id):
+    def get_media_url(self, host, media_id, subs=False):
         if '$$' in media_id:
             media_id, referer = media_id.split('$$')
             referer = urllib_parse.urljoin(referer, '/')
@@ -43,7 +51,8 @@ class StreamWishResolver(ResolveGeneric):
             self.get_url(host, media_id),
             patterns=[r'''sources:\s*\[{file:\s*["'](?P<url>[^"']+)'''],
             generic_patterns=False,
-            referer=referer
+            referer=referer,
+            subs=subs
         )
 
     def get_url(self, host, media_id):

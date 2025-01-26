@@ -53,7 +53,7 @@ def showEntries(entryUrl=False, sSearchText=False):
         oGuiElement = {}
         oGuiElement["name"] = sName
         oGuiElement["site"] = SITE_IDENTIFIER
-        oGuiElement["key"] = 'showEpisodes' if isTvshow else 'showHosters'
+        oGuiElement["key"] = 'showSeasons' if isTvshow else 'showHosters'
         if 'release_date' in i and len(str(i['release_date'].split('-')[0].strip())) != '': oGuiElement["year"] = str(i['release_date'].split('-')[0].strip())
         # sDesc = i['description']
         if 'description' in i and i['description'] != '': oGuiElement["desc"] = i['description'] # Suche nach Desc wenn nicht leer dann setze GuiElement
@@ -62,6 +62,7 @@ def showEntries(entryUrl=False, sSearchText=False):
         # sFanart = i['backdrop']
         if 'backdrop' in i and i['backdrop'] != '': oGuiElement["backdrop"] = i['backdrop'] # Suche nach Fanart wenn nicht leer dann setze GuiElement
         oGuiElement["mediatype"] = 'tvshow' if isTvshow else 'movie'
+        if oGuiElement["mediatype"] == 'movie': oGuiElement["p2"] = 'movie'
         # Parameter \xc3\x83\xc2\xbcbergeben
         oGuiElement["url"] = URL_HOSTER % sId
         oGuiElement["total"] = total
@@ -71,6 +72,7 @@ def showEntries(entryUrl=False, sSearchText=False):
 
 def showSeasons(entryUrl=False, sThumbnail=False):
     folder = []
+    if not entryUrl: return
     # Parameter laden
     # https://moflix-stream.xyz/api/v1/titles/dG1kYnxzZXJpZXN8NzE5MTI=?load=images,genres,productionCountries,keywords,videos,primaryVideo,seasons,compactCredits
     oRequest = cRequestHandler(entryUrl)
@@ -87,69 +89,60 @@ def showSeasons(entryUrl=False, sThumbnail=False):
         sId = i['title_id'] # ID \xc3\x83\xc2\xa4ndert sich !!!
         sSeasonNr = str(i['number']) # Staffel Nummer
         oGuiElement = {}
-        oGuiElement = cGuiElement('Staffel ' + sSeasonNr, SITE_IDENTIFIER, 'showEpisodes')
+        oGuiElement["mediatype"] = 'season'
+        oGuiElement["name"] = 'Staffel ' + sSeasonNr
+        oGuiElement["key"] = 'showEpisodes'
+        oGuiElement["site"] = SITE_IDENTIFIER
+        oGuiElement["s"] = sSeasonNr
+        oGuiElement["p2"] = sSeasonNr
+        oGuiElement["url"] = sId
+        oGuiElement["total"] = total
+        if sDesc != '': oGuiElement["desc"] = sDesc
+        folder.append(oGuiElement)
+    return folder
 
-        oGuiElement.setMediaType('season')
-        oGuiElement.setSeason(sSeasonNr)
-        oGuiElement.setThumbnail(sThumbnail)
-        if sDesc != '': oGuiElement.setDescription(sDesc)
-        params.setParam('sSeasonNr', sSeasonNr)
-        params.setParam('sId', sId)
-        cGui().addFolder(oGuiElement, params, True, total)
-    cGui().setView('seasons')
-    cGui().setEndOfDirectory()
 
-
-def showEpisodes(sGui=False):
-    oGui = cGui()
-    params = ParameterHandler()
-    # Parameter laden
-    sId = params.getValue('sId')
-    sSeasonNr = params.getValue('sSeasonNr')
+def showEpisodes(sId=False, sSeasonNr=False):
+    folder = []
     sUrl = URL_MAIN + 'api/v1/titles/%s/seasons/%s/episodes?perPage=100&query=&page=1' % (sId, sSeasonNr) #Hep 02.12.23: Abfrage f\xc3\x83\xc2\xbcr einzelne Episoden per query force auf 100 erh\xc3\x83\xc2\xb6ht
     oRequest = cRequestHandler(sUrl)
     oRequest.addHeaderEntry('Referer', sUrl)
-    if cConfig().getSetting('global_search_' + SITE_IDENTIFIER) == 'true':
-        oRequest.cacheTime = 60 * 60 * 4 # 4 Stunden
+    oRequest.cacheTime = 60 * 60 * 4 # 4 Stunden
     jSearch = json.loads(oRequest.request()) # Lade JSON aus dem Request der URL
     if not jSearch: return # Wenn Suche erfolglos - Abbruch
     #aResults = jSearch['episodes']['data'] # Ausgabe der Suchresultate von jSearch
     aResults = jSearch['pagination']['data'] # Ausgabe der Suchresultate von jSearch
     total = len(aResults) # Anzahl aller Ergebnisse
-    if len(aResults) == 0:
-        if not sGui: oGui.showInfo()
-        return
+    if len(aResults) == 0: return
     for i in aResults:
         sName = i['name'] # Episoden Titel
         sEpisodeNr = str(i['episode_number']) # Episoden Nummer
         sThumbnail = i['poster'] # Episoden Poster
-        oGuiElement = cGuiElement('Episode ' + sEpisodeNr + ' - ' + sName, SITE_IDENTIFIER, 'showHosters')
-        if 'description' in i and i['description'] != '': oGuiElement.setDescription(i['description']) # Suche nach Desc wenn nicht leer dann setze GuiElement
-        oGuiElement.setEpisode(sEpisodeNr)
-        oGuiElement.setSeason(sSeasonNr)
-        oGuiElement.setMediaType('episode')
-        oGuiElement.setThumbnail(sThumbnail)
-        # Parameter setzen
-        params.setParam('entryUrl', URL_MAIN + 'api/v1/titles/%s/seasons/%s/episodes/%s?load=videos,compactCredits,primaryVideo' % (sId, sSeasonNr, sEpisodeNr))
-        oGui.addFolder(oGuiElement, params, False, total)
-    oGui.setView('episodes')
-    oGui.setEndOfDirectory()
+        oGuiElement = {}
+        oGuiElement["name"] = 'Episode ' + sEpisodeNr + ' - ' + sName
+        if 'description' in i and i['description'] != '': oGuiElement["desc"] = i['description']
+        oGuiElement["mediatype"] = 'episode'
+        oGuiElement["p2"] = 'episode'
+        oGuiElement["key"] = 'showHosters'
+        oGuiElement["site"] = SITE_IDENTIFIER
+        oGuiElement["url"] = URL_MAIN + 'api/v1/titles/%s/seasons/%s/episodes/%s?load=videos,compactCredits,primaryVideo' % (sId, sSeasonNr, sEpisodeNr)
+        oGuiElement["e"] = sEpisodeNr
+        oGuiElement["total"] = total
+        folder.append(oGuiElement)
+    return folder
 
 
-def showSearchEntries(entryUrl=False, sGui=False, sSearchText=''):
-    oGui = sGui if sGui else cGui()
-    params = ParameterHandler()
+def showSearchEntries(entryUrl=False, sSearchText=''):
+    folder = []
     # Parameter laden
-    if not entryUrl: entryUrl = params.getValue('sUrl')
-    oRequest = cRequestHandler(entryUrl, ignoreErrors=(sGui is not False))
+    if not entryUrl: return
+    oRequest = cRequestHandler(entryUrl, ignoreErrors=True)
     oRequest.addHeaderEntry('Referer', entryUrl)
     jSearch = json.loads(oRequest.request()) # Lade JSON aus dem Request der URL
     if not jSearch: return # Wenn Suche erfolglos - Abbruch
     aResults = jSearch['results'] # Ausgabe der Suchresultate von jSearch
     total = len(aResults) # Anzahl aller Ergebnisse
-    if len(aResults) == 0: # Wenn Resultate 0 zeige Benachrichtigung
-        if not sGui: oGui.showInfo()
-        return
+    if len(aResults) == 0: return
     isTvshow = False
     for i in aResults:
         if 'person' in i['model_type']: continue # Personen in der Suche ausblenden
@@ -158,34 +151,34 @@ def showSearchEntries(entryUrl=False, sGui=False, sSearchText=''):
         sYear = str(i['release_date'].split('-')[0].strip())
         if sSearchText.lower() and not cParser().search(sSearchText, sName.lower()): continue
         if 'is_series' in i: isTvshow = i['is_series'] # Wenn True dann Serie
-        oGuiElement = cGuiElement(sName, SITE_IDENTIFIER, 'showSeasons' if isTvshow else 'showHosters')
-        if sYear != '': oGuiElement.setYear(sYear) # Suche bei year nach 4 stelliger Zahl
+        oGuiElement = {}
+        oGuiElement["name"] = sName
+        oGuiElement["site"] = SITE_IDENTIFIER
+        oGuiElement["key"] = 'showSeasons' if isTvshow else 'showHosters'
+        if sYear != '': oGuiElement["year"] = sYear # Suche bei year nach 4 stelliger Zahl
         #sDesc = i['description']
-        if 'description' in i and i['description'] != '': oGuiElement.setDescription(i['description']) # Suche nach Desc wenn nicht leer dann setze GuiElement
+        if 'description' in i and i['description'] != '': oGuiElement["desc"] = i['description'] # Suche nach Desc wenn nicht leer dann setze GuiElement
         # sThumbnail = i['poster']
-        if 'poster' in i and i['poster'] != '': oGuiElement.setThumbnail(i['poster']) # Suche nach Desc wenn nicht leer dann setze GuiElement
+        if 'poster' in i and i['poster'] != '': oGuiElement["thumb"] = i['poster'] # Suche nach Desc wenn nicht leer dann setze GuiElement
         # sFanart = i['backdrop']
-        if 'backdrop' in i and i['backdrop'] != '': oGuiElement.setFanart(i['backdrop']) # Suche nach Desc wenn nicht leer dann setze GuiElement
-        oGuiElement.setMediaType('tvshow' if isTvshow else 'movie')
+        if 'backdrop' in i and i['backdrop'] != '': oGuiElement["backdrop"] = i['backdrop'] # Suche nach Desc wenn nicht leer dann setze GuiElement
+        oGuiElement["mediatype"] = 'tvshow' if isTvshow else 'movie'
+        if oGuiElement["mediatype"] == 'movie': oGuiElement["p2"] = 'movie'
         # Parameter setzen
-        params.setParam('entryUrl', URL_HOSTER % sId)
-        params.setParam('sThumbnail', i['poster'])
-        params.setParam('sName', sName)
-        oGui.addFolder(oGuiElement, params, isTvshow, total)
-    if not sGui:
-        oGui.setView('tvshows' if isTvshow else 'movies')
-    oGui.setEndOfDirectory()
+        oGuiElement["url"] = URL_HOSTER % sId
+        oGuiElement["total"] = total
+        folder.append(oGuiElement)
+    return folder
 
 
-def showHosters(sGui=False):
-    oGui = sGui if sGui else cGui()
+def showHosters(entryUrl=False, mediaType=False):
     hosters = []
-    sUrl = ParameterHandler().getValue('entryUrl')
+    sUrl = entryUrl
     oRequest = cRequestHandler(sUrl)
     oRequest.addHeaderEntry('Referer', sUrl)
     jSearch = json.loads(oRequest.request()) # Lade JSON aus dem Request der URL
     if not jSearch: return # Wenn Suche erfolglos - Abbruch
-    if ParameterHandler().getValue('mediaType') == 'movie': #Bei MediaTyp Filme nutze das Result
+    if mediaType == 'movie': #Bei MediaTyp Filme nutze das Result
         aResults = jSearch['title']['videos'] # Ausgabe der Suchresultate von jSearch f\xc3\x83\xc2\xbcr Filme
     else:
         aResults = jSearch['episode']['videos'] # Ausgabe der Suchresultate von jSearch f\xc3\x83\xc2\xbcr Episoden
@@ -210,7 +203,6 @@ def showHosters(sGui=False):
         if 'Moflix-Stream.Day' in sName:
             sName = 'VidGuard'
         sName = sName.split('.')[0].strip() # Trenne Endung nach . ab
-        if cConfig().isBlockedHoster(sUrl)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschlie\xc3\x83\xc5\xb8en
         if 'youtube' in sUrl: continue # Trailer ausblenden
         hoster = {'link': sUrl, 'name': sName, 'displayedName': '%s [I][%s][/I]' % (sName, sQuality), 'quality': sQuality, 'resolveable': True}
         hosters.append(hoster)
@@ -223,16 +215,25 @@ def getHosterUrl(sUrl=False):
     return [{'streamUrl': sUrl, 'resolved': False}]
 
 
-def showSearch():
-    sSearchText = cGui().showKeyBoard()
-    if not sSearchText: return
-    _search(False, sSearchText)
-    cGui().setEndOfDirectory()
+# def showSearch():
+#     sSearchText = cGui().showKeyBoard()
+#     if not sSearchText: return
+#     _search(False, sSearchText)
+#     cGui().setEndOfDirectory()
 
 
-def _search(oGui, sSearchText):
-    # https://moflix-stream.xyz/api/v1/search/Super%20Mario?query=Super+Mario&limit=8
-    # Suche mit Quote und QuotePlus beim Suchtext
+# def _search(oGui, sSearchText):
+#     # https://moflix-stream.xyz/api/v1/search/Super%20Mario?query=Super+Mario&limit=8
+#     # Suche mit Quote und QuotePlus beim Suchtext
+#     sID1 = cParser().quote(sSearchText)
+#     sID2 = cParser().quotePlus(sSearchText)
+#     showSearchEntries(URL_SEARCH % (sID1, sID2), oGui, sSearchText)
+
+def search(sSearchText):
     sID1 = cParser().quote(sSearchText)
     sID2 = cParser().quotePlus(sSearchText)
-    showSearchEntries(URL_SEARCH % (sID1, sID2), oGui, sSearchText)
+    find = showSearchEntries(URL_SEARCH % (sID1, sID2), sSearchText)
+    if find:
+        if len(find) > 0:
+            return find
+    return None

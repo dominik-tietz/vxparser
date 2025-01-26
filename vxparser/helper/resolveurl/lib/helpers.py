@@ -1,5 +1,21 @@
 # -*- coding: utf-8 -*-
+"""
+    ResolveURL Addon for Kodi
+    Copyright (C) 2016 t0mm0, tknorris
 
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
 import base64
 import re
 import six
@@ -52,7 +68,7 @@ def pick_source(sources, auto_pick=None):
         if auto_pick:
             return sources[0][1]
         else:
-            result = -1
+            return -1
             #result = xbmcgui.Dialog().select(common.i18n('choose_the_link'), [str(source[0]) if source[0] else 'Unknown' for source in sources])
             if result == -1:
                 raise ResolverError(common.i18n('no_link_selected'))
@@ -139,7 +155,7 @@ def parse_smil_source_list(smil):
     return sources
 
 
-def scrape_sources(html, result_blacklist=None, scheme='http', patterns=None, generic_patterns=True):
+def scrape_sources(html, result_blacklist=None, scheme='http', patterns=None, generic_patterns=True, url=None):
     if patterns is None:
         patterns = []
 
@@ -150,14 +166,21 @@ def scrape_sources(html, result_blacklist=None, scheme='http', patterns=None, ge
         labels = []
         for r in re.finditer(regex, _html, re.DOTALL):
             match = r.groupdict()
-            stream_url = match['url'].replace('&amp;', '&')
+            stream_url = match['url']
+            if not (stream_url.startswith('http') or stream_url.startswith('/')):
+                if re.search("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$", stream_url):
+                    stream_url = b64decode(stream_url)
+            if stream_url.startswith('//'):
+                stream_url = scheme + ':' + stream_url
+            elif not stream_url.startswith('http'):
+                stream_url = urllib_parse.urljoin(url, stream_url)
+            stream_url = stream_url.replace('&amp;', '&')
+
             file_name = urllib_parse.urlparse(stream_url[:-1]).path.split('/')[-1] if stream_url.endswith("/") else urllib_parse.urlparse(stream_url).path.split('/')[-1]
             label = match.get('label', file_name)
             if label is None:
                 label = file_name
             blocked = not file_name or any(item in file_name.lower() for item in _blacklist) or any(item in label for item in _blacklist)
-            if stream_url.startswith('//'):
-                stream_url = scheme + ':' + stream_url
             if '://' not in stream_url or blocked or (stream_url in streams) or any(stream_url == t[1] for t in source_list):
                 continue
             labels.append(label)
@@ -195,9 +218,60 @@ def scrape_sources(html, result_blacklist=None, scheme='http', patterns=None, ge
     return source_list
 
 
-def get_media_url(url, result_blacklist=None, patterns=None, generic_patterns=True, referer=True, redirect=True, verifypeer=True):
+def scrape_subtitles(html, rurl='', scheme='http', patterns=None, generic_patterns=True):
     if patterns is None:
         patterns = []
+
+    def __parse_to_dict(_html, regex):
+        labels = []
+        subs = []
+        for r in re.finditer(regex, _html, re.DOTALL):
+            match = r.groupdict()
+            subs_url = match.get('url').replace('&amp;', '&')
+            file_name = urllib_parse.urlparse(subs_url[:-1]).path.split('/')[-1] if subs_url.endswith("/") else urllib_parse.urlparse(subs_url).path.split('/')[-1]
+            label = match.get('label', file_name)
+            if label is None:
+                label = file_name
+            if subs_url.startswith('//'):
+                subs_url = scheme + ':' + subs_url
+            elif subs_url.startswith('/'):
+                subs_url = urllib_parse.urljoin(rurl, subs_url)
+            if '://' not in subs_url or (subs_url in subs):
+                continue
+            labels.append(label)
+            subs.append(subs_url)
+
+        matches = {lang: url for lang, url in zip(labels, subs) if len(lang) > 1}
+        if matches:
+            common.logger.log_debug('Scrape sources |%s| found |%s|' % (regex, matches))
+        return matches
+
+    html = html.replace(r"\/", "/")
+    html += get_packed_data(html)
+
+    subtitles = {}
+    if generic_patterns or not patterns:
+        subtitles.update(__parse_to_dict(html, r'''{\s*file:\s*["'](?P<url>[^"']+)["'],\s*label:\s*["'](?P<label>[^"']+)["'],\s*kind:\s*["'](?:captions|subtitles)["']'''))
+        subtitles.update(__parse_to_dict(html, r'''<track\s*kind=['"]?(?:captions|subtitles)['"]?\s*src=['"](?P<url>[^'"]+)['"]\s*srclang=['"](?P<label>[^'"]+)'''))
+        subtitles.update(__parse_to_dict(html, r'''<track\s*kind="(?:captions|subtitles)"\s*label="(?P<label>[^"]+)"\s*srclang="[^"]+"\s*src="(?P<url>[^"]+)'''))
+        subtitles.update(__parse_to_dict(html, r'''"tracks":.+?"kind":\s*"captions",\s*"file":\s*"(?P<url>[^"]+).+?"label":\s*"(?P<label>[^"]+)'''))
+
+    for regex in patterns:
+        subtitles.update(__parse_to_dict(html, regex))
+
+    return subtitles
+
+
+def get_media_url(
+        url, result_blacklist=None, subs=False,
+        patterns=None, generic_patterns=True,
+        subs_patterns=None, generic_subs_patterns=True,
+        referer=True, redirect=True,
+        ssl_verify=True, verifypeer=True):
+    if patterns is None:
+        patterns = []
+    if subs_patterns is None:
+        subs_patterns = []
     scheme = urllib_parse.urlparse(url).scheme
     if result_blacklist is None:
         result_blacklist = []
@@ -205,10 +279,9 @@ def get_media_url(url, result_blacklist=None, patterns=None, generic_patterns=Tr
         result_blacklist = [result_blacklist]
 
     result_blacklist = list(set(result_blacklist + ['.smil']))  # smil(not playable) contains potential sources, only blacklist when called from here
-    net = common.Net()
+    net = common.Net(ssl_verify=ssl_verify)
     headers = {'User-Agent': common.RAND_UA}
-    u = urllib_parse.urlparse(url)
-    rurl = '{0}://{1}/'.format(u.scheme, u.netloc)
+    rurl = urllib_parse.urljoin(url, '/')
     if isinstance(referer, six.string_types):
         headers.update({'Referer': referer})
     elif referer:
@@ -222,9 +295,13 @@ def get_media_url(url, result_blacklist=None, patterns=None, generic_patterns=Tr
     headers.update({'Referer': rurl, 'Origin': rurl[:-1]})
     if not verifypeer:
         headers.update({'verifypeer': 'false'})
-    source_list = scrape_sources(html, result_blacklist, scheme, patterns, generic_patterns)
+    source_list = scrape_sources(html, result_blacklist, scheme, patterns, generic_patterns, rurl)
     source = pick_source(source_list)
-    return source + append_headers(headers)
+    source = urllib_parse.quote(source, '/:?=&') + append_headers(headers)
+    if subs:
+        subtitles = scrape_subtitles(html, rurl, scheme, subs_patterns, generic_subs_patterns)
+        return source, subtitles
+    return source
 
 
 def cleanse_html(html):
@@ -330,7 +407,7 @@ def get_redirect_url(url, headers={}, form_data=None):
     return response.headers.get('location') or url
 
 
-def girc(page_data, url, co):
+def girc(page_data, url, co=None):
     """
     Code adapted from https://github.com/vb6rocod/utils/
     Copyright (C) 2019 vb6rocod
@@ -344,6 +421,8 @@ def girc(page_data, url, co):
     aurl = 'https://www.google.com/recaptcha/api2'
     key = re.search(r'(?:src="{0}\?.*?render|data-sitekey)="?([^"]+)'.format(rurl), page_data)
     if key:
+        if co is None:
+            co = b64encode((url[:-1] + ':443')).replace('=', '')
         key = key.group(1)
         rurl = '{0}?render={1}'.format(rurl, key)
         page_data1 = net.http_GET(rurl, headers=hdrs).content
@@ -726,4 +805,4 @@ def b64decode(t, binary=False):
 
 
 def b64encode(b):
-    return six.ensure_str(base64.b64encode(six.ensure_binary(b)))
+    return six.ensure_str(base64.b64encode(b if isinstance(b, bytes) else six.b(b)))

@@ -1,14 +1,33 @@
-import random
-from six.moves import http_cookiejar
+"""
+    common XBMC Module
+    Copyright (C) 2011 t0mm0
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
 import gzip
-import re
 import json
+import random
+import re
 import six
-from six.moves import urllib_request, urllib_parse, urllib_error, urllib_response
+from six.moves import urllib_request, urllib_parse, urllib_error, urllib_response, http_cookiejar
 import socket
+import sys
 import time
 from resolveurl.lib import kodi
 
+# Set Global timeout - Useful for slow connections and Putlocker.
 socket.setdefaulttimeout(10)
 
 BR_VERS = [
@@ -47,8 +66,9 @@ def get_ua():
 class NoRedirection(urllib_request.HTTPRedirectHandler):
     def http_error_302(self, req, fp, code, msg, headers):
         infourl = urllib_response.addinfourl(fp, headers, req.get_full_url() if six.PY2 else req.full_url)
-        infourl.status = code
-        infourl.code = code
+        if sys.version_info < (3, 9, 0):
+            infourl.status = code
+            infourl.code = code
         return infourl
     http_error_300 = http_error_302
     http_error_301 = http_error_302
@@ -224,7 +244,7 @@ class Net:
         """
         return self._fetch(url, headers=headers, compression=compression, redirect=redirect)
 
-    def http_POST(self, url, form_data, headers={}, compression=True, jdata=False):
+    def http_POST(self, url, form_data, headers={}, compression=True, jdata=False, redirect=True):
         """
         Perform an HTTP POST request.
 
@@ -244,7 +264,7 @@ class Net:
             An :class:`HttpResponse` object containing headers and other
             meta-information about the page and the page content.
         """
-        return self._fetch(url, form_data, headers=headers, compression=compression, jdata=jdata)
+        return self._fetch(url, form_data, headers=headers, compression=compression, jdata=jdata, redirect=redirect)
 
     def http_HEAD(self, url, headers={}):
         """
@@ -339,7 +359,7 @@ class Net:
             else:
                 response = urllib_request.urlopen(req, timeout=15)
         except urllib_error.HTTPError as e:
-            if e.code == 403 and 'cloudflare' in e.hdrs.get('Expect-CT', ''):
+            if e.code == 403 and 'cloudflare' in e.hdrs.get('server', ''):
                 import ssl
                 ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
                 ctx.set_alpn_protocols(['http/1.1'])
@@ -439,6 +459,12 @@ class HttpResponse:
         a redirect was followed.
         """
         return self._response.geturl()
+
+    def get_redirect_url(self):
+        """
+        Return the redirect URL of the resource retrieved
+        """
+        return self._response.headers.get('location')
 
     def nodecode(self, nodecode):
         """

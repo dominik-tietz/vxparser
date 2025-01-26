@@ -28,7 +28,7 @@ from resolveurl.lib import kodi
 logger = log_utils.Logger.get_logger(__name__)
 
 try:
-    cache_path = '/home/masta/bin/lib/python3/resolveurl/cache/'
+    cache_path = 'cache'
     if not os.path.exists(cache_path):
         os.makedirs(cache_path)
 except Exception as e:

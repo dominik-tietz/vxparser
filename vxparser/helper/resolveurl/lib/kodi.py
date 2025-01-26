@@ -24,6 +24,7 @@ import time
 from resolveurl.lib import strings
 from resolveurl.lib import CustomProgressDialog
 
+
 py_ver = sys.version
 py_info = sys.version_info
 
@@ -37,14 +38,13 @@ def get_profile():
 
 
 def translate_path(path):
-    return
+    return #xbmcvfs.translatePath(path) if six.PY3 else xbmc.translatePath(path)
 
 
 def get_setting(sid):
     if sid in setting:
         return setting[sid]
     return
-    
 
 
 def set_setting(id, value):
@@ -54,20 +54,26 @@ def set_setting(id, value):
 
 
 def get_version():
-    return "5.1.106"
+    return '5.1.145'
 
 
 def get_id():
-    return "script.module.resolveurl"
+    return 'script.module.resolveurl'
 
 
 def get_name():
-    return "ResolveURL"
+    return 'ResolveURL'
 
 
 def kodi_version():
 
-    return float(18)
+    """
+    Get kodi version as a float. Useful for various conditionals,
+    especially when doing operations that old versions do not support
+    :return: float
+    """
+
+    return float(21)
 
 
 def supported_video_extensions():
@@ -78,11 +84,10 @@ def supported_video_extensions():
 
 
 def open_settings():
-    return 
+    return #addon.openSettings()
 
 
 def get_keyboard_legacy(heading, default='', hide_input=False):
-    return
 
     keyboard = xbmc.Keyboard(hidden=hide_input)
     keyboard.setHeading(heading)
@@ -121,13 +126,13 @@ def get_keyboard_new(heading, default='', hide_input=False):
     return None
 
 
-#if kodi_version() >= 13.0:
-
-    #get_keyboard = get_keyboard_new
-
-#else:
-
-    #get_keyboard = get_keyboard_legacy
+# if kodi_version() >= 13.0:
+#
+#     get_keyboard = get_keyboard_new
+#
+# else:
+#
+#     get_keyboard = get_keyboard_legacy
 
 
 def i18n(string_id):
@@ -153,17 +158,18 @@ def get_plugin_url(queries):
 
 def end_of_directory(cache_to_disc=True):
     pass
-    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=cache_to_disc)
+    #xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=cache_to_disc)
 
 
 def set_content(content):
     pass
-    xbmcplugin.setContent(int(sys.argv[1]), content)
+    #xbmcplugin.setContent(int(sys.argv[1]), content)
 
 
 def create_item(queries, label, thumb='', fanart='', is_folder=None, is_playable=None, total_items=0, menu_items=None, replace_menu=False):
-    list_item = xbmcgui.ListItem(label, iconImage=thumb, thumbnailImage=thumb)
-    add_item(queries, list_item, fanart, is_folder, is_playable, total_items, menu_items, replace_menu)
+    pass
+    #list_item = xbmcgui.ListItem(label, iconImage=thumb, thumbnailImage=thumb)
+    #add_item(queries, list_item, fanart, is_folder, is_playable, total_items, menu_items, replace_menu)
 
 
 def add_item(queries, list_item, fanart='', is_folder=None, is_playable=None, total_items=0, menu_items=None, replace_menu=False):
@@ -171,7 +177,7 @@ def add_item(queries, list_item, fanart='', is_folder=None, is_playable=None, to
     if menu_items is None:
         menu_items = []
     if is_folder is None:
-        is_folder = False if is_playable else True
+        is_folder = 'false' if is_playable else True
 
     if is_playable is None:
         playable = 'false' if is_folder else 'true'
@@ -214,30 +220,31 @@ def notify(header=None, msg='', duration=2000, sound=None):
 
 
 def close_all():
-    xbmc.executebuiltin('Dialog.Close(all)')
+    return
+    #xbmc.executebuiltin('Dialog.Close(all)')
 
 
 def get_current_view():
     return
-    #skinPath = translate_path('special://skin/')
-    #xml = os.path.join(skinPath, 'addon.xml')
-    #f = xbmcvfs.File(xml)
-    #read = f.read()
-    #f.close()
-    #try:
-        #src = re.search('defaultresolution="([^"]+)', read, re.DOTALL).group(1)
-    #except:
-        #src = re.search('<res.+?folder="([^"]+)', read, re.DOTALL).group(1)
-    #src = os.path.join(skinPath, src, 'MyVideoNav.xml')
-    #f = xbmcvfs.File(src)
-    #read = f.read()
-    #f.close()
-    #match = re.search('<views>([^<]+)', read, re.DOTALL)
-    #if match:
-        #views = match.group(1)
-        #for view in views.split(','):
-            #if xbmc.getInfoLabel('Control.GetLabel(%s)' % view):
-                #return view
+    # skinPath = translate_path('special://skin/')
+    # xml = os.path.join(skinPath, 'addon.xml')
+    # f = xbmcvfs.File(xml)
+    # read = f.read()
+    # f.close()
+    # try:
+    #     src = re.search('defaultresolution="([^"]+)', read, re.DOTALL).group(1)
+    # except:
+    #     src = re.search('<res.+?folder="([^"]+)', read, re.DOTALL).group(1)
+    # src = os.path.join(skinPath, src, 'MyVideoNav.xml')
+    # f = xbmcvfs.File(src)
+    # read = f.read()
+    # f.close()
+    # match = re.search('<views>([^<]+)', read, re.DOTALL)
+    # if match:
+    #     views = match.group(1)
+    #     for view in views.split(','):
+    #         if xbmc.getInfoLabel('Control.GetLabel(%s)' % view):
+    #             return view
 
 
 def yesnoDialog(heading=get_name(), line1='', line2='', line3='', nolabel='', yeslabel=''):
@@ -247,14 +254,14 @@ def yesnoDialog(heading=get_name(), line1='', line2='', line3='', nolabel='', ye
 class WorkingDialog(object):
     def __init__(self):
         return
-        xbmc.executebuiltin('ActivateWindow(busydialog)')
+        #xbmc.executebuiltin('ActivateWindow(busydialog)')
 
     def __enter__(self):
         return self
 
     def __exit__(self, type, value, traceback):
         return
-        xbmc.executebuiltin('Dialog.Close(busydialog)')
+        #xbmc.executebuiltin('Dialog.Close(busydialog)')
 
 
 def has_addon(addon_id):
@@ -423,99 +430,98 @@ class CountdownDialog(object):
                                + line2 + '\n'
                                + line3)
 
-
 def fill_settings():
     setting = {}
     setting["allow_universal"] = 'true'
     setting["allow_popups"] = 'true'
     setting["auto_pick"] = 'true'
     setting["use_cache"] = 'true'
-    setting["reset_cache"] = 'true'
-    setting["personal_nid"] = 'true'
+    setting["reset_cache"] = ''
+    setting["personal_nid"] = ''
     setting["last_ua_create"] = 0
-    setting["current_ua"] = 'true'
+    setting["current_ua"] = ''
     setting["addon_debug"] = 'false'
-    setting["clean_settings"] = 'true'
+    setting["clean_settings"] = ''
     setting["AllDebridResolver_priority"] = 100
     setting["AllDebridResolver_enabled"] = 'true'
     setting["AllDebridResolver_login"] = 'true'
     setting["AllDebridResolver_torrents"] = 'true'
     setting["AllDebridResolver_cached_only"] = 'false'
-    setting["AllDebridResolver_auth"] = 'true'
-    setting["AllDebridResolver_reset"] = 'true'
-    setting["AllDebridResolver_token"] = 'true'
+    setting["AllDebridResolver_auth"] = ''
+    setting["AllDebridResolver_reset"] = ''
+    setting["AllDebridResolver_token"] = ''
     setting["BoxbitResolver_priority"] = 100
     setting["BoxbitResolver_enabled"] = 'true'
     setting["BoxbitResolver_login"] = 'false'
-    setting["BoxbitResolver_email"] = 'true'
-    setting["BoxbitResolver_password"] = 'true'
-    setting["BoxbitResolver_token"] = 'true'
-    setting["BoxbitResolver_uuid"] = 'true'
-    setting["BoxbitResolver_time_expired"] = 'true'
+    setting["BoxbitResolver_email"] = ''
+    setting["BoxbitResolver_password"] = ''
+    setting["BoxbitResolver_token"] = ''
+    setting["BoxbitResolver_uuid"] = ''
+    setting["BoxbitResolver_time_expired"] = ''
     setting["DebridLinkResolver_priority"] = 100
     setting["DebridLinkResolver_enabled"] = 'true'
     setting["DebridLinkResolver_login"] = 'true'
     setting["DebridLinkResolver_torrents"] = 'true'
     setting["DebridLinkResolver_cached_only"] = 'false'
-    setting["DebridLinkResolver_auth"] = 'true'
-    setting["DebridLinkResolver_reset"] = 'true'
-    setting["DebridLinkResolver_token"] = 'true'
-    setting["DebridLinkResolver_refresh"] = 'true'
-    setting["DebridLinkResolver_client_id"] = 'true'
+    setting["DebridLinkResolver_auth"] = ''
+    setting["DebridLinkResolver_reset"] = ''
+    setting["DebridLinkResolver_token"] = ''
+    setting["DebridLinkResolver_refresh"] = ''
+    setting["DebridLinkResolver_client_id"] = ''
     setting["LinkSnappyResolver_priority"] = 100
     setting["LinkSnappyResolver_enabled"] = 'true'
     setting["LinkSnappyResolver_login"] = 'true'
-    setting["LinkSnappyResolver_username"] = 'true'
-    setting["LinkSnappyResolver_password"] = 'true'
-    setting["LinkSnappyResolver_auth"] = 'true'
-    setting["LinkSnappyResolver_reset"] = 'true'
+    setting["LinkSnappyResolver_username"] = ''
+    setting["LinkSnappyResolver_password"] = ''
+    setting["LinkSnappyResolver_auth"] = ''
+    setting["LinkSnappyResolver_reset"] = ''
     setting["LinkSnappyResolver_cached_files_only"] = 'false'
     setting["LinkSnappyResolver_torrents"] = 'true'
     setting["LinkSnappyResolver_cached_only"] = 'true'
-    setting["LinkSnappyResolver_expiration_timestamp"] = 'true'
+    setting["LinkSnappyResolver_expiration_timestamp"] = ''
     setting["MegaDebridResolver_priority"] = 100
     setting["MegaDebridResolver_enabled"] = 'true'
     setting["MegaDebridResolver_use_https"] = 'true'
     setting["MegaDebridResolver_login"] = 'false'
-    setting["MegaDebridResolver_username"] = 'true'
-    setting["MegaDebridResolver_password"] = 'true'
+    setting["MegaDebridResolver_username"] = ''
+    setting["MegaDebridResolver_password"] = ''
     setting["PremiumizeMeResolver_priority"] = 100
     setting["PremiumizeMeResolver_enabled"] = 'true'
     setting["PremiumizeMeResolver_login"] = 'true'
     setting["PremiumizeMeResolver_torrents"] = 'true'
     setting["PremiumizeMeResolver_cached_only"] = 'false'
     setting["PremiumizeMeResolver_clear_finished"] = 'false'
-    setting["PremiumizeMeResolver_auth"] = 'true'
-    setting["PremiumizeMeResolver_reset"] = 'true'
-    setting["PremiumizeMeResolver_token"] = 'true'
+    setting["PremiumizeMeResolver_auth"] = ''
+    setting["PremiumizeMeResolver_reset"] = ''
+    setting["PremiumizeMeResolver_token"] = ''
     setting["RealDebridResolver_priority"] = 100
     setting["RealDebridResolver_enabled"] = 'true'
     setting["RealDebridResolver_login"] = 'true'
     setting["RealDebridResolver_torrents"] = 'true'
     setting["RealDebridResolver_cached_only"] = 'false'
     setting["RealDebridResolver_autopick"] = 'false'
-    setting["RealDebridResolver_auth"] = 'true'
-    setting["RealDebridResolver_reset"] = 'true'
-    setting["RealDebridResolver_token"] = 'true'
-    setting["RealDebridResolver_refresh"] = 'true'
-    setting["RealDebridResolver_client_id"] = 'true'
-    setting["RealDebridResolver_client_secret"] = 'true'
+    setting["RealDebridResolver_auth"] = ''
+    setting["RealDebridResolver_reset"] = ''
+    setting["RealDebridResolver_token"] = ''
+    setting["RealDebridResolver_refresh"] = ''
+    setting["RealDebridResolver_client_id"] = ''
+    setting["RealDebridResolver_client_secret"] = ''
     setting["RPnetResolver_priority"] = 100
     setting["RPnetResolver_enabled"] = 'true'
     setting["RPnetResolver_login"] = 'false'
-    setting["RPnetResolver_username"] = 'true'
-    setting["RPnetResolver_password"] = 'true'
+    setting["RPnetResolver_username"] = ''
+    setting["RPnetResolver_password"] = ''
     setting["SimplyDebridResolver_priority"] = 100
     setting["SimplyDebridResolver_enabled"] = 'true'
     setting["SimplyDebridResolver_login"] = 'false'
-    setting["SimplyDebridResolver_username"] = 'true'
-    setting["SimplyDebridResolver_password"] = 'true'
+    setting["SimplyDebridResolver_username"] = ''
+    setting["SimplyDebridResolver_password"] = ''
     setting["SmoozedResolver_priority"] = 100
     setting["SmoozedResolver_enabled"] = 'true'
     setting["SmoozedResolver_login"] = 'false'
-    setting["SmoozedResolver_username"] = 'true'
-    setting["SmoozedResolver_password"] = 'true'
-    setting["SmoozedResolver_session_key"] = 'true'
+    setting["SmoozedResolver_username"] = ''
+    setting["SmoozedResolver_password"] = ''
+    setting["SmoozedResolver_session_key"] = ''
     setting["AdultSwimResolver_priority"] = 100
     setting["AdultSwimResolver_enabled"] = 'true'
     setting["AdultSwimResolver_login"] = 'true'
@@ -528,39 +534,51 @@ def fill_settings():
     setting["AmazonCloudResolver_priority"] = 100
     setting["AmazonCloudResolver_enabled"] = 'true'
     setting["AmazonCloudResolver_login"] = 'true'
+    setting["AmdaHostResolver_priority"] = 100
+    setting["AmdaHostResolver_enabled"] = 'true'
+    setting["AmdaHostResolver_login"] = 'true'
     setting["AnafastResolver_priority"] = 100
     setting["AnafastResolver_enabled"] = 'true'
     setting["AnafastResolver_login"] = 'true'
     setting["AniStreamResolver_priority"] = 100
     setting["AniStreamResolver_enabled"] = 'true'
     setting["AniStreamResolver_login"] = 'true'
-    setting["AnonFilesResolver_priority"] = 100
-    setting["AnonFilesResolver_enabled"] = 'true'
-    setting["AnonFilesResolver_login"] = 'true'
     setting["AnonymFileResolver_priority"] = 100
     setting["AnonymFileResolver_enabled"] = 'true'
     setting["AnonymFileResolver_login"] = 'true'
-    setting["AparatResolver_priority"] = 100
-    setting["AparatResolver_enabled"] = 'true'
-    setting["AparatResolver_login"] = 'true'
     setting["ArchiveResolver_priority"] = 100
     setting["ArchiveResolver_enabled"] = 'true'
     setting["ArchiveResolver_login"] = 'true'
-    setting["AVideoResolver_priority"] = 100
-    setting["AVideoResolver_enabled"] = 'true'
-    setting["AVideoResolver_login"] = 'true'
+    setting["AsumanaksoyResolver_priority"] = 100
+    setting["AsumanaksoyResolver_enabled"] = 'true'
+    setting["AsumanaksoyResolver_login"] = 'true'
     setting["BannedVideoResolver_priority"] = 100
     setting["BannedVideoResolver_enabled"] = 'true'
     setting["BannedVideoResolver_login"] = 'true'
+    setting["BewabResolver_priority"] = 100
+    setting["BewabResolver_enabled"] = 'true'
+    setting["BewabResolver_login"] = 'true'
     setting["BitchuteResolver_priority"] = 100
     setting["BitchuteResolver_enabled"] = 'true'
     setting["BitchuteResolver_login"] = 'true'
+    setting["BowFileResolver_priority"] = 100
+    setting["BowFileResolver_enabled"] = 'true'
+    setting["BowFileResolver_login"] = 'true'
+    setting["BrBeastResolver_priority"] = 100
+    setting["BrBeastResolver_enabled"] = 'true'
+    setting["BrBeastResolver_login"] = 'true'
     setting["BrighteonResolver_priority"] = 100
     setting["BrighteonResolver_enabled"] = 'true'
     setting["BrighteonResolver_login"] = 'true'
+    setting["BRPlayerResolver_priority"] = 100
+    setting["BRPlayerResolver_enabled"] = 'true'
+    setting["BRPlayerResolver_login"] = 'true'
     setting["BRUploadResolver_priority"] = 100
     setting["BRUploadResolver_enabled"] = 'true'
     setting["BRUploadResolver_login"] = 'true'
+    setting["BunnyResolver_priority"] = 100
+    setting["BunnyResolver_enabled"] = 'true'
+    setting["BunnyResolver_login"] = 'true'
     setting["CastampResolver_priority"] = 100
     setting["CastampResolver_enabled"] = 'true'
     setting["CastampResolver_login"] = 'true'
@@ -570,9 +588,9 @@ def fill_settings():
     setting["ChillXResolver_priority"] = 100
     setting["ChillXResolver_enabled"] = 'true'
     setting["ChillXResolver_login"] = 'true'
-    setting["ChromecastResolver_priority"] = 100
-    setting["ChromecastResolver_enabled"] = 'true'
-    setting["ChromecastResolver_login"] = 'true'
+    setting["CimaNowResolver_priority"] = 100
+    setting["CimaNowResolver_enabled"] = 'true'
+    setting["CimaNowResolver_login"] = 'true'
     setting["ClickNUploadResolver_priority"] = 100
     setting["ClickNUploadResolver_enabled"] = 'true'
     setting["ClickNUploadResolver_login"] = 'true'
@@ -582,6 +600,9 @@ def fill_settings():
     setting["CloudbResolver_priority"] = 100
     setting["CloudbResolver_enabled"] = 'true'
     setting["CloudbResolver_login"] = 'true'
+    setting["CloudFileResolver_priority"] = 100
+    setting["CloudFileResolver_enabled"] = 'true'
+    setting["CloudFileResolver_login"] = 'true'
     setting["CloudMailRuResolver_priority"] = 100
     setting["CloudMailRuResolver_enabled"] = 'true'
     setting["CloudMailRuResolver_login"] = 'true'
@@ -594,6 +615,12 @@ def fill_settings():
     setting["DailymotionResolver_priority"] = 100
     setting["DailymotionResolver_enabled"] = 'true'
     setting["DailymotionResolver_login"] = 'true'
+    setting["DailyUploadsResolver_priority"] = 100
+    setting["DailyUploadsResolver_enabled"] = 'true'
+    setting["DailyUploadsResolver_login"] = 'true'
+    setting["DarkIBoxResolver_priority"] = 100
+    setting["DarkIBoxResolver_enabled"] = 'true'
+    setting["DarkIBoxResolver_login"] = 'true'
     setting["DaxabResolver_priority"] = 100
     setting["DaxabResolver_enabled"] = 'true'
     setting["DaxabResolver_login"] = 'true'
@@ -621,6 +648,9 @@ def fill_settings():
     setting["DubokuResolver_priority"] = 100
     setting["DubokuResolver_enabled"] = 'true'
     setting["DubokuResolver_login"] = 'true'
+    setting["DzenResolver_priority"] = 100
+    setting["DzenResolver_enabled"] = 'true'
+    setting["DzenResolver_login"] = 'true'
     setting["EmbedGramResolver_priority"] = 100
     setting["EmbedGramResolver_enabled"] = 'true'
     setting["EmbedGramResolver_login"] = 'true'
@@ -643,15 +673,18 @@ def fill_settings():
     setting["FastUploadResolver_priority"] = 100
     setting["FastUploadResolver_enabled"] = 'true'
     setting["FastUploadResolver_login"] = 'true'
-    setting["FEmbedResolver_priority"] = 100
-    setting["FEmbedResolver_enabled"] = 'true'
-    setting["FEmbedResolver_login"] = 'true'
+    setting["FileGramResolver_priority"] = 100
+    setting["FileGramResolver_enabled"] = 'true'
+    setting["FileGramResolver_login"] = 'true'
     setting["FileLionsResolver_priority"] = 100
     setting["FileLionsResolver_enabled"] = 'true'
     setting["FileLionsResolver_login"] = 'true'
     setting["FileMoonResolver_priority"] = 100
     setting["FileMoonResolver_enabled"] = 'true'
     setting["FileMoonResolver_login"] = 'true'
+    setting["FileOneResolver_priority"] = 100
+    setting["FileOneResolver_enabled"] = 'true'
+    setting["FileOneResolver_login"] = 'true'
     setting["FilePupResolver_priority"] = 100
     setting["FilePupResolver_enabled"] = 'true'
     setting["FilePupResolver_login"] = 'true'
@@ -664,12 +697,21 @@ def fill_settings():
     setting["FilesIMResolver_priority"] = 100
     setting["FilesIMResolver_enabled"] = 'true'
     setting["FilesIMResolver_login"] = 'true'
+    setting["FileUploadResolver_priority"] = 100
+    setting["FileUploadResolver_enabled"] = 'true'
+    setting["FileUploadResolver_login"] = 'true'
+    setting["FileVedResolver_priority"] = 100
+    setting["FileVedResolver_enabled"] = 'true'
+    setting["FileVedResolver_login"] = 'true'
     setting["Film77Resolver_priority"] = 100
     setting["Film77Resolver_enabled"] = 'true'
     setting["Film77Resolver_login"] = 'true'
     setting["FlashXResolver_priority"] = 100
     setting["FlashXResolver_enabled"] = 'true'
     setting["FlashXResolver_login"] = 'true'
+    setting["FreeDLResolver_priority"] = 100
+    setting["FreeDLResolver_enabled"] = 'true'
+    setting["FreeDLResolver_login"] = 'true'
     setting["Full30Resolver_priority"] = 100
     setting["Full30Resolver_enabled"] = 'true'
     setting["Full30Resolver_login"] = 'true'
@@ -691,6 +733,9 @@ def fill_settings():
     setting["GoodStreamResolver_priority"] = 100
     setting["GoodStreamResolver_enabled"] = 'true'
     setting["GoodStreamResolver_login"] = 'true'
+    setting["GooglePhotosResolver_priority"] = 100
+    setting["GooglePhotosResolver_enabled"] = 'true'
+    setting["GooglePhotosResolver_login"] = 'true'
     setting["GoogleResolver_priority"] = 100
     setting["GoogleResolver_enabled"] = 'true'
     setting["GoogleResolver_login"] = 'true'
@@ -728,9 +773,6 @@ def fill_settings():
     setting["JustOKResolver_priority"] = 100
     setting["JustOKResolver_enabled"] = 'true'
     setting["JustOKResolver_login"] = 'true'
-    setting["K2SResolver_priority"] = 100
-    setting["K2SResolver_enabled"] = 'true'
-    setting["K2SResolver_login"] = 'true'
     setting["KrakenFilesResolver_priority"] = 100
     setting["KrakenFilesResolver_enabled"] = 'true'
     setting["KrakenFilesResolver_login"] = 'true'
@@ -761,6 +803,12 @@ def fill_settings():
     setting["MailRuResolver_priority"] = 100
     setting["MailRuResolver_enabled"] = 'true'
     setting["MailRuResolver_login"] = 'true'
+    setting["MaxStreamResolver_priority"] = 100
+    setting["MaxStreamResolver_enabled"] = 'true'
+    setting["MaxStreamResolver_login"] = 'true'
+    setting["MediaResolver_priority"] = 100
+    setting["MediaResolver_enabled"] = 'true'
+    setting["MediaResolver_login"] = 'true'
     setting["MegaUpNetResolver_priority"] = 100
     setting["MegaUpNetResolver_enabled"] = 'true'
     setting["MegaUpNetResolver_login"] = 'true'
@@ -779,9 +827,6 @@ def fill_settings():
     setting["MVidooResolver_priority"] = 100
     setting["MVidooResolver_enabled"] = 'true'
     setting["MVidooResolver_login"] = 'true'
-    setting["MyCloudResolver_priority"] = 100
-    setting["MyCloudResolver_enabled"] = 'true'
-    setting["MyCloudResolver_login"] = 'true'
     setting["MyFeministResolver_priority"] = 100
     setting["MyFeministResolver_enabled"] = 'true'
     setting["MyFeministResolver_login"] = 'true'
@@ -794,9 +839,9 @@ def fill_settings():
     setting["NewTubeResolver_priority"] = 100
     setting["NewTubeResolver_enabled"] = 'true'
     setting["NewTubeResolver_login"] = 'true'
-    setting["OKResolver_priority"] = 100
-    setting["OKResolver_enabled"] = 'true'
-    setting["OKResolver_login"] = 'true'
+    setting["OKRuResolver_priority"] = 100
+    setting["OKRuResolver_enabled"] = 'true'
+    setting["OKRuResolver_login"] = 'true'
     setting["OneUploadResolver_priority"] = 100
     setting["OneUploadResolver_enabled"] = 'true'
     setting["OneUploadResolver_login"] = 'true'
@@ -818,16 +863,22 @@ def fill_settings():
     setting["PlayWireResolver_priority"] = 100
     setting["PlayWireResolver_enabled"] = 'true'
     setting["PlayWireResolver_login"] = 'true'
+    setting["PreFilesResolver_priority"] = 100
+    setting["PreFilesResolver_enabled"] = 'true'
+    setting["PreFilesResolver_login"] = 'true'
+    setting["QiwiResolver_priority"] = 100
+    setting["QiwiResolver_enabled"] = 'true'
+    setting["QiwiResolver_login"] = 'true'
     setting["RacatyResolver_priority"] = 100
     setting["RacatyResolver_enabled"] = 'true'
     setting["RacatyResolver_login"] = 'true'
     setting["RapidgatorResolver_priority"] = 100
     setting["RapidgatorResolver_enabled"] = 'true'
     setting["RapidgatorResolver_login"] = 'false'
-    setting["RapidgatorResolver_username"] = 'true'
-    setting["RapidgatorResolver_password"] = 'true'
+    setting["RapidgatorResolver_username"] = ''
+    setting["RapidgatorResolver_password"] = ''
     setting["RapidgatorResolver_premium"] = 'false'
-    setting["RapidgatorResolver_session_id"] = 'true'
+    setting["RapidgatorResolver_session_id"] = ''
     setting["ReviewRateResolver_priority"] = 100
     setting["ReviewRateResolver_enabled"] = 'true'
     setting["ReviewRateResolver_login"] = 'true'
@@ -876,30 +927,24 @@ def fill_settings():
     setting["StreamCommunityResolver_priority"] = 100
     setting["StreamCommunityResolver_enabled"] = 'true'
     setting["StreamCommunityResolver_login"] = 'true'
+    setting["StreamDavResolver_priority"] = 100
+    setting["StreamDavResolver_enabled"] = 'true'
+    setting["StreamDavResolver_login"] = 'true'
     setting["StreamEmbedResolver_priority"] = 100
     setting["StreamEmbedResolver_enabled"] = 'true'
     setting["StreamEmbedResolver_login"] = 'true'
-    setting["StreamHideResolver_priority"] = 100
-    setting["StreamHideResolver_enabled"] = 'true'
-    setting["StreamHideResolver_login"] = 'true'
+    setting["StreamGzzzResolver_priority"] = 100
+    setting["StreamGzzzResolver_enabled"] = 'true'
+    setting["StreamGzzzResolver_login"] = 'true'
     setting["StreamHubResolver_priority"] = 100
     setting["StreamHubResolver_enabled"] = 'true'
     setting["StreamHubResolver_login"] = 'true'
-    setting["StreamLareResolver_priority"] = 100
-    setting["StreamLareResolver_enabled"] = 'true'
-    setting["StreamLareResolver_login"] = 'true'
     setting["StreamoUploadResolver_priority"] = 100
     setting["StreamoUploadResolver_enabled"] = 'true'
     setting["StreamoUploadResolver_login"] = 'true'
-    setting["StreamRapidResolver_priority"] = 100
-    setting["StreamRapidResolver_enabled"] = 'true'
-    setting["StreamRapidResolver_login"] = 'true'
     setting["StreamRubyResolver_priority"] = 100
     setting["StreamRubyResolver_enabled"] = 'true'
     setting["StreamRubyResolver_login"] = 'true'
-    setting["StreamSBResolver_priority"] = 100
-    setting["StreamSBResolver_enabled"] = 'true'
-    setting["StreamSBResolver_login"] = 'true'
     setting["StreamTapeResolver_priority"] = 100
     setting["StreamTapeResolver_enabled"] = 'true'
     setting["StreamTapeResolver_login"] = 'true'
@@ -912,9 +957,6 @@ def fill_settings():
     setting["StreamWishResolver_priority"] = 100
     setting["StreamWishResolver_enabled"] = 'true'
     setting["StreamWishResolver_login"] = 'true'
-    setting["StreamZResolver_priority"] = 100
-    setting["StreamZResolver_enabled"] = 'true'
-    setting["StreamZResolver_login"] = 'true'
     setting["SuperEmbedsResolver_priority"] = 100
     setting["SuperEmbedsResolver_enabled"] = 'true'
     setting["SuperEmbedsResolver_login"] = 'true'
@@ -924,6 +966,9 @@ def fill_settings():
     setting["SuperVideoResolver_priority"] = 100
     setting["SuperVideoResolver_enabled"] = 'true'
     setting["SuperVideoResolver_login"] = 'true'
+    setting["SwiftLoadResolver_priority"] = 100
+    setting["SwiftLoadResolver_enabled"] = 'true'
+    setting["SwiftLoadResolver_login"] = 'true'
     setting["TruHDResolver_priority"] = 100
     setting["TruHDResolver_enabled"] = 'true'
     setting["TruHDResolver_login"] = 'true'
@@ -948,10 +993,13 @@ def fill_settings():
     setting["TwitchResolver_priority"] = 100
     setting["TwitchResolver_enabled"] = 'true'
     setting["TwitchResolver_login"] = 'true'
-    setting["TwitchResolver_client_id"] = "am6l6dn0x3bxrdgc557p1qeg1ma3bto"
+    setting["TwitchResolver_client_id"] = 'am6l6dn0x3bxrdgc557p1qeg1ma3bto'
     setting["UpBaamResolver_priority"] = 100
     setting["UpBaamResolver_enabled"] = 'true'
     setting["UpBaamResolver_login"] = 'true'
+    setting["UpDownResolver_priority"] = 100
+    setting["UpDownResolver_enabled"] = 'true'
+    setting["UpDownResolver_login"] = 'true'
     setting["UploadBazResolver_priority"] = 100
     setting["UploadBazResolver_enabled"] = 'true'
     setting["UploadBazResolver_login"] = 'true'
@@ -970,6 +1018,9 @@ def fill_settings():
     setting["UploadRajaResolver_priority"] = 100
     setting["UploadRajaResolver_enabled"] = 'true'
     setting["UploadRajaResolver_login"] = 'true'
+    setting["UploadYResolver_priority"] = 100
+    setting["UploadYResolver_enabled"] = 'true'
+    setting["UploadYResolver_login"] = 'true'
     setting["UppitResolver_priority"] = 100
     setting["UppitResolver_enabled"] = 'true'
     setting["UppitResolver_login"] = 'true'
@@ -980,9 +1031,12 @@ def fill_settings():
     setting["UpToBoxResolver_enabled"] = 'true'
     setting["UpToBoxResolver_login"] = 'true'
     setting["UpToBoxResolver_premium"] = 'false'
-    setting["UpToBoxResolver_auth"] = 'true'
-    setting["UpToBoxResolver_reset"] = 'true'
-    setting["UpToBoxResolver_token"] = 'true'
+    setting["UpToBoxResolver_auth"] = ''
+    setting["UpToBoxResolver_reset"] = ''
+    setting["UpToBoxResolver_token"] = ''
+    setting["UptoMegaResolver_priority"] = 100
+    setting["UptoMegaResolver_enabled"] = 'true'
+    setting["UptoMegaResolver_login"] = 'true'
     setting["UpVidResolver_priority"] = 100
     setting["UpVidResolver_enabled"] = 'true'
     setting["UpVidResolver_login"] = 'true'
@@ -1001,8 +1055,11 @@ def fill_settings():
     setting["VeeHDResolver_priority"] = 100
     setting["VeeHDResolver_enabled"] = 'true'
     setting["VeeHDResolver_login"] = 'false'
-    setting["VeeHDResolver_username"] = 'true'
-    setting["VeeHDResolver_password"] = 'true'
+    setting["VeeHDResolver_username"] = ''
+    setting["VeeHDResolver_password"] = ''
+    setting["VeevResolver_priority"] = 100
+    setting["VeevResolver_enabled"] = 'true'
+    setting["VeevResolver_login"] = 'true'
     setting["VemBXResolver_priority"] = 100
     setting["VemBXResolver_enabled"] = 'true'
     setting["VemBXResolver_login"] = 'true'
@@ -1084,6 +1141,9 @@ def fill_settings():
     setting["VidStoreResolver_priority"] = 100
     setting["VidStoreResolver_enabled"] = 'true'
     setting["VidStoreResolver_login"] = 'true'
+    setting["VidTubeResolver_priority"] = 100
+    setting["VidTubeResolver_enabled"] = 'true'
+    setting["VidTubeResolver_login"] = 'true'
     setting["VidzStoreResolver_priority"] = 100
     setting["VidzStoreResolver_enabled"] = 'true'
     setting["VidzStoreResolver_login"] = 'true'
@@ -1093,6 +1153,9 @@ def fill_settings():
     setting["VipSSResolver_priority"] = 100
     setting["VipSSResolver_enabled"] = 'true'
     setting["VipSSResolver_login"] = 'true'
+    setting["ViralWeb8Resolver_priority"] = 100
+    setting["ViralWeb8Resolver_enabled"] = 'true'
+    setting["ViralWeb8Resolver_login"] = 'true'
     setting["VKResolver_priority"] = 100
     setting["VKResolver_enabled"] = 'true'
     setting["VKResolver_login"] = 'true'
@@ -1123,6 +1186,15 @@ def fill_settings():
     setting["VudeoResolver_priority"] = 100
     setting["VudeoResolver_enabled"] = 'true'
     setting["VudeoResolver_login"] = 'true'
+    setting["WaawResolver_priority"] = 100
+    setting["WaawResolver_enabled"] = 'true'
+    setting["WaawResolver_login"] = 'true'
+    setting["WecimaResolver_priority"] = 100
+    setting["WecimaResolver_enabled"] = 'true'
+    setting["WecimaResolver_login"] = 'true'
+    setting["WorldUploadsResolver_priority"] = 100
+    setting["WorldUploadsResolver_enabled"] = 'true'
+    setting["WorldUploadsResolver_login"] = 'true'
     setting["YandexResolver_priority"] = 100
     setting["YandexResolver_enabled"] = 'true'
     setting["YandexResolver_login"] = 'true'
@@ -1143,4 +1215,3 @@ def fill_settings():
     setting["ZtreamHubResolver_login"] = 'true'
     return setting
 setting = fill_settings()
-

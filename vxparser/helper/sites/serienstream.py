@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 # Python 3
 # Always pay attention to the translations in the menu!
-# Sprachauswahl fÃ¼r Hoster enthalten.
+# Sprachauswahl für Hoster enthalten.
 # Ajax Suchfunktion enthalten.
-# HTML LangzeitCache hinzugefÃ¼gt
+# HTML LangzeitCache hinzugefügt
     #showValue:     24 Stunden
     #showAllSeries: 24 Stunden
     #showEpisodes:   4 Stunden
     #SSsearch:      24 Stunden
-
-# 2022-12-06 Heptamer - Suchfunktion Ã¼berarbeitet
+    
+# 2022-12-06 Heptamer - Suchfunktion überarbeitet
 
 from helper.requestHandler import cRequestHandler
 from helper.tools import cParser
@@ -124,7 +124,11 @@ def showEntries(entryUrl=False, sGui=False):
     oRequest = cRequestHandler(entryUrl, ignoreErrors=True)
     oRequest.cacheTime = 60 * 60 * 24  # 6 Stunden
     sHtmlContent = oRequest.request()
-    pattern = '<div[^>]*class="col-md-[^"]*"[^>]*>.*?<a[^>]*href="([^"]*)"[^>]*>.*?data-src="([^"]*).*?<h3>(.*?)<span[^>]*class="paragraph-end">.*?<\\/div>'
+    pattern = '<div[^>]*class="col-md-[^"]*"[^>]*>.*?'  # start element
+    pattern += '<a[^>]*href="([^"]*)"[^>]*>.*?'  # url
+    pattern += 'data-src="([^"]*).*?'  # thumbnail
+    pattern += '<h3>(.*?)<span[^>]*class="paragraph-end">.*?'  # title
+    pattern += '<\\/div>'  # end element
     isMatch, aResult = cParser.parse(sHtmlContent, pattern)
     if not isMatch: return
 
@@ -243,14 +247,14 @@ def showHosters(entryUrl=False, sUrl=False):
                 if '3' in sLangCode:    # data-lang-key="3"
                     continue
                 if sLangCode == '2':    # data-lang-key="2"
-                    sLang = 'Englisch'   # Anzeige der Sprache
+                    sLang = 'Englisch'   # Anzeige der Sprache    
             if sLanguage == '3':        # Voreingestellte Sprache Japanisch in settings.xml
-                continue
-            if sLanguage == '0':        # Alle Sprachen
+                continue        
+            if sLanguage == '0':        # Alle Sprachen 
                 if sLangCode == '1':    # data-lang-key="1"
                     sLang = 'Deutsch'   # Anzeige der Sprache
                 if sLangCode == '2':    # data-lang-key="2"
-                    sLang = 'Englisch'  # Anzeige der Sprache
+                    sLang = 'Englisch'  # Anzeige der Sprache   
                 elif sLangCode == '3':  # data-lang-key="3"
                     sLang = 'Englisch mit deutschen Untertitel'    # Anzeige der Sprache
             if 'HD' in aResult2[1]: sQualy = 'HD'
@@ -259,7 +263,7 @@ def showHosters(entryUrl=False, sUrl=False):
                 # aus dem Log [serienstream]: ['/redirect/12286260', 'VOE']
                 # hier ist die sUrl = '/redirect/12286260' und der sName 'VOE'
                 # hoster.py 194
-            hoster = {'link': [sUrl, sName], 'name': sName, 'displayedName': '%s %s %s' % (sName, sQualy, sLang), 'languageCode': sLangCode}    # Language Code fÃ¼r hoster.py Sprache Prio
+            hoster = {'link': [sUrl, sName], 'name': sName, 'displayedName': '%s %s %s' % (sName, sQualy, sLang), 'languageCode': sLangCode}    # Language Code für hoster.py Sprache Prio
             hosters.append(hoster)
         if hosters:
             hosters.append('getHosterUrl')
@@ -272,7 +276,7 @@ def isBlockedHoster(domain, checkResolver=True ):
     hostblockDict = ['flashx','streamlare','evoload']  # permanenter Block
     for i in hostblockDict:
         if i in domain.lower() or i.split('.')[0] in domain.lower(): return True, domain
-    if checkResolver:   # ÃœberprÃ¼fung in resolveUrl
+    if checkResolver:   # Überprüfung in resolveUrl
         if resolver.relevant_resolvers(domain=domain) == []:
             print('[xStream] -> [isblockedHoster]: In resolveUrl no domain for url: %s' % domain)
             return True, domain    # Domain nicht in resolveUrl gefunden
@@ -297,11 +301,11 @@ def getHosterUrl(hUrl, entryUrl=False):
     Request.request()
     sUrl = Request.getRealUrl()
 
-    if 'voe' in hUrl[1].lower():
-        isBlocked, sDomain = isBlockedHoster(sUrl)  # Die funktion gibt 2 werte zurÃ¼ck!
-        if isBlocked:  # Voe Pseudo sDomain nicht bekannt in resolveUrl
-            sUrl = sUrl.replace(sDomain, 'voe.sx')
-        return [{'streamUrl': sUrl, 'resolved': False}]
+    # if 'voe' in hUrl[1].lower():
+    #     isBlocked, sDomain = isBlockedHoster(sUrl)  # Die funktion gibt 2 werte zurück!
+    #     if isBlocked:  # Voe Pseudo sDomain nicht bekannt in resolveUrl
+    #         sUrl = sUrl.replace(sDomain, 'voe.sx')
+    #     return [{'streamUrl': sUrl, 'resolved': False}]
 
     return [{'streamUrl': sUrl, 'resolved': False}]
 
@@ -324,8 +328,8 @@ def SSsearch(sSearchText=False):
 
     oRequest = cRequestHandler(URL_SERIES, caching=True, ignoreErrors=True)
     oRequest.addHeaderEntry('X-Requested-With', 'XMLHttpRequest')
-    oRequest.addHeaderEntry('Referer', REFERER + '/serien')
-    oRequest.addHeaderEntry('Origin', REFERER)
+    oRequest.addHeaderEntry('Referer', 'https://s.to/serien')
+    oRequest.addHeaderEntry('Origin', 'https://s.to')
     oRequest.addHeaderEntry('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8')
     oRequest.addHeaderEntry('Upgrade-Insecure-Requests', '1')
     oRequest.cacheTime = 60 * 60 * 24  # HTML Cache Zeit 1 Tag
@@ -374,8 +378,8 @@ def SSsearch(sSearchText=False):
 def getMetaInfo(link, title):   # Setzen von Metadata in Suche:
     oRequest = cRequestHandler(URL_MAIN + link, caching=False)
     oRequest.addHeaderEntry('X-Requested-With', 'XMLHttpRequest')
-    oRequest.addHeaderEntry('Referer', REFERER + '/serien')
-    oRequest.addHeaderEntry('Origin', REFERER)
+    oRequest.addHeaderEntry('Referer', 'https://s.to/serien')
+    oRequest.addHeaderEntry('Origin', 'https://s.to')
 
     #GET CONTENT OF HTML
     sHtmlContent = oRequest.request()

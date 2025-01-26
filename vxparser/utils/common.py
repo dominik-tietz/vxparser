@@ -1,7 +1,7 @@
-import random, os, string, time, socket, sys, sqlite3, json
+import random, os, string, time, socket, sys, sqlite3, json, time
 from unidecode import unidecode
 
-VERSION = '1.4.3-4'
+VERSION = '1.4.4-1'
 unicode = str
 rp = os.path.normpath(os.path.dirname(os.path.abspath(__file__))+'/../')
 
@@ -43,11 +43,11 @@ con3.text_factory = lambda x: unicode(x, errors='ignore')
 def Logger(lvl, msg, name=None, typ=None):
     if int(lvl) >= int(get_setting('log_lvl', 'Main')) or int(lvl) == 0:
         if name or typ:
-            if name and typ: 
+            if name and typ:
                 print('[%s][%s]:: %s' %(str(typ).upper(), str(name).upper(), str(msg)))
-            elif name: 
+            elif name:
                 print('[%s]:: %s' %(str(name).upper(), str(msg)))
-            elif typ: 
+            elif typ:
                 print('[%s]:: %s' %(str(typ).upper(), str(msg)))
             return
         print(msg)
@@ -70,7 +70,7 @@ def get_public_ip():
         return external_ip
     except:
         return None
-        
+
 
 def set_cache(key, value, path=None):
     #data={"timestamp": int(time.time()), "value": value}
@@ -112,7 +112,7 @@ def clear_cache():
         con3.close()
         shutil.rmtree(dp)
     return True
-    
+
 
 
 def clean_tables(item=None):
@@ -133,6 +133,43 @@ def clean_tables(item=None):
         check()
         return True
     return False
+
+
+def check_new_version():
+    sett = ('VERSION', 'Hidden', VERSION, '', '', '', '')
+    cur0 = con0.cursor()
+    cur0.execute('SELECT * FROM settings')
+    test = cur0.fetchall()
+    if test:
+        cur0.execute('SELECT * FROM settings WHERE name="VERSION"')
+        test2 = cur0.fetchone()
+        if test2:
+            if test2['value'] == VERSION: return True
+        lang = get_setting('lang')
+        if lang == None: lang = 0
+        else: lang = int(lang)
+        Logger(0, 'Drop Database after Version update ...' if lang == 1 else 'Leere Datenbank nach Programm update ...')
+        cur0.execute('DROP TABLE IF EXISTS settings')
+        cur0.execute('DROP TABLE IF EXISTS lists')
+        cur0.execute('DROP TABLE IF EXISTS categories')
+        cur0.execute('DROP TABLE IF EXISTS epgs')
+        con0.commit()
+        cur1 = con1.cursor()
+        cur1.execute('DROP TABLE IF EXISTS channel')
+        con1.commit()
+        cur2 = con2.cursor()
+        cur2.execute('DROP TABLE IF EXISTS streams')
+        cur2.execute('DROP TABLE IF EXISTS info')
+        con2.commit()
+        cur3 = con3.cursor()
+        cur3.execute('DROP TABLE IF EXISTS epg')
+        con3.commit()
+        time.sleep(0.1)
+        add_tables()
+    time.sleep(0.1)
+    cur0.execute('INSERT INTO settings VALUES (?,?,?,?,?,?,?)', sett)
+    con0.commit()
+    return True
 
 
 def add_tables():
@@ -249,6 +286,7 @@ def check_settings_tables():
 
 def check():
     if add_tables():
+        check_new_version()
         check_category_tables()
         check_settings_tables()
         check_epg_tables()

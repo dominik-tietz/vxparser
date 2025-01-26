@@ -30,7 +30,7 @@ import re
 from six.moves import urllib_parse
 import six
 import sys
-#from xbmcswift3 import xbmcvfs, xbmc, xbmcgui
+#from kodi_six import xbmcvfs, xbmcgui
 from resolveurl import common
 from resolveurl.hmf import HostedMediaFile
 from resolveurl.resolver import ResolveUrl
@@ -94,7 +94,7 @@ def relevant_resolvers(domain=None, include_universal=None, include_popups=None,
     return relevant
 
 
-def resolve(web_url, return_all=False):
+def resolve(web_url, return_all=False, subs=False):
     """
     Resolve a web page to a media stream.
 
@@ -124,7 +124,12 @@ def resolve(web_url, return_all=False):
         If the ``web_url`` could be resolved, a string containing the direct
         URL to the media file, if not, returns ``False``.
     """
-    source = HostedMediaFile(url=web_url, return_all=return_all)
+    if subs:
+        source = HostedMediaFile(url=web_url, subs=subs)
+    elif return_all:
+        source = HostedMediaFile(url=web_url, return_all=return_all)
+    else:
+        source = HostedMediaFile(url=web_url)
     return source.resolve()
 
 
@@ -278,7 +283,6 @@ def cleanup_settings():
 
 
 def _update_settings_xml():
-    return
     """
     This function writes a new ``resources/settings.xml`` file which contains
     all settings for this addon and its plugins.
@@ -369,4 +373,4 @@ def _update_settings_xml():
         common.logger.log_debug('No Settings Update Needed')
 
 
-_update_settings_xml()
+#_update_settings_xml()

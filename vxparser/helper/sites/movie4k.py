@@ -89,7 +89,7 @@ def showEpisodes(entryUrl=False, sThumbnail=False):
         oGuiElement["e"] = sEpisodeNr
         oGuiElement["season"] = sSeasonNr
         oGuiElement["url"] = entryUrl
-        oGuiElement["p2"] = sEpisodeNr
+        oGuiElement["p2"] = sName
         oGuiElement["mediatype"] = 'episode'
         oGuiElement["total"] = total
         folder.append(oGuiElement)

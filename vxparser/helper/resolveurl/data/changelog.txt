@@ -1,26 +1,23 @@
-Version 5.1.106 (Aug 15, 2023)
+Version 5.1.145 (August 18, 2024)
 - Code Base Changes:
     - None
 
 - Resolvers Added:
-    - uploaddo
+    - None
 
 - Resolvers Fixed/Updated:
-    - chillx
-    - clicknupload
-    - doodstream
-    - filelions
-    - pandafiles
-    - speedostream
-    - streamhub
-    - streamtape
+    - filegram
+    - filemoon
+    - lulustream
+    - streamruby
     - streamwish
-    - vidcloud9
+    - updown
+    - vk
     - voesx
-    - vtube
+    - waaw
 
 - Resolvers Removed
-    - None
+    - wolfstream
 
 - Languages Added/Updated
     - None

@@ -1,7 +1,26 @@
+"""
+    tknorris shared module
+    Copyright (C) 2016 tknorris
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
 import json
 import six
 
 LOGDEBUG = LOGERROR = LOGWARNING = LOGINFO = None
+
+
 
 def execute_jsonrpc(command):
     if not isinstance(command, six.string_types):
@@ -11,15 +30,20 @@ def execute_jsonrpc(command):
 
 
 def _is_debugging():
+    command = {'jsonrpc': '2.0', 'id': 1, 'method': 'Settings.getSettings', 'params': {'filter': {'section': 'system', 'category': 'logging'}}}
+    js_data = execute_jsonrpc(command)
+    for item in js_data.get('result', {}).get('settings', {}):
+        if item['id'] == 'debug.showloginfo':
+            return item['value']
 
     return False
 
 
 class Logger(object):
     __loggers = {}
-    __name = "ResolveURL"
+    __name = 'ResolveURL'
     __addon_debug = False
-    __debug_on = _is_debugging()
+    __debug_on = False
     __disabled = set()
 
     @staticmethod
@@ -38,7 +62,27 @@ class Logger(object):
             Logger.__disabled.remove(self)
 
     def log(self, msg, level=LOGDEBUG):
-        return
+        # if debug isn't on, skip disabled loggers unless addon_debug is on
+        if not self.__debug_on:
+            if self in self.__disabled:
+                return
+            elif level == LOGDEBUG:
+                if self.__addon_debug:
+                    level = LOGINFO
+                else:
+                    return
+
+        try:
+            if isinstance(msg, six.text_type) and six.PY2:
+                msg = '%s (ENCODED)' % (msg.encode('utf-8'))
+
+            xbmc.log('%s: %s' % (self.__name, msg), level)
+
+        except Exception as e:
+            try:
+                xbmc.log('Logging Failure: %s' % (e), level)
+            except:
+                pass  # just give up
 
     def log_debug(self, msg):
         self.log(msg, level=LOGDEBUG)

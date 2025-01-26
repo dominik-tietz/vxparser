@@ -1,6 +1,6 @@
 """
     Plugin for ResolveUrl
-    Copyright (C) 2022 shellc0de
+    Copyright (C) 2023 shellc0de, gujal
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,16 +16,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from resolveurl.plugins.__resolve_generic__ import ResolveGeneric
-from resolveurl.lib import helpers
+import json
+import re
 from six.moves import urllib_parse
+from resolveurl.lib import helpers
+from resolveurl import common
+from resolveurl.resolver import ResolveUrl, ResolverError
 
 
-class FileMoonResolver(ResolveGeneric):
+class FileMoonResolver(ResolveUrl):
     name = 'FileMoon'
     domains = ['filemoon.sx', 'filemoon.to', 'filemoon.in', 'filemoon.link', 'filemoon.nl',
-               'filemoon.wf', 'cinegrab.com', 'filemoon.eu', 'filemoon.art', 'moonmov.pro']
-    pattern = r'(?://|\.)((?:filemoon|cinegrab|moonmov)\.(?:sx|to|in|link|nl|wf|com|eu|art|pro))/(?:e|d)/([0-9a-zA-Z$:/.]+)'
+               'filemoon.wf', 'cinegrab.com', 'filemoon.eu', 'filemoon.art', 'moonmov.pro',
+               'kerapoxy.cc', 'furher.in', '1azayf9w.xyz', '81u6xl9d.xyz', 'kinoger.re',
+               'smdfs40r.skin']
+    pattern = r'(?://|\.)((?:filemoon|cinegrab|moonmov|kerapoxy|furher|1azayf9w|81u6xl9d|' \
+              r'kinoger|smdfs40r)' \
+              r'\.(?:sx|to|s?k?in|link|nl|wf|com|eu|art|pro|cc|re|xyz))' \
+              r'/(?:e|d|download)/([0-9a-zA-Z$:/._-]+)'
 
     def get_media_url(self, host, media_id):
         if '$$' in media_id:
@@ -33,12 +41,52 @@ class FileMoonResolver(ResolveGeneric):
             referer = urllib_parse.urljoin(referer, '/')
         else:
             referer = False
-        return helpers.get_media_url(
-            self.get_url(host, media_id),
-            patterns=[r'''sources:\s*\[{file:\s*["'](?P<url>[^"']+)'''],
-            generic_patterns=False,
-            referer=referer
-        )
+
+        if '/' in media_id:
+            media_id = media_id.split('/')[0]
+
+        web_url = self.get_url(host, media_id)
+        headers = {'User-Agent': common.RAND_UA}
+        if referer:
+            headers.update({'Referer': referer})
+
+        html = self.net.http_GET(web_url, headers=headers).content
+        if '<h1>Page not found</h1>' in html:
+            web_url = web_url.replace('/e/', '/d/')
+            html = self.net.http_GET(web_url, headers=headers).content
+
+        html += helpers.get_packed_data(html)
+        r = re.search(r'var\s*postData\s*=\s*(\{.+?\})', html, re.DOTALL)
+        if r:
+            r = r.group(1)
+            pdata = {
+                'b': re.findall(r"b:\s*'([^']+)", r)[0],
+                'file_code': re.findall(r"file_code:\s*'([^']+)", r)[0],
+                'hash': re.findall(r"hash:\s*'([^']+)", r)[0]
+            }
+            headers.update({
+                'Referer': web_url,
+                'Origin': urllib_parse.urljoin(web_url, '/')[:-1],
+                'X-Requested-With': 'XMLHttpRequest'
+            })
+            edata = self.net.http_POST(urllib_parse.urljoin(web_url, '/dl'), pdata, headers=headers).content
+            edata = json.loads(edata)[0]
+            surl = helpers.tear_decode(edata.get('file'), edata.get('seed'))
+            if surl:
+                headers.pop('X-Requested-With')
+                headers["verifypeer"] = "false"
+                return surl + helpers.append_headers(headers)
+        else:
+            r = re.search(r'sources:\s*\[{\s*file:\s*"([^"]+)', html, re.DOTALL)
+            if r:
+                headers.update({
+                    'Referer': web_url,
+                    'Origin': urllib_parse.urljoin(web_url, '/')[:-1],
+                    "verifypeer": "false"
+                })
+                return r.group(1) + helpers.append_headers(headers)
+
+        raise ResolverError('Video not found')
 
     def get_url(self, host, media_id):
         return self._default_get_url(host, media_id, template='https://{host}/e/{media_id}')

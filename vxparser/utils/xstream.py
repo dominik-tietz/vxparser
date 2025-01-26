@@ -6,7 +6,6 @@ from unidecode import unidecode
 
 from utils.common import get_ip_address as ip
 from utils.common import Logger as Logger
-from utils.common import set_cache, get_cache
 import resolveurl as resolver
 from helper import sites
 from helper.tmdb import cTMDB
@@ -78,12 +77,13 @@ def updateDB(loads):
                             if "quality" in entry: quality = entry["quality"]
                             else: quality = ''
                             cur2.execute('INSERT INTO info VALUES (NULL,"'+str(entry["site"])+'","'+str(cid)+'","'+str(tmdb)+'","'+str(media_type)+'","'+str(name)+'","'+str(originalName)+'","'+str(releaseDate)+'","'+str(genres)+'","'+str(description)+'","'+str(countries)+'","'+str(rating)+'","'+str(votes)+'","'+str(duration)+'","'+str(poster)+'","'+str(backdrop)+'","'+str(quality)+'")')
-                            con2.commit()
+                            #con2.commit()
                             i += 1
                             cur2.execute('SELECT * FROM info WHERE name="' + str(name) + '" AND site="' + str(entry["site"]) + '" AND media_type="' + str(media_type) + '"')
                             row = cur2.fetchone()
                         else: n += 1
                         sid = row['id']
+                        #con2.commit()
                     if entry["key"] == 'showHosters' or entry["key"] == 'showEpisodeHosters':
                         cur2.execute('SELECT * FROM streams WHERE sid="' + str(sid) + '"')
                         row = cur2.fetchone()
@@ -93,9 +93,10 @@ def updateDB(loads):
                             if "thumb" in entry: thumb = entry["thumb"]
                             else: thumb = ''
                             cur2.execute('INSERT INTO streams VALUES (NULL,"'+str(sid)+'","'+str(entry["site"])+'","'+str(entry["key"])+'","'+str(p2)+'","'+str(media_type)+'",NULL,NULL,"'+str(name)+'","'+str(entry["url"])+'","'+str(thumb)+'")')
-                            con2.commit()
+                            #con2.commit()
                             s += 1
                         else: m += 1
+                        #con2.commit()
                     if entry["key"] == 'showSeasons' and "entries" in entry:
                         if not entry['entries'] == None:
                             y = 0
@@ -124,9 +125,10 @@ def updateDB(loads):
                                                 elif "thumb" in entry: thumb = entry["thumb"]
                                                 else: thumb = ''
                                                 cur2.execute('INSERT INTO streams VALUES (NULL,"'+str(sid)+'","'+str(entry["site"])+'","'+str(episode["key"])+'","'+str(p2)+'","'+str(media_type)+'","'+str(se)+'","'+str(ep)+'","'+str(name)+'","'+str(episode["url"])+'","'+str(thumb)+'")')
-                                                con2.commit()
+                                                #con2.commit()
                                                 s += 1
                                             else: m += 1
+                                            #con2.commit()
                     if entry["key"] == 'showEpisodes' and "entries" in entry:
                         if not entry['entries'] == None:
                             x = 0
@@ -147,10 +149,11 @@ def updateDB(loads):
                                     elif "thumb" in entry: thumb = entry["thumb"]
                                     else: thumb = ''
                                     cur2.execute('INSERT INTO streams VALUES (NULL,"'+str(sid)+'","'+str(entry["site"])+'","'+str(episode["key"])+'","'+str(p2)+'","'+str(media_type)+'","'+str(se)+'","'+str(ep)+'","'+str(name)+'","'+str(episode["url"])+'","'+str(thumb)+'")')
-                                    con2.commit()
+                                    #con2.commit()
                                     s += 1
                                 else: m += 1
-        con2.commit()
+                                #con2.commit()
+    con2.commit()
     if site == None:
         if "site" in loads[0]: site = loads[0]["site"]
         elif "entries" in loads[0]:
@@ -209,11 +212,11 @@ def jobber(site, loads):
             load["entries"] = None
 
     com.set_cache(site.SITE_IDENTIFIER, loads, 'sites')
-    #updateDB(loads)
+    updateDB(loads)
     return True
 
 
-def getMovies2():
+def getMovies():
     for site in sites.sites:
         if bool(int(com.get_setting(site.SITE_IDENTIFIER+'_auto', 'Xstream'))) == True:
             load = site.load()
@@ -221,11 +224,11 @@ def getMovies2():
                 jobber(site, load)
     lang = int(com.get_setting('lang', 'Hidden'))
     genLists()
-    Logger(1, 'All jobs done ...' if lang == 1 else 'Alle Aufträge abgeschlossen ...', 'new', 'get')
+    Logger(1, 'All jobs done ...' if lang == 1 else 'Alle Aufträge abgeschlossen ...', 'vod', 'process')
     return True
 
 
-def getMovies():
+def getMovies2():
     for site in sites.sites:
         if bool(int(com.get_setting(site.SITE_IDENTIFIER+'_auto', 'Xstream'))) == True:
             load = site.load()
@@ -240,7 +243,7 @@ def getMovies():
     #job = Process(target=genLists)
     #job.start()
     #job.join()
-    Logger(1, 'All jobs done ...' if lang == 1 else 'Alle Aufträge abgeschlossen ...', 'new', 'get')
+    Logger(1, 'All jobs done ...' if lang == 1 else 'Alle Aufträge abgeschlossen ...', 'vod', 'process')
     return True
 
 

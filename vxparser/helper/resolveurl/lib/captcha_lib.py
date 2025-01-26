@@ -1,5 +1,25 @@
+"""
+    resolveurl XBMC Addon
+    Copyright (C) 2014 tknorris
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+    reusable captcha methods
+"""
 from resolveurl import common
 import re
+#import xbmcgui
 import os
 from resolveurl.lib import recaptcha_v2
 from resolveurl.lib import helpers
@@ -9,13 +29,13 @@ net = common.Net()
 IMG_FILE = 'captcha_img.gif'
 
 
-def get_response(img, x=450, y=0, w=400, h=130):
+def get_response(img, x=450, y=225, w=400, h=130):
     try:
         img = xbmcgui.ControlImage(x, y, w, h, img)
         wdlg = xbmcgui.WindowDialog()
         wdlg.addControl(img)
         wdlg.show()
-        common.kodi.sleep(3000)
+        common.kodi.sleep(5000)
         solution = common.kodi.get_keyboard(common.i18n('letters_image'))
         if not solution:
             raise Exception('captcha_error')
@@ -29,7 +49,7 @@ def write_img(url=None, bin=None):
     if url:
         bin = net.http_GET(url).nodecode(True).content
     with open(img, 'wb') as file:
-        discard = file.write(bin)
+        _ = file.write(bin)
     return img
 
 
@@ -51,7 +71,7 @@ def do_captcha(html, base_url=None):
     elif ccapimg and base_url:
         return {'secimgkey': ccapimg.group(1), 'secimginp': do_ccapimg_captcha(base_url + 'ccapimg?key=' + ccapimg.group(1))}
     else:
-        captcha = re.compile(r"left:(\d+)px;padding-top:\d+px;'>&#(.+?);<").findall(html)
+        captcha = re.compile(r'''left:(\d+)px;padding-top:\d+px;['"]>&#(.+?);<''').findall(html)
         result = sorted(captcha, key=lambda ltr: int(ltr[0]))
         solution = ''.join(str(int(num[1]) - 48) for num in result)
         if solution:
@@ -116,7 +136,8 @@ def do_xfilecaptcha(captcha_url):
     common.logger.log_debug('XFileLoad ReCaptcha: %s' % captcha_url)
     if captcha_url.startswith('//'):
         captcha_url = 'http:' + captcha_url
-    solution = get_response(captcha_url)
+    captcha_img = write_img(captcha_url)
+    solution = get_response(captcha_img)
     return {'code': solution}
 
 

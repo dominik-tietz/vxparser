@@ -18,6 +18,7 @@
 
 import re
 import json
+from six.moves import urllib_parse
 from resolveurl import common
 from resolveurl.lib import helpers
 from resolveurl.resolver import ResolveUrl, ResolverError
@@ -25,8 +26,8 @@ from resolveurl.resolver import ResolveUrl, ResolverError
 
 class HexUploadResolver(ResolveUrl):
     name = 'HexUpload'
-    domains = ['hexupload.net']
-    pattern = r'(?://|\.)(hexupload\.net)/(?:embed-)?([0-9a-zA-Z]+)'
+    domains = ['hexupload.net', 'hexload.com']
+    pattern = r'(?://|\.)(hex(?:up)?load\.(?:net|com))/(?:embed-)?([0-9a-zA-Z]+)'
 
     def get_media_url(self, host, media_id):
         web_url = self.get_url(host, media_id)
@@ -62,7 +63,7 @@ class HexUploadResolver(ResolveUrl):
         url = re.search(r"ldl.ld\('([^']+)", html)
         if url:
             url = helpers.b64decode(url.group(1))
-            return url.replace(' ', '%20') + helpers.append_headers(headers)
+            return urllib_parse.quote(url, ':/?=&') + helpers.append_headers(headers)
 
         raise ResolverError('File Not Found or Removed')
 
