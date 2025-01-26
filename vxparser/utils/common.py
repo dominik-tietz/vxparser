@@ -1,7 +1,7 @@
 import random, os, string, time, socket, sys, sqlite3, json, time
 from unidecode import unidecode
 
-VERSION = '1.4.4-1'
+VERSION = '1.4.4-2'
 unicode = str
 rp = os.path.normpath(os.path.dirname(os.path.abspath(__file__))+'/../')
 
@@ -39,6 +39,7 @@ con2.text_factory = lambda x: unicode(x, errors='ignore')
 con3 = sqlite3.connect(db3)
 con3.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 con3.text_factory = lambda x: unicode(x, errors='ignore')
+
 
 def Logger(lvl, msg, name=None, typ=None):
     if int(lvl) >= int(get_setting('log_lvl', 'Main')) or int(lvl) == 0:
@@ -100,7 +101,7 @@ def get_cache(key, path=None):
         value = r.get('value')
         return value
     except:
-        return
+        return None
 
 
 def clear_cache():
@@ -254,8 +255,8 @@ def check_settings_tables():
         ('vod_sleep', 'Main', '112', '["Zeit in Stunden zwischen automatischer VoD & Serien Listen erstellung", "Sleep Time for Auto List Creation Service for VoD & Series in Hours"]', '112', 'text', ''),
         ('log_lvl', 'Main', '1', '["LogLevel", "LogLevel"]', '1', 'select', '{"1": "Info", "3": "Error"}'),
         ('get_tmdb', 'Main', '0', '["Durchsuche TMDB für zusätzliche Informationen", "Search in TMDB after VoD & Series Infos"]', '0', 'bool', '{"1": "On", "0": "Off"}'),
-        ('serienstream_username', 'Main', 'michael.zauner@live.at', '["Benutzername vom serienstream Account (s.to)", "Username of S.to User Accound"]', '', 'text', ''),
-        ('serienstream_password', 'Main', 'michaz2455', '["Passwort für serienstream Account (s.to)", "Password for S.to User Accound"]', '', 'text', ''),
+        ('serienstream_username', 'Hidden', 'michael.zauner@live.at', '["Benutzername vom serienstream Account (s.to)", "Username of S.to User Accound"]', '', 'text', ''),
+        ('serienstream_password', 'Hidden', 'michaz2455', '["Passwort für serienstream Account (s.to)", "Password for S.to User Accound"]', '', 'text', ''),
         ('xtream_codec', 'Main', 'h', '["Bevorzugter codec für Xtream Codes api", "Preferred codec for xtream codes api"]', 'h', 'select', '{"t": "ts", "h": "hls"}'),
         ('m3u8_hls', 'Vavoo', '1', '["Erstelle HLS m3u8 Listen", "Generate HLS m3u8 lists"]', '1', 'bool', '{"1": "On", "0": "Off"}'),
         ('m3u8_name', 'Vavoo', '1', '["Vavoo Channel Namen ersetzen", "Replace Vavoo Channel Name"]', '1', 'bool', '{"1": "On", "0": "Off"}'),

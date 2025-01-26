@@ -212,11 +212,11 @@ def jobber(site, loads):
             load["entries"] = None
 
     com.set_cache(site.SITE_IDENTIFIER, loads, 'sites')
-    updateDB(loads)
+    #updateDB(loads)
     return True
 
 
-def getMovies():
+def getMovies2():
     for site in sites.sites:
         if bool(int(com.get_setting(site.SITE_IDENTIFIER+'_auto', 'Xstream'))) == True:
             load = site.load()
@@ -228,7 +228,7 @@ def getMovies():
     return True
 
 
-def getMovies2():
+def getMovies():
     for site in sites.sites:
         if bool(int(com.get_setting(site.SITE_IDENTIFIER+'_auto', 'Xstream'))) == True:
             load = site.load()
@@ -239,6 +239,11 @@ def getMovies2():
     if len(jobs) > 0:
         for job in jobs:
             job.join()
+    for site in sites.sites:
+        loads = com.get_cache(site.SITE_IDENTIFIER, 'sites')
+        if loads:
+            updateDB(loads)
+    genLists()
     lang = int(com.get_setting('lang', 'Hidden'))
     #job = Process(target=genLists)
     #job.start()
