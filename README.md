@@ -1,6 +1,6 @@
 # vavoo-parser (für LiveTV) + xstream-addon (für VoD's & Series) ...
 
-## Next Gen fork - (Beta!) CLI Version 1.4.4
+## Next Gen fork - (Beta!) CLI Version 1.4.2
 
 # Update Verlauf:
 
@@ -11,23 +11,22 @@
 - ResolveURL auf Version 5.1.145 geupdated & soweit angepasst dass jetzt alles wieder reibungslos funktioniert mit der Hoster übergabe.
 - Programm Versions check eingebaut, sodass beim updaten vom vxparser alle Datenbanken geleert werden um errors innerhalb der Datenbank beim updaten zu vermeiden.
 - Site Plugins noch etwas an gepasst, xcine removed, movie4k added.
-- Install.py wieder hinzugefügt.
 ### Update to 1.4.3:
 - Diverse site plugins den letzten schliff gegeben, damit es weitesgehend reibungslos abläuft.
 - Einen Service layer für VoD's & Serien hinzugefügt. Somit ist es jetzt möglich alle Bereiche vom vxparser voll automatisch laufen zu lassen.
 - Fist start PreMenu ein gebaut. Jetzt ist es beim ersten start vom vxparser nun die Menüsprache auf Deutsch oder Englisch stellen kann.
 - Danach besteht die möglichkeit alle Services zu deaktivieren, damit für den User erstmal ggf. nötige Einstellungen vorab zu tätigen. (wie z.b. Server ip zu setzen ...)
-### Update to 1.4.2:
+### Update to 1.4.2-1:
 - Xstream Conten wieder hinzu gefügt + site plugins to aktueller version (4.1.2) updated ...
-### Update to 1.4.1:
+### Update to 1.4.1-1:
 - OMG die install.py soll Malware detection ausgelöst haben ich kanns nicht glauben -.-
 ### Update to 1.4.1:
 - Added LiveTV funktion um eigene m3u8 listen & gruppen zu erstellen + stream links hinzu zufügen ...
 ### Update to 1.4.0:
 - Remove Xstream part zwecks Anti Malware detection ...
-### Update to v.1.3.2:
+### Update v1.3.0 -> v.1.3.2:
 - epg.xml.gz export bug fixx ... Jetzt läuft's wieder gut ;-)
-### Update to v1.3.0:
+### Update v1.3.0:
 - Xtream Code Api letzte Funktion komplementiert. (get.php m3u/m3u_plus ...)
 - added custom_sid: '' to return json, nun laufen alle gängigen Xtream Code App's wie IPTV Smarters, IPTV Extream, IPTV Pro usw.
 ### Update to v1.2.5:
@@ -56,14 +55,15 @@ python3 -m pip install vxparser
 vxparser
 ```
 
+### Android AiO installer Apk (Termux):
+
+Für jeden der den vxparser auf seinen Android Smart TV oder so installieren will, für den habe ich eine AiO Termux apk gebaut. Einfach installieren und beim erstmaligen starten von Termux läd er eine (ca. 100mb) bootstrap File herunter. Der vxparser startet dann vollautomatisch mit Termux zusammen.
+
+[vxparser_termux_0.83.apk](https://github.com/Mastaaa1987/termux-vxparser/releases/download/v0.8.3/vxparser_termux_0.83.apk)
+
+- Für ein Update vom vxparser muss nur die Termux App Daten gelöscht & die bootstrap erneut herunter geladen werden.
+
 </details>
-
-# Android AiO installer Apk (Termux):
-<details>
-<summary>Klick HIER für Content.</summary>
-
-Für
-
 
 # Menü Aufbau / General Ablauf:
 
@@ -356,5 +356,5 @@ Momentan verfügbare Plugins:
 
 </details>
 
-# Copyright 2025 @Mastaaa1987
+# Copyright 2023 @Mastaaa1987
 
