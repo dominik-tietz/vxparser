@@ -1,6 +1,6 @@
 # vavoo-parser (für LiveTV) + xstream-addon (für VoD's & Series) ...
 
-## Next Gen fork - (Beta!) CLI Version 1.4.2
+## Next Gen fork - (Beta!) CLI Version 1.4.4
 
 # Update Verlauf:
 
