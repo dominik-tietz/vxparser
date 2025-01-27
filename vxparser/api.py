@@ -291,6 +291,7 @@ async def vod(typ: str, username: str, password: str, sid: str, ext: str):
             if "streamUrl" in url:
                 try:
                     link = xstream.getStream(url["streamUrl"])
+                    if '|' in link: link = link.split('|')[0]
                 except Exception:
                     link = None
             linked[sid][username] += 1
@@ -407,6 +408,7 @@ async def stream(sid: str):
             if "streamUrl" in url:
                 try:
                     link = xstream.getStream(url["streamUrl"])
+                    if '|' in link: link = link.split('|')[0]
                 except Exception:
                     link = None
             linked[sid] += 1
