@@ -53,7 +53,17 @@ def showEntries(entryUrl=False, sSearchText=False):
         isYear, sYear = cParser.parseSingleResult(sDummy, 'class="white">([\d]+)')  # Release Jahr
         isTvshow = True if 'taffel' in sName else False
         oGuiElement = {}
-        oGuiElement["name"] = sName
+        if isTvshow:
+            if ' - Staffel ' in sName:
+                oGuiElement["name"] = sName.split(' - ')[0]
+                s = sName.split('Staffel ')[1]
+                oGuiElement["s"] = s.split(' ')[0]
+            elif ' Staffel ' in sName:
+                oGuiElement["name"] = sName.split(' Staffel ')[0]
+                s = sName.split(' Staffel ')[1]
+                oGuiElement["s"] = s.split(' ')[0]
+            else: oGuiElement["name"] = sName
+        else: oGuiElement["name"] = sName
         oGuiElement["site"] = SITE_IDENTIFIER
         oGuiElement["key"] = 'showEpisodes' if isTvshow else 'showHosters'
         oGuiElement["url"] = sUrl
@@ -87,7 +97,7 @@ def showEpisodes(entryUrl=False, sThumbnail=False):
         oGuiElement["key"] = 'showHosters'
         oGuiElement["thumb"] = sThumbnail
         oGuiElement["e"] = sEpisodeNr
-        oGuiElement["season"] = sSeasonNr
+        oGuiElement["s"] = sSeasonNr
         oGuiElement["url"] = entryUrl
         oGuiElement["p2"] = sName
         oGuiElement["mediatype"] = 'episode'

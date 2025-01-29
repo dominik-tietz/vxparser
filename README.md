@@ -9,6 +9,7 @@
 
 ### Update to 1.4.5:
 - Fixxed api getStream link Übergabe (remove |User-Agent=.* in link). Endlich funktionieren die site plugins ordnungsgemäß.
+- Site Plugins noch einmal angepasst, dokus4 removed. Jetzt funktionieren alle Site Plugins ordnungsgemäß.
 ### Update to 1.4.4:
 - ResolveURL auf Version 5.1.145 geupdated & soweit angepasst dass jetzt alles wieder reibungslos funktioniert mit der Hoster übergabe.
 - Programm Versions check eingebaut, sodass beim updaten vom vxparser alle Datenbanken geleert werden um errors innerhalb der Datenbank beim updaten zu vermeiden.

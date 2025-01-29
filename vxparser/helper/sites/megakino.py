@@ -59,7 +59,17 @@ def showEntries(entryUrl=False, sSearchText=False):
         isDesc, sDesc = cParser.parseSingleResult(sDummy, 'class="poster__text[^"]+">([^<]+)')  # Beschreibung
         isTvshow, aResult = cParser.parse(sName, '\s+-\s+Staffel\s+\d+')
         oGuiElement = {}
-        oGuiElement["name"] = sName
+        if isTvshow:
+            if ' - Staffel ' in sName:
+                oGuiElement["name"] = sName.split(' - ')[0]
+                s = sName.split('Staffel ')[1]
+                oGuiElement["s"] = s.split(' ')[0]
+            elif ' Staffel ' in sName:
+                oGuiElement["name"] = sName.split(' Staffel ')[0]
+                s = sName.split(' Staffel ')[1]
+                oGuiElement["s"] = s.split(' ')[0]
+            else: oGuiElement["name"] = sName
+        else: oGuiElement["name"] = sName
         oGuiElement["site"] = SITE_IDENTIFIER
         oGuiElement["key"] = 'showEpisodes' if isTvshow else 'showHosters'
         oGuiElement["thumb"] = URL_MAIN + sThumbnail
@@ -69,14 +79,10 @@ def showEntries(entryUrl=False, sSearchText=False):
         oGuiElement["total"] = total
         if isQuality:
             if isTvshow is True:
-                if sQuality == 'Komplett':
-                    oGuiElement["quality"] = 'Komplette Staffel'
-                else:
-                    oGuiElement["quality"] = sQuality + ' Episoden'
-            else:
-                oGuiElement["quality"] = sQuality
-        if isYear:
-            oGuiElement["year"] = sYear
+                if sQuality == 'Komplett': oGuiElement["quality"] = 'Komplette Staffel'
+                else: oGuiElement["quality"] = sQuality + ' Episoden'
+            else: oGuiElement["quality"] = sQuality
+        if isYear: oGuiElement["year"] = sYear
         if isDesc:
             if sDesc[-1] != '.':
                 sDesc += '...'
@@ -85,8 +91,10 @@ def showEntries(entryUrl=False, sSearchText=False):
     return folder
 
 
-def showEpisodes(entryUrl=False, sName=False, sThumbnail=False, sDesc=False):
+def showEpisodes(entryUrl=False, sName=False):
     folder = []
+    if not entryUrl: return
+    if not sName: return
     sUrl = entryUrl
     isMatch, sShowName = cParser.parseSingleResult(sName, '(.*?)\s+-\s+Staffel\s+\d+')
     if not isMatch: return
@@ -104,14 +112,12 @@ def showEpisodes(entryUrl=False, sName=False, sThumbnail=False, sDesc=False):
         oGuiElement["name"] = str(episodeName)
         oGuiElement["site"] = SITE_IDENTIFIER
         oGuiElement["key"] = 'showEpisodeHosters'
-        oGuiElement["thumb"] = URL_MAIN + sThumbnail
         oGuiElement["show"] = sShowName
-        oGuiElement["season"] = sSeason
+        oGuiElement["s"] = sSeason
         oGuiElement["url"] = sUrl
         oGuiElement["p2"] = episode
         oGuiElement["e"] = episode
         oGuiElement["mediatype"] = 'episode'
-        oGuiElement["desc"] = sDesc
         oGuiElement["total"] = total
         folder.append(oGuiElement)
     return folder

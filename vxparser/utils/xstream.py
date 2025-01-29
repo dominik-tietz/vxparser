@@ -300,7 +300,9 @@ def genLists():
 def getHoster(data):
     site = getattr(sites, data['site'])
     entry = data['url']
-    if data['p2'] != '': hosts = site.showHosters(entry, data['p2'])
+    if data['p2'] != '':
+        key = getattr(site, data['key'])
+        hosts = key(entry, data['p2'])
     else: hosts = site.showHosters(entry)
     if hosts:
         return hosts

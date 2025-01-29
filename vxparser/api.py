@@ -293,8 +293,6 @@ async def vod(typ: str, username: str, password: str, sid: str, ext: str):
                     link = xstream.getStream(url["streamUrl"])
                     if '|' in link:
                         link = link.split('|')[0]
-                    if "voe" in url["streamUrl"]:
-                        link = link.replace('master.m3u8', 'index-v1-a1.m3u8')
                 except Exception:
                     link = None
             linked[sid][username] += 1
@@ -413,8 +411,6 @@ async def stream(sid: str):
                     link = xstream.getStream(url["streamUrl"])
                     if '|' in link:
                         link = link.split('|')[0]
-                    if "voe" in url["streamUrl"]:
-                        link = link.replace('master.m3u8', 'index-v1-a1.m3u8')
                 except Exception:
                     link = None
             linked[sid] += 1
