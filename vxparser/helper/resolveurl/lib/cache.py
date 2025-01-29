@@ -28,7 +28,7 @@ from resolveurl.lib import kodi
 logger = log_utils.Logger.get_logger(__name__)
 
 try:
-    cache_path = 'cache'
+    cache_path = os.path.normpath(os.path.join(os.path.normpath(os.path.dirname(os.path.abspath(__file__))), '..', 'data', 'cache'))
     if not os.path.exists(cache_path):
         os.makedirs(cache_path)
 except Exception as e:
