@@ -47,6 +47,7 @@ class UvicornServer(Process):
 
 app = FastAPI()
 links = {}
+hosts = {}
 linked = {}
 
 
@@ -255,7 +256,6 @@ async def live(username: str, password: str, sid: str, ext: str):
         if data:
             link = vavoo.resolve_link(data['hls'])
             if link:
-                print(link)
                 return link
             else: raise HTTPException(status_code=404, detail="Stream not found")
         else: raise HTTPException(status_code=404, detail="Stream not found")
@@ -276,35 +276,35 @@ async def vod(typ: str, username: str, password: str, sid: str, ext: str):
         urls = xstream.getHoster(data)
         if urls:
             links[sid] = urls
-            if sid not in linked: linked[sid] = {}
-            if username not in linked[sid]: linked[sid][username] = 0
     if sid in links:
-        if len(links[sid]) > linked[sid][username]:
-            url = links[sid][linked[sid][username]]
-            if not "streamUrl" in url:
-                try:
-                    shost = xstream.getHosterUrl(url["link"], data['site'])
-                    if shost:
-                        url["streamUrl"] = shost[0]["streamUrl"]
-                except Exception:
-                    link = None
-            if "streamUrl" in url:
-                try:
-                    link = xstream.getStream(url["streamUrl"])
-                    if '|' in link:
-                        link = link.split('|')[0]
-                except Exception:
-                    link = None
-            linked[sid][username] += 1
-            if link is None:
-                Logger(1, "Link (%s/%s) not found" %(str(linked[sid][username]), str(len(links[sid]))))
-                raise HTTPException(status_code=404, detail="Link (%s/%s) not found" %(str(linked[sid][username]), str(len(links[sid]))))
-            elif "voe" in link.lower():
-                link = re.sub('\|User-Agent=.*', '', link)
-            return link
-        elif len(links[sid]) > 1:
-            linked[sid][username] = 0
-            return
+        for url in links[sid]:
+            if not 'getHosterUrl' in url:
+                if not "hostUrl" in url:
+                    if not "streamUrl" in url:
+                        try:
+                            shost = xstream.getHosterUrl(url["link"], data['site'])
+                            if shost:
+                                url["streamUrl"] = shost[0]["streamUrl"]
+                        except Exception:
+                            link = None
+                    if "streamUrl" in url:
+                        try:
+                            link = xstream.getStream(url["streamUrl"])
+                            if '|' in link:
+                                link = link.split('|')[0]
+                        except Exception:
+                            link = None
+                    if not link is None:
+                        url["hostUrl"] = link
+                if "hostUrl" in url:
+                    link = url["hostUrl"]
+                    break
+        if link is None:
+            Logger(1, "No Links found! (%s hosts)" % str(len(links[sid])-1))
+            raise HTTPException(status_code=404, detail="No Links found! (%s hosts)" % str(len(links[sid])-1))
+        elif "voe" in link.lower():
+            link = re.sub('\|User-Agent=.*', '', link)
+        return link
     else: raise HTTPException(status_code=404, detail="Stream not found")
 
 
@@ -376,7 +376,6 @@ async def channel(sid: str):
     if data:
         link = vavoo.resolve_link(data['hls'])
         if link:
-            print(link)
             return link
         else: raise HTTPException(status_code=404, detail="Stream not found")
     else: raise HTTPException(status_code=404, detail="Stream not found")
@@ -395,32 +394,35 @@ async def stream(sid: str):
         urls = xstream.getHoster(data)
         if urls:
             links[sid] = urls
-            if sid not in linked: linked[sid] = 0
     if sid in links:
-        if len(links[sid]) > linked[sid]:
-            url = links[sid][linked[sid]]
-            if not "streamUrl" in url:
-                try:
-                    shost = xstream.getHosterUrl(url["link"], data['site'])
-                    if shost:
-                        url["streamUrl"] = shost[0]["streamUrl"]
-                except Exception:
-                    link = None
-            if "streamUrl" in url:
-                try:
-                    link = xstream.getStream(url["streamUrl"])
-                    if '|' in link:
-                        link = link.split('|')[0]
-                except Exception:
-                    link = None
-            linked[sid] += 1
-            if link is None:
-                Logger(1, "Link (%s/%s) not found" %(str(linked[sid]), str(len(links[sid]))))
-                raise HTTPException(status_code=404, detail="Link (%s/%s) not found" %(str(linked[sid]), str(len(links[sid]))))
-            return link
-        elif len(links[sid]) > 1:
-            linked[sid] = 0
-            return
+        for url in links[sid]:
+            if not "getHosterUrl" in url:
+                if not "hostUrl" in url:
+                    if not "streamUrl" in url:
+                        try:
+                            shost = xstream.getHosterUrl(url["link"], data['site'])
+                            if shost:
+                                url["streamUrl"] = shost[0]["streamUrl"]
+                        except Exception:
+                            link = None
+                    if "streamUrl" in url:
+                        try:
+                            link = xstream.getStream(url["streamUrl"])
+                            if '|' in link:
+                                link = link.split('|')[0]
+                        except Exception:
+                            link = None
+                    if not link is None:
+                        url["hostUrl"] = link
+                if "hostUrl" in url:
+                    link = url["hostUrl"]
+                    break
+        if link is None:
+            Logger(1, "No Links found! (%s hosts)" % str(len(links[sid])-1))
+            raise HTTPException(status_code=404, detail="No Links found! (%s hosts)" % str(len(links[sid])-1))
+        elif "voe" in link.lower():
+            link = re.sub('\|User-Agent=.*', '', link)
+        return link
     else: raise HTTPException(status_code=404, detail="Stream not found")
 
 

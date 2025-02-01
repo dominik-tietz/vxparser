@@ -1,12 +1,18 @@
 # vavoo-parser (für LiveTV) + xstream-addon (für VoD's & Series) ...
 
-## Next Gen fork - (Beta!) CLI Version 1.4.5
+## Next Gen fork - (Beta!) CLI Version 1.4.6
 
 # Update Verlauf:
 
 <details>
 <summary>Klick HIER für Content.</summary>
 
+### Update to 1.4.6:
+- Als vorerst letztes Site Plugin xcine hinzugefügt.
+- Die epg Service Einstellung von Vavoo Einstellungen in Haupt Einstellungen verschoben. Jetzt können alle 3 Services in den Haupt Einstellungen eingestellt werden.
+- Die Service Wartezeit einstellung von Stunden in 5 Tagen geändert.
+- Die VoD & Series Übergabe automatisiert. Der vxparser wechselt jetzt nicht ein Host nach dem anderem durch sondern prüft alle möglichen Mirror automatisch durch bis einer gefunden wird. Insofern einer gefunden wird gibt er nur noch diesen an den Clienten weiter und wechselt nicht mehr zum nächsten!
+- So alle Site Plugins funktionieren momentan im Auto Modus sowie in der Globalen Suche. Solange das jetzt der Fall bleibt, war dies vorerst mein letztes Update! Muss reichen ;-) (Hoffentlich sind keine Buggs mehr jezze ^^)
 ### Update to 1.4.5:
 - Fixxed api getStream link Übergabe (remove |User-Agent=.* in link). Endlich funktionieren die site plugins ordnungsgemäß.
 - Site Plugins noch einmal angepasst, dokus4 removed. Jetzt funktionieren alle Site Plugins ordnungsgemäß.

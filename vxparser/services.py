@@ -28,33 +28,33 @@ def convert(seconds):
 
 
 def handler(typ, name=None):
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     if typ == 'init':
         if not proc['api']:
-            ip = str(com.get_setting('server_host', 'Main'))
-            port = int(com.get_setting('server_port', 'Main'))
+            ip = str(com.get_setting('server_host'))
+            port = int(com.get_setting('server_port'))
             proc['api'] = UvicornServer(config=Config("api:app", host=ip, port=port, log_level="info", reload=True))
             proc['api'].start()
             Logger(1, 'Successful started...' if lang == 1 else 'Erfolgreich gestartet...', 'api', 'service')
         elif proc['api']: Logger(1, 'Service allready running ...' if lang == 1 else 'Service läuft schon ...', 'api', 'service')
-        if not proc['m3u8'] and bool(int(com.get_setting('m3u8_service', 'Main'))) == True:
+        if not proc['m3u8'] and bool(int(com.get_setting('m3u8_service'))) == True:
             proc['m3u8'] = Process(target=loop_m3u8)
             proc['m3u8'].start()
             Logger(1, 'Successful started...' if lang == 1 else 'Erfolgreich gestartet...', 'db', 'service')
         elif proc['m3u8']: Logger(1, 'Service allready running ...' if lang == 1 else 'Service läuft schon ...', 'db', 'service')
-        elif bool(int(com.get_setting('m3u8_service', 'Main'))) == False: Logger(1, 'Service disabled ...' if lang == 1 else 'Service deaktiviert ...', 'db', 'service')
-        if not proc['epg'] and bool(int(com.get_setting('epg_service', 'Main'))) == True:
+        elif bool(int(com.get_setting('m3u8_service'))) == False: Logger(1, 'Service disabled ...' if lang == 1 else 'Service deaktiviert ...', 'db', 'service')
+        if not proc['epg'] and bool(int(com.get_setting('epg_service'))) == True:
             proc['epg'] = Process(target=loop_epg)
             proc['epg'].start()
             Logger(1, 'Successful started...' if lang == 1 else 'Erfolgreich gestartet...', 'epg', 'service')
         elif proc['epg']: Logger(1, 'Service allready running ...' if lang == 1 else 'Service läuft schon ...', 'epg', 'service')
-        elif bool(int(com.get_setting('epg_service', 'Main'))) == False: Logger(1, 'Service disabled ...' if lang == 1 else 'Service deaktiviert ...', 'epg', 'service')
-        if not proc['vod'] and bool(int(com.get_setting('vod_service', 'Main'))) == True:
+        elif bool(int(com.get_setting('epg_service'))) == False: Logger(1, 'Service disabled ...' if lang == 1 else 'Service deaktiviert ...', 'epg', 'service')
+        if not proc['vod'] and bool(int(com.get_setting('vod_service'))) == True:
             proc['vod'] = Process(target=loop_vod)
             proc['vod'].start()
             Logger(1, 'Successful started...' if lang == 1 else 'Erfolgreich gestartet...', 'vod', 'service')
         elif proc['vod']: Logger(1, 'Service allready running ...' if lang == 1 else 'Service läuft schon ...', 'vod', 'service')
-        elif bool(int(com.get_setting('vod_service', 'Main'))) == False: Logger(1, 'Service disabled ...' if lang == 1 else 'Service deaktiviert ...', 'vod', 'service')
+        elif bool(int(com.get_setting('vod_service'))) == False: Logger(1, 'Service disabled ...' if lang == 1 else 'Service deaktiviert ...', 'vod', 'service')
     if typ == 'kill':
         for p in procs:
             if proc[p]:
@@ -101,7 +101,7 @@ def handler(typ, name=None):
             else: Logger(1, 'not running ...' if lang == 1 else 'läuft noch nicht ...', 'vod', 'service')
         else: Logger(1, 'not running ...' if lang == 1 else 'läuft noch nicht ...', 'vod', 'service')
     if typ == 'service_restart':
-        if bool(int(com.get_setting('m3u8_service', 'Main'))) == True:
+        if bool(int(com.get_setting('m3u8_service'))) == True:
             if proc['m3u8']:
                 proc['m3u8'].join(timeout=0)
                 if proc['m3u8'].is_alive():
@@ -112,7 +112,7 @@ def handler(typ, name=None):
             proc['m3u8'].start()
             Logger(1, 'Successful started...' if lang == 1 else 'Erfolgreich gestartet...', 'db', 'service')
         else: Logger(1, 'Service disabled ...' if lang == 1 else 'Service deaktiviert ...', 'db', 'service')
-        if bool(int(com.get_setting('epg_service', 'Main'))) == True:
+        if bool(int(com.get_setting('epg_service'))) == True:
             if proc['epg']:
                 proc['epg'].join(timeout=0)
                 if proc['epg'].is_alive():
@@ -123,7 +123,7 @@ def handler(typ, name=None):
             proc['epg'].start()
             Logger(1, 'Successful started...' if lang == 1 else 'Erfolgreich gestartet...', 'epg', 'service')
         else: Logger(1, 'Service disabled ...' if lang == 1 else 'Service deaktiviert ...', 'epg', 'service')
-        if bool(int(com.get_setting('vod_service', 'Main'))) == True:
+        if bool(int(com.get_setting('vod_service'))) == True:
             if proc['vod']:
                 proc['vod'].join(timeout=0)
                 if proc['vod'].is_alive():
@@ -170,12 +170,12 @@ def handler(typ, name=None):
 def loop_m3u8():
     while True:
         now = int(time.time())
-        last = int(com.get_setting('m3u8', 'Loop'))
-        sleep = int(com.get_setting('m3u8_sleep', 'Main'))
-        lang = int(com.get_setting('lang', 'Hidden'))
-        if now > last + sleep * 60 * 60:
+        last = int(com.get_setting('m3u8'))
+        sleep = int(com.get_setting('m3u8_sleep'))
+        lang = int(com.get_setting('lang'))
+        if now > last + sleep * 24 * 60 * 60:
             vavoo.sky_dbfill()
-            com.set_setting('m3u8', str(now), 'Loop')
+            com.set_setting('m3u8', str(now))
         else:
             Logger(1, 'sleeping for %s ...' % str(datetime.timedelta(seconds=last + sleep * 60 * 60 - now)) if lang == 1 else 'schlafe für %s ...' % str(datetime.timedelta(seconds=last + sleep * 60 * 60 - now)), 'db', 'service')
             time.sleep(int(last + sleep * 60 * 60 - now))
@@ -184,13 +184,13 @@ def loop_m3u8():
 
 def loop_epg():
     while True:
-        lang = int(com.get_setting('lang', 'Hidden'))
-        sleep = int(com.get_setting('epg_sleep', 'Main'))
+        lang = int(com.get_setting('lang'))
+        sleep = int(com.get_setting('epg_sleep'))
         now = int(time.time())
-        last = int(com.get_setting('epg', 'Loop'))
+        last = int(com.get_setting('epg'))
         if now > last + sleep * 24 * 60 * 60:
             epg.run_grabber()
-            com.set_setting('epg', str(now), 'Loop')
+            com.set_setting('epg', str(now))
         else:
             Logger(1, 'sleeping for %s ...' % str(datetime.timedelta(seconds=last + sleep * 24 * 60 * 60 - now)) if lang == 1 else 'schlafe für %s ...' % str(datetime.timedelta(seconds=last + sleep * 24 * 60 * 60 - now)), 'epg', 'service')
             time.sleep(int(last + sleep * 24 * 60 * 60 - now))
@@ -200,12 +200,12 @@ def loop_epg():
 def loop_vod():
     while True:
         now = int(time.time())
-        last = int(com.get_setting('vod', 'Loop'))
-        sleep = int(com.get_setting('vod_sleep', 'Main'))
-        lang = int(com.get_setting('lang', 'Hidden'))
-        if now > last + sleep * 60 * 60:
+        last = int(com.get_setting('vod'))
+        sleep = int(com.get_setting('vod_sleep'))
+        lang = int(com.get_setting('lang'))
+        if now > last + sleep * 24 * 60 * 60:
             xstream.getMovies()
-            com.set_setting('vod', str(now), 'Loop')
+            com.set_setting('vod', str(now))
         else:
             Logger(1, 'sleeping for %s ...' % str(datetime.timedelta(seconds=last + sleep * 60 * 60 - now)) if lang == 1 else 'schlafe für %s ...' % str(datetime.timedelta(seconds=last + sleep * 60 * 60 - now)), 'vod', 'service')
             time.sleep(int(last + sleep * 60 * 60 - now))

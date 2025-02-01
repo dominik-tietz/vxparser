@@ -14,7 +14,7 @@ import cli, services
 
 def main():
     while True:
-        init = int(com.get_setting('init', 'Hidden'))
+        init = int(com.get_setting('init'))
         if init == 0: cli.premenu()
         elif init == 1: break
         sleep(1)

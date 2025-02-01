@@ -187,8 +187,8 @@ def getLinks(action, params):
                     #return
 
 def sky_dbfill():
-    lang = int(com.get_setting('lang', 'Hidden'))
-    hurl = 'http://'+str(com.get_setting('server_ip', 'Main'))+':'+str(com.get_setting('server_port', 'Main'))
+    lang = int(com.get_setting('lang'))
+    hurl = 'http://'+str(com.get_setting('server_ip'))+':'+str(com.get_setting('server_port'))
     Logger(1, 'Filling Database with data ...' if lang == 1 else 'Fülle Datenbank mit Daten ...', 'db', 'process')
     matches1 = ["13TH", "AXN", "A&E", "INVESTIGATION", "TNT", "DISNEY", "SKY", "WARNER"]
     matches2 = ["BUNDESLIGA", "SPORT", "TELEKOM"]
@@ -318,12 +318,12 @@ def sky_dbfill():
 
     gen_m3u8()
 
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     Logger(0, 'Done!' if lang == 1 else 'Fertig!', 'db', 'process')
 
 def gen_m3u8():
-    lang = int(com.get_setting('lang', 'Hidden'))
-    hurl = 'http://'+str(com.get_setting('server_ip', 'Main'))+':'+str(com.get_setting('server_port', 'Main'))
+    lang = int(com.get_setting('lang'))
+    hurl = 'http://'+str(com.get_setting('server_ip'))+':'+str(com.get_setting('server_port'))
     Logger(1, 'Starting with URL: %s ...' % str(hurl) if lang == 1 else 'Starte mit URL: %s ...' % str(hurl), 'm3u8', 'process')
     epg_logos = com.get_setting('epg_logos')
     epg_rytec = com.get_setting('epg_rytec')
@@ -408,7 +408,7 @@ def gen_m3u8():
                     tf2.write('\n%s/hls/%s' % (hurl, row['id']))
         tf1.close()
         tf2.close()
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     Logger(0, 'Done!' if lang == 1 else 'Fertig!', 'm3u8', 'process')
     return True
 

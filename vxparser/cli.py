@@ -11,9 +11,10 @@ con = com.con0
 con1 = com.con1
 cache = com.cp
 
+
 def initMenu():
     c = []
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     c.append(("German" if lang == 1 else "Deutsch","0"))
     c.append(("English" if lang == 1 else "Englisch","1"))
     q = [ inquirer.List("item", message="Select Menu Language (Hit [ENTER] to select Item)" if lang == 1 else "Wähle Menü Sprache (Zum bestätigen [ENTER])", choices=c, carousel=True) ]
@@ -22,7 +23,7 @@ def initMenu():
 
 
 def initMenu2():
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     cur = con.cursor()
     c = []
     d = []
@@ -42,7 +43,7 @@ def initMenu2():
     return True
 
 def mainMenu():
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     c = []
     c.append((" ","0"))
     c.append(("Settings =>" if lang == 1 else "Einstellungen =>","settings"))
@@ -59,7 +60,7 @@ def mainMenu():
 
 
 def vavooMenu():
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     c = []
     c.append((" ","0"))
     c.append(("Settings =>" if lang == 1 else "Einstellungen =>","settings"))
@@ -74,7 +75,7 @@ def vavooMenu():
 
 
 def xstreamMenu():
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     c = []
     c.append((" ","0"))
     c.append(("Settings =>" if lang == 1 else "Einstellungen =>","settings"))
@@ -89,7 +90,7 @@ def xstreamMenu():
 
 
 def lgsMenu():
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     c = []
     c.append(("<= Back" if lang == 1 else "<= Zurück","back"))
     c.append(("M3U List Menü =>" if lang == 1 else "M3U8 Listen Menü =>","lmenu"))
@@ -101,7 +102,7 @@ def lgsMenu():
 
 
 def lMenu():
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     c = []
     c.append(("<= Back" if lang == 1 else "<= Zurück","back"))
     c.append(("Add New List" if lang == 1 else "Neue M3u8 Liste hinzufügen","add_list"))
@@ -113,7 +114,7 @@ def lMenu():
 
 
 def gMenu():
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     c = []
     c.append(("<= Back" if lang == 1 else "<= Zurück","back"))
     c.append(("Add New Group" if lang == 1 else "Neue Gruppe hinzufügen","add_group"))
@@ -125,7 +126,7 @@ def gMenu():
 
 
 def sMenu():
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     c = []
     c.append(("<= Back" if lang == 1 else "<= Zurück","back"))
     c.append(("Add Streams to Group" if lang == 1 else "Füge Streams zu einer Gruppe hinzu","add_streams"))
@@ -136,7 +137,7 @@ def sMenu():
 
 
 def xstreamSettings():
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     cur = con.cursor()
     c = []
     d = []
@@ -156,14 +157,14 @@ def xstreamSettings():
     quest = inquirer.prompt(q)
     for y in range(0, x):
         if str(y) in quest["check"] and not str(y) in d:
-            com.set_setting(keys[y], str(1), 'Xstream')
+            com.set_setting(keys[y], str(1))
         if not str(y) in quest["check"] and str(y) in d:
-            com.set_setting(keys[y], str(0), 'Xstream')
+            com.set_setting(keys[y], str(0))
     return True
 
 
 def mainSettings():
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     cur = con.cursor()
     c = []
     rows = []
@@ -199,14 +200,14 @@ def mainSettings():
         if row['type'] == 'text':
             q2 = [ inquirer.Text("input", message="edit: "+row["name"] if lang == 1 else "bearbeite: "+row["name"], default=row["value"]) ]
             quest2 = inquirer.prompt(q2)
-            com.set_setting(row["name"], quest2["input"], 'Main')
+            com.set_setting(row["name"], quest2["input"])
         if row['type'] == 'bool':
             values = json.loads(row['values'])
             for v in values:
                 if not v == row['value']:
                     new = v
                     break
-            com.set_setting(row["name"], new, 'Main')
+            com.set_setting(row["name"], new)
         if row['type'] == 'select':
             c2 = []
             values = json.loads(row['values'])
@@ -214,13 +215,13 @@ def mainSettings():
                 c2.append(('['+values[v]+']', v))
             q2 = [ inquirer.List("item", message="select: "+row['name'] if lang == 1 else "gewählt: "+row['name'], choices=c2, carousel=True) ]
             quest2 = inquirer.prompt(q2)
-            com.set_setting(row["name"], quest2["item"], 'Main')
+            com.set_setting(row["name"], quest2["item"])
     else: return 'back'
     return True
 
 
 def vavooSettings():
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     cur = con.cursor()
     c = []
     rows = []
@@ -256,14 +257,14 @@ def vavooSettings():
         if row['type'] == 'text':
             q2 = [ inquirer.Text("input", message="edit: "+row["name"] if lang == 1 else "bearbeite: "+row["name"], default=row["value"]) ]
             quest2 = inquirer.prompt(q2)
-            com.set_setting(row["name"], quest2["input"], 'Vavoo')
+            com.set_setting(row["name"], quest2["input"])
         if row['type'] == 'bool':
             values = json.loads(row['values'])
             for v in values:
                 if not v == row['value']:
                     new = v
                     break
-            com.set_setting(row["name"], new, 'Vavoo')
+            com.set_setting(row["name"], new)
         if row['type'] == 'select':
             c2 = []
             values = json.loads(row['values'])
@@ -271,14 +272,14 @@ def vavooSettings():
                 c2.append(('['+values[v]+']', v))
             q2 = [ inquirer.List("item", message="select: "+row['name'] if lang == 1 else "wähle: "+row["name"], choices=c2, carousel=True) ]
             quest2 = inquirer.prompt(q2)
-            com.set_setting(row["name"], quest2["item"], 'Vavoo')
+            com.set_setting(row["name"], quest2["item"])
     else: return 'back'
     return True
 
 
 def premenu():
-    init = int(com.get_setting('init', 'Hidden'))
-    lang = int(com.get_setting('lang', 'Hidden'))
+    init = int(com.get_setting('init'))
+    lang = int(com.get_setting('lang'))
     if init == 0:
         menu = 'init'
         while True:
@@ -288,20 +289,20 @@ def premenu():
                     Logger(3, 'Error!' if lang == 1 else 'Fehler!', 'init', 'settings')
                     return
                 elif quest != '':
-                    com.set_setting('lang', str(quest), 'Hidden')
+                    com.set_setting('lang', str(quest))
                     menu = 'next'
                     #return
             if menu == 'next':
                 quest = initMenu2()
                 if not quest: Logger(3, 'Error!' if lang == 1 else 'Fehler!', 'init', 'settings')
                 else:
-                    com.set_setting('init', str(1), 'Hidden')
+                    com.set_setting('init', str(1))
                     return True
     else: return
 
 
 def menu():
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     menü = 'main'
     while True:
         if menü == 'msettings':
@@ -530,7 +531,7 @@ def menu():
                     Logger(0, 'Successful ...' if lang == 1 else 'Erfolgreich ...', 'delete', 'group')
         if menü == 'smenu':
             item = sMenu()
-            lang = int(com.get_setting('lang', 'Hidden'))
+            lang = int(com.get_setting('lang'))
             if item == 'back': menü = 'lgs'
             if item == 'add_streams':
                 cur = con.cursor()

@@ -1,7 +1,7 @@
 import random, os, string, time, socket, sys, sqlite3, json, time
 from unidecode import unidecode
 
-VERSION = '1.4.5-3'
+VERSION = '1.4.6'
 unicode = str
 rp = os.path.normpath(os.path.dirname(os.path.abspath(__file__))+'/../')
 
@@ -42,7 +42,7 @@ con3.text_factory = lambda x: unicode(x, errors='ignore')
 
 
 def Logger(lvl, msg, name=None, typ=None):
-    if int(lvl) >= int(get_setting('log_lvl', 'Main')) or int(lvl) == 0:
+    if int(lvl) >= int(get_setting('log_lvl')) or int(lvl) == 0:
         if name or typ:
             if name and typ:
                 print('[%s][%s]:: %s' %(str(typ).upper(), str(name).upper(), str(msg)))
@@ -250,9 +250,11 @@ def check_settings_tables():
         ('server_port', 'Main', '8080', '["Server Port", "Server Port"]', '8080', 'text', ''),
         ('server_service', 'Main', '1', '["Setze Server IP automatisch auf Netzwerk IP", "Set Automatic Network IP to Server IP Setting"]', '1', 'bool', '{"1": "On", "0": "Off"}'),
         ('m3u8_service', 'Main', '1', '["LiveTV Listen Erstellung als Service starten", "Start LiveTV List Creation as Service"]', '1', 'bool', '{"1": "On", "0": "Off"}'),
-        ('m3u8_sleep', 'Main', '96', '["Zeit in Stunden zwischen LiveTV Listen Erstellung", "Sleep Time for Auto LiveTV List Creation Service in Hours"]', '96', 'text', ''),
+        ('m3u8_sleep', 'Main', '5', '["Zeit in Tagen zwischen LiveTV Listen Erstellung", "Sleep Time for Auto LiveTV List Creation Service in Hours"]', '5', 'text', ''),
         ('vod_service', 'Main', '1', '["VoD & Serien Listen Erstellung als Service starten", "Start VoD & Series List Creation as Service"]', '1', 'bool', '{"1": "On", "0": "Off"}'),
-        ('vod_sleep', 'Main', '112', '["Zeit in Stunden zwischen automatischer VoD & Serien Listen erstellung", "Sleep Time for Auto List Creation Service for VoD & Series in Hours"]', '112', 'text', ''),
+        ('vod_sleep', 'Main', '5', '["Zeit in Tagen zwischen automatischer VoD & Serien Listen erstellung", "Sleep Time for Auto List Creation Service for VoD & Series in Hours"]', '5', 'text', ''),
+        ('epg_service', 'Main', '1', '["Starte epg.xml.gz Erstellung als Service", "Start epg.xml.gz Creation for LiveTV as Service"]', '1', 'bool', '{"1": "On", "0": "Off"}'),
+        ('epg_sleep', 'Main', '5', '["Zeit in Tagen zwischen epg.xml.gz Erstellung", "Sleep Time for epg.xml.gz Creation Service in Days"]', '5', 'text', ''),
         ('log_lvl', 'Main', '1', '["LogLevel", "LogLevel"]', '1', 'select', '{"1": "Info", "3": "Error"}'),
         ('get_tmdb', 'Main', '0', '["Durchsuche TMDB für zusätzliche Informationen", "Search in TMDB after VoD & Series Infos"]', '0', 'bool', '{"1": "On", "0": "Off"}'),
         ('serienstream_username', 'Hidden', 'michael.zauner@live.at', '["Benutzername vom serienstream Account (s.to)", "Username of S.to User Accound"]', '', 'text', ''),
@@ -261,8 +263,6 @@ def check_settings_tables():
         ('m3u8_hls', 'Vavoo', '1', '["Erstelle HLS m3u8 Listen", "Generate HLS m3u8 lists"]', '1', 'bool', '{"1": "On", "0": "Off"}'),
         ('m3u8_name', 'Vavoo', '1', '["Vavoo Channel Namen ersetzen", "Replace Vavoo Channel Name"]', '1', 'bool', '{"1": "On", "0": "Off"}'),
         ('epg_provider', 'Vavoo', 'm', '["Provider für EPG Informationen", "Provider for get EPG Infos"]', 'm', 'select', '{"m": "Magenta", "t": "TvSpielfilme"}'),
-        ('epg_service', 'Vavoo', '1', '["Starte epg.xml.gz Erstellung als Service", "Start epg.xml.gz Creation for LiveTV as Service"]', '1', 'bool', '{"1": "On", "0": "Off"}'),
-        ('epg_sleep', 'Vavoo', '5', '["Zeit zwischen epg.xml.gz erstellung (in Tagen)", "Sleep Time for epg.xml.gz Creation Service in Days"]', '5', 'text', ''),
         ('epg_grab', 'Vavoo', '7', '["Anzahl an Tagen für epg.xml.gz Erstellung", "Count of Days for epg.xml.gz creation"]', '7', 'text', ''),
         ('epg_rytec', 'Vavoo', '1', '["Ersetze Provider IDs mit Rytec", "Replace Provider IDs with Rytec"]', '1', 'bool', '{"1": "On", "0": "Off"}'),
         ('epg_logos', 'Vavoo', 'p', '["Bevorzugte Logos", "Prefer Logos"]', 'p', 'select', '{"o": "Original", "p": "Provider"}'),
@@ -291,14 +291,14 @@ def check():
         check_category_tables()
         check_settings_tables()
         check_epg_tables()
-    if int(get_setting('server_service', 'Main')) == 1:
-        set_setting('server_ip', str(get_ip_address()), 'Main')
+    if int(get_setting('server_service')) == 1:
+        set_setting('server_ip', str(get_ip_address()))
 
 
 def server_info():
     server_info = {
         "url": str(get_ip_address()),
-        "port": str(get_setting('server_port', 'Main')),
+        "port": str(get_setting('server_port')),
         "https_port": "8443",
         "rtmp_port": "8880",
         "server_protocol": "http",

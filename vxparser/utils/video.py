@@ -10,7 +10,7 @@ con1 = common.con1
 con2 = common.con2
 con3 = common.con3
 server_ip = common.get_ip_address()
-port = int(common.get_setting('server_port', 'Main'))
+port = int(common.get_setting('server_port'))
 temp = os.path.join(cachepath, 'xmltv.xml')
 
 unicode = str
@@ -577,7 +577,7 @@ def get_short_epg(stream_id, limit=None):
     cur1 = con1.cursor()
     cur2 = con2.cursor()
     cur3 = con3.cursor()
-    rytec = str(common.get_setting('epg_rytec', 'Vavoo'))
+    rytec = str(common.get_setting('epg_rytec'))
     
     ret = {}
     ret["epg_listings"] = []
@@ -625,7 +625,7 @@ def get_simple_data_table(stream_id):
     cur1 = con1.cursor()
     cur2 = con2.cursor()
     cur3 = con3.cursor()
-    rytec = str(common.get_setting('epg_rytec', 'Vavoo'))
+    rytec = str(common.get_setting('epg_rytec'))
     
     ret = {}
     ret["epg_listings"] = []

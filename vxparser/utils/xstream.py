@@ -159,7 +159,7 @@ def updateDB(loads):
         elif "entries" in loads[0]:
             if "site" in loads[0]["entries"][0]: site = loads[0]["entries"][0]["site"]
     if site == None: site = 'Unknown'
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     Logger(1, '%s update successful! Infos: %s + Streams: %s (duplicated: Infos: %s + Streams: %s)' %(site, str(i), str(s), str(n), str(m)) if lang == 1 else '%s aktuallisiert! Infos: %s + Streams: %s (duplicated: Infos: %s + Streams: %s)' %(site, str(i), str(s), str(n), str(m)))
     return True
 
@@ -173,7 +173,7 @@ def jobber(site, loads):
             if len(load["entries"]) > 0:
                 for entry in load["entries"]:
                     if entry["mediatype"] == 'movie' or entry["mediatype"] == 'tvshow':
-                        if bool(int(com.get_setting('get_tmdb', 'Main'))) == True:
+                        if bool(int(com.get_setting('get_tmdb'))) == True:
                             try:
                                 if "year" in entry:
                                     meta = cTMDB().get_meta(str(entry["mediatype"]), str(entry["name"]), year=str(entry["year"]), advanced='false')
@@ -218,11 +218,11 @@ def jobber(site, loads):
 
 def getMovies2():
     for site in sites.sites:
-        if bool(int(com.get_setting(site.SITE_IDENTIFIER+'_auto', 'Xstream'))) == True:
+        if bool(int(com.get_setting(site.SITE_IDENTIFIER+'_auto'))) == True:
             load = site.load()
             if load:
                 jobber(site, load)
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     genLists()
     Logger(1, 'All jobs done ...' if lang == 1 else 'Alle Aufträge abgeschlossen ...', 'vod', 'process')
     return True
@@ -230,7 +230,7 @@ def getMovies2():
 
 def getMovies():
     for site in sites.sites:
-        if bool(int(com.get_setting(site.SITE_IDENTIFIER+'_auto', 'Xstream'))) == True:
+        if bool(int(com.get_setting(site.SITE_IDENTIFIER+'_auto'))) == True:
             load = site.load()
             if load:
                 job = Process(target=jobber, args=(site, load,))
@@ -244,7 +244,7 @@ def getMovies():
         if loads:
             updateDB(loads)
     genLists()
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     #job = Process(target=genLists)
     #job.start()
     #job.join()
@@ -257,7 +257,7 @@ def genLists():
         os.remove(os.path.join(listpath, 'vod.m3u8'))
     tf = open(os.path.join(listpath, 'vod.m3u8'), "w")
     tf.write("#EXTM3U")
-    hurl = 'http://'+str(ip())+':'+str(com.get_setting('server_port', 'Main'))
+    hurl = 'http://'+str(ip())+':'+str(com.get_setting('server_port'))
     cur2 = con2.cursor()
     i = 0
     cur2.execute('SELECT * FROM streams WHERE media_type="movie" ORDER BY id')
@@ -269,14 +269,14 @@ def genLists():
             tf.write('\n%s/stream/%s' % (hurl, row['id']))
             i += 1
     tf.close()
-    lang = int(com.get_setting('lang', 'Hidden'))
+    lang = int(com.get_setting('lang'))
     Logger(1, 'vod.m3u8 successful created! (%s Items)' % str(i) if lang == 1 else 'vod.m3u8 erfolgreich erstellt! (%s Items)' % str(i))
 
     if os.path.exists(os.path.join(listpath, 'series.m3u8')):
         os.remove(os.path.join(listpath, 'series.m3u8'))
     tf = open(os.path.join(listpath, 'series.m3u8'), "w")
     tf.write("#EXTM3U")
-    hurl = 'http://'+str(ip())+':'+str(com.get_setting('server_port', 'Main'))
+    hurl = 'http://'+str(ip())+':'+str(com.get_setting('server_port'))
     j = 0
     cur2.execute('SELECT * FROM streams WHERE media_type="tvshow" ORDER BY site, name, season, episode')
     rows = cur2.fetchall()
@@ -336,7 +336,7 @@ def search(search):
     E = []
     a = 0
     for site in sites.sites:
-        if bool(int(com.get_setting(site.SITE_IDENTIFIER+'_search', 'Xstream'))) == True:
+        if bool(int(com.get_setting(site.SITE_IDENTIFIER+'_search'))) == True:
             load = site.search(search)
             if load:
                 loads.append(load)
