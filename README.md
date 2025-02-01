@@ -11,8 +11,8 @@
 - Als vorerst letztes Site Plugin xcine hinzugefügt.
 - Die epg Service Einstellung von Vavoo Einstellungen in Haupt Einstellungen verschoben. Jetzt können alle 3 Services in den Haupt Einstellungen eingestellt werden.
 - Die Service Wartezeit einstellung von Stunden in 5 Tagen geändert.
-- Die VoD & Series Übergabe automatisiert. Der vxparser wechselt jetzt nicht ein Host nach dem anderem durch sondern prüft alle möglichen Mirror automatisch durch bis einer gefunden wird. Insofern einer gefunden wird gibt er nur noch diesen an den Clienten weiter und wechselt nicht mehr zum nächsten!
-- So alle Site Plugins funktionieren momentan im Auto Modus sowie in der Globalen Suche. Solange das jetzt der Fall bleibt, war dies vorerst mein letztes Update! Muss reichen ;-) (Hoffentlich sind keine Buggs mehr jezze ^^)
+- Die VoD & Series Übergabe automatisiert. Die Weiterleitung an den Clienten funktioniert jetzt bedeutend geschmeidiger ...
+- So alle Site Plugins funktionieren momentan im Auto Modus sowie in der Globalen Suche. Solange das jetzt der Fall bleibt, war dies vorerst mein letztes Update! Muss reichen ;-) (Und natürlich gibt es Buggs die ich fixxen muss ^^)
 ### Update to 1.4.5:
 - Fixxed api getStream link Übergabe (remove |User-Agent=.* in link). Endlich funktionieren die site plugins ordnungsgemäß.
 - Site Plugins noch einmal angepasst, dokus4 removed. Jetzt funktionieren alle Site Plugins ordnungsgemäß.

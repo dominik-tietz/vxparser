@@ -277,6 +277,8 @@ async def vod(typ: str, username: str, password: str, sid: str, ext: str):
         if urls:
             links[sid] = urls
     if sid in links:
+        if not sid in hosts:
+            hosts[sid] = []
         for url in links[sid]:
             if not 'getHosterUrl' in url:
                 if not "hostUrl" in url:
@@ -296,9 +298,18 @@ async def vod(typ: str, username: str, password: str, sid: str, ext: str):
                             link = None
                     if not link is None:
                         url["hostUrl"] = link
+
                 if "hostUrl" in url:
-                    link = url["hostUrl"]
-                    break
+                    hosts[sid].append(url["hostUrl"])
+        if sid not in linked:
+            linked[sid] = 0
+        if len(hosts[sid]) > 0:
+            link = hosts[sid][linked[sid]]
+            if linked[sid] < len(hosts[sid])-1:
+                linked[sid] += 1
+            elif linked[sid] > 0:
+                linked[sid] = 0
+        else: link = None
         if link is None:
             Logger(1, "No Links found! (%s hosts)" % str(len(links[sid])-1))
             raise HTTPException(status_code=404, detail="No Links found! (%s hosts)" % str(len(links[sid])-1))
@@ -395,6 +406,8 @@ async def stream(sid: str):
         if urls:
             links[sid] = urls
     if sid in links:
+        if not sid in hosts:
+            hosts[sid] = []
         for url in links[sid]:
             if not "getHosterUrl" in url:
                 if not "hostUrl" in url:
@@ -415,8 +428,16 @@ async def stream(sid: str):
                     if not link is None:
                         url["hostUrl"] = link
                 if "hostUrl" in url:
-                    link = url["hostUrl"]
-                    break
+                    hosts[sid].append(url["hostUrl"])
+        if sid not in linked:
+            linked[sid] = 0
+        if len(hosts[sid]) > 0:
+            link = hosts[sid][linked[sid]]
+            if linked[sid] < len(hosts[sid])-1:
+                linked[sid] += 1
+            elif linked[sid] > 0:
+                linked[sid] = 0
+        else: link = None
         if link is None:
             Logger(1, "No Links found! (%s hosts)" % str(len(links[sid])-1))
             raise HTTPException(status_code=404, detail="No Links found! (%s hosts)" % str(len(links[sid])-1))
