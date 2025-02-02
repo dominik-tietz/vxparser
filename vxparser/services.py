@@ -178,7 +178,7 @@ def loop_m3u8():
             com.set_setting('m3u8', str(now))
         else:
             Logger(1, 'sleeping for %s ...' % str(datetime.timedelta(seconds=last + sleep * 60 * 60 - now)) if lang == 1 else 'schlafe für %s ...' % str(datetime.timedelta(seconds=last + sleep * 60 * 60 - now)), 'db', 'service')
-            time.sleep(int(last + sleep * 60 * 60 - now))
+            time.sleep(int(last + sleep * 24 * 60 * 60 - now))
     pass
 
 
@@ -208,6 +208,6 @@ def loop_vod():
             com.set_setting('vod', str(now))
         else:
             Logger(1, 'sleeping for %s ...' % str(datetime.timedelta(seconds=last + sleep * 60 * 60 - now)) if lang == 1 else 'schlafe für %s ...' % str(datetime.timedelta(seconds=last + sleep * 60 * 60 - now)), 'vod', 'service')
-            time.sleep(int(last + sleep * 60 * 60 - now))
+            time.sleep(int(last + sleep * 24 * 60 * 60 - now))
     pass
 
