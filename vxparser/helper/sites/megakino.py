@@ -14,7 +14,7 @@ SITE_IDENTIFIER = 'megakino'
 SITE_NAME = 'Megakino'
 SITE_ICON = 'megakino.png'
 
-URL_MAIN = 'https://megakino.tips/'
+URL_MAIN = 'https://megakino.kim/'
 URL_KINO = URL_MAIN + 'kinofilme/'
 URL_MOVIES = URL_MAIN + 'films/'
 URL_SERIES = URL_MAIN + 'serials/'

@@ -8,6 +8,7 @@
 <summary>Klick HIER für Content.</summary>
 
 ### Update to 1.4.6:
+- megakino Site Plugin: hoster url aktuallisiert, nun geht megakino auch wieder ...
 - Als vorerst letztes Site Plugin xcine hinzugefügt.
 - Die epg Service Einstellung von Vavoo Einstellungen in Haupt Einstellungen verschoben. Jetzt können alle 3 Services in den Haupt Einstellungen eingestellt werden.
 - Die Service Wartezeit einstellung von Stunden in 5 Tagen geändert.
