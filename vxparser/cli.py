@@ -33,7 +33,7 @@ def initMenu2():
         c.append((info[lang], row['name']))
         if int(row['value']) == 1: d.append(row['name'])
         k.append(row['name'])
-    q = [ inquirer.Checkbox("check", message="Services first Config. (Hit [RIGHT] to select, [LEFT] to deselect & [ENTER] to save)" if lang == 1 else "Service erst Einstellung. (Zum makieren [RECHTS], zum demakieren [LINKS] & zum bestätigen [ENTER])", choices=c, default=d, carousel=True) ]
+    q = [ inquirer.Checkbox("check", message="Services first Config. (select: [RIGHT], deselect: [LEFT], save: [ENTER])" if lang == 1 else "Service erst Einstellung. (makieren: [RECHTS], demakieren: [LINKS], bestätigen: [ENTER])", choices=c, default=d, carousel=True) ]
     quest = inquirer.prompt(q)
     for key in k:
         if str(key) in quest["check"] and not str(key) in d:

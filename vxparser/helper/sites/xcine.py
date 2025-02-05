@@ -127,7 +127,6 @@ def showHosters(entryUrl=False, episode=False):
     if isMatch:
         for sUrl in aResult:
             sName = cParser.urlparse(sUrl)
-            if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschlieÃŸen
             if 'youtube' in sUrl: continue
             elif 'vod' in sUrl: continue
             elif sUrl.startswith('//'): sUrl = 'https:' + sUrl

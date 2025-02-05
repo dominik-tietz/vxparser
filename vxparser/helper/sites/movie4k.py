@@ -42,7 +42,7 @@ def showEntries(entryUrl=False, sSearchText=False):
     for sInfo, sUrl, sName, sDummy in aResult:
         if sSearchText and not cParser().search(sSearchText, sName): continue
         # Abfrage der voreingestellten Sprache
-        sLanguage = '1' # cConfig().getSetting('prefLanguage')
+        sLanguage = '1'
         if (sLanguage == '1' and 'English*' in sName):   # Deutsch
             continue
         if (sLanguage == '2' and not 'English*' in sName):   # English

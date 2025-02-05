@@ -311,12 +311,12 @@ async def vod(typ: str, username: str, password: str, sid: str, ext: str):
                 linked[sid] = 0
         else: link = None
         if link is None:
-            Logger(1, "No Links found! (%s hosts)" % str(len(links[sid])-1))
-            raise HTTPException(status_code=404, detail="No Links found! (%s hosts)" % str(len(links[sid])-1))
+            Logger(1, "No Links found!")
+            raise HTTPException(status_code=404, detail="No Links found!")
         elif "voe" in link.lower():
             link = re.sub('\|User-Agent=.*', '', link)
         return link
-    else: raise HTTPException(status_code=404, detail="Stream not found")
+    else: raise HTTPException(status_code=404, detail="Stream not found!")
 
 
 @app.head("/xmltv.php")
@@ -439,12 +439,12 @@ async def stream(sid: str):
                 linked[sid] = 0
         else: link = None
         if link is None:
-            Logger(1, "No Links found! (%s hosts)" % str(len(links[sid])-1))
-            raise HTTPException(status_code=404, detail="No Links found! (%s hosts)" % str(len(links[sid])-1))
+            Logger(1, "No Link found!")
+            raise HTTPException(status_code=404, detail="No Link found!")
         elif "voe" in link.lower():
             link = re.sub('\|User-Agent=.*', '', link)
         return link
-    else: raise HTTPException(status_code=404, detail="Stream not found")
+    else: raise HTTPException(status_code=404, detail="Stream not found!")
 
 
 @app.get("/{name}.{ext}")

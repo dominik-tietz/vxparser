@@ -171,7 +171,6 @@ def showHosters(entryUrl=False, sEpisode=False):
                     isMatch, aName = cParser.parse(stream['stream'], '//([^/]+)/')
                     if isMatch:
                         sName = aName[0][:aName[0].rindex('.')]
-                        #if cConfig().isBlockedHoster(sName)[0]: continue  # Hoster aus settings.xml oder deaktivierten Resolver ausschlieÃŸen
                         sHoster = sHoster + ' ' + sName
                     if 'release' in stream:
                         sHoster = sHoster + ' [I][' + _getQuality(stream['release']) + '][/I]'

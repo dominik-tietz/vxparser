@@ -31,17 +31,6 @@ def load():
     return ret
 
 
-def showMovieMenu(): # Menu structure of movie menu
-    params = ParameterHandler()
-    params.setParam('sUrl', URL_MOVIES)
-    cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30500), SITE_IDENTIFIER, 'showEntries'), params) # New
-    params.setParam('sUrl', URL_KINO)
-    cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30501), SITE_IDENTIFIER, 'showEntries'), params) # Kinofilme
-    params.setParam('Value', 'FILM DER WOCHE')
-    cGui().addFolder(cGuiElement(cConfig().getLocalizedString(30550), SITE_IDENTIFIER, 'showEntries'), params) # Movie of the Week
-    cGui().setEndOfDirectory()
-
-
 def showValue():
     folder = []
     oGuiElement = {}
@@ -175,7 +164,6 @@ def showEpisodeHosters(entryUrl=False, sSeason=False, sEpisode=False):
     if isMatch:
         for sUrl in aResult:
             sName = cParser.urlparse(sUrl)
-            if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschlie\xc3\x83\xc5\xb8en
             if 'youtube' in sUrl:
                 continue
             elif sUrl.startswith('//'):
@@ -200,7 +188,6 @@ def showHosters(entryUrl=False):
     if isMatch:
         for sUrl in aResult:
             sName = cParser.urlparse(sUrl)
-            if cConfig().isBlockedHoster(sName)[0]: continue # Hoster aus settings.xml oder deaktivierten Resolver ausschlie\xc3\x83\xc5\xb8en
             if 'youtube' in sUrl:
                 continue
             elif sUrl.startswith('//'):

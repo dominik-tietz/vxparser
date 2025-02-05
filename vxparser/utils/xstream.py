@@ -77,13 +77,11 @@ def updateDB(loads):
                             if "quality" in entry: quality = entry["quality"]
                             else: quality = ''
                             cur2.execute('INSERT INTO info VALUES (NULL,"'+str(entry["site"])+'","'+str(cid)+'","'+str(tmdb)+'","'+str(media_type)+'","'+str(name)+'","'+str(originalName)+'","'+str(releaseDate)+'","'+str(genres)+'","'+str(description)+'","'+str(countries)+'","'+str(rating)+'","'+str(votes)+'","'+str(duration)+'","'+str(poster)+'","'+str(backdrop)+'","'+str(quality)+'")')
-                            #con2.commit()
                             i += 1
                             cur2.execute('SELECT * FROM info WHERE name="' + str(name) + '" AND site="' + str(entry["site"]) + '" AND media_type="' + str(media_type) + '"')
                             row = cur2.fetchone()
                         else: n += 1
                         sid = row['id']
-                        #con2.commit()
                     if entry["key"] == 'showHosters' or entry["key"] == 'showEpisodeHosters':
                         cur2.execute('SELECT * FROM streams WHERE sid="' + str(sid) + '"')
                         row = cur2.fetchone()
@@ -93,10 +91,8 @@ def updateDB(loads):
                             if "thumb" in entry: thumb = entry["thumb"]
                             else: thumb = ''
                             cur2.execute('INSERT INTO streams VALUES (NULL,"'+str(sid)+'","'+str(entry["site"])+'","'+str(entry["key"])+'","'+str(p2)+'","'+str(media_type)+'",NULL,NULL,"'+str(name)+'","'+str(entry["url"])+'","'+str(thumb)+'")')
-                            #con2.commit()
                             s += 1
                         else: m += 1
-                        #con2.commit()
                     if entry["key"] == 'showSeasons' and "entries" in entry:
                         if not entry['entries'] == None:
                             y = 0
@@ -125,10 +121,8 @@ def updateDB(loads):
                                                 elif "thumb" in entry: thumb = entry["thumb"]
                                                 else: thumb = ''
                                                 cur2.execute('INSERT INTO streams VALUES (NULL,"'+str(sid)+'","'+str(entry["site"])+'","'+str(episode["key"])+'","'+str(p2)+'","'+str(media_type)+'","'+str(se)+'","'+str(ep)+'","'+str(name)+'","'+str(episode["url"])+'","'+str(thumb)+'")')
-                                                #con2.commit()
                                                 s += 1
                                             else: m += 1
-                                            #con2.commit()
                     if entry["key"] == 'showEpisodes' and "entries" in entry:
                         if not entry['entries'] == None:
                             x = 0
@@ -149,10 +143,8 @@ def updateDB(loads):
                                     elif "thumb" in entry: thumb = entry["thumb"]
                                     else: thumb = ''
                                     cur2.execute('INSERT INTO streams VALUES (NULL,"'+str(sid)+'","'+str(entry["site"])+'","'+str(episode["key"])+'","'+str(p2)+'","'+str(media_type)+'","'+str(se)+'","'+str(ep)+'","'+str(name)+'","'+str(episode["url"])+'","'+str(thumb)+'")')
-                                    #con2.commit()
                                     s += 1
                                 else: m += 1
-                                #con2.commit()
     con2.commit()
     if site == None:
         if "site" in loads[0]: site = loads[0]["site"]
@@ -190,14 +182,14 @@ def jobber(site, loads):
                             else: entry["entries"] = key(entry["url"])
                             if len(entry["entries"]) > 0:
                                 for entry2 in entry["entries"]:
-                                    if not entry2["key"] == 'showHosters' and not entry["key"] == 'showEpisodeHosters':
+                                    if not entry2["key"] == 'showHosters' and not entry2["key"] == 'showEpisodeHosters':
                                         try:
                                             key = getattr(site, entry2['key'])
                                             if "p2" in entry2: entry2["entries"] = key(entry2["url"], entry2["p2"])
                                             else: entry2["entries"] = key(entry2["url"])
                                             if len(entry2["entries"]) > 0:
                                                 for entry3 in entry2["entries"]:
-                                                    if not entry3["key"] == 'showHosters' and not entry["key"] == 'showEpisodeHosters':
+                                                    if not entry3["key"] == 'showHosters' and not entry3["key"] == 'showEpisodeHosters':
                                                         try:
                                                             key = getattr(site, entry3['key'])
                                                             if "p2" in entry3: entry3["entries"] = key(entry3["url"], entry3["p2"])
@@ -300,12 +292,10 @@ def genLists():
 def getHoster(data):
     site = getattr(sites, data['site'])
     entry = data['url']
-    if data['p2'] != '':
-        key = getattr(site, data['key'])
-        hosts = key(entry, data['p2'])
-    else: hosts = site.showHosters(entry)
-    if hosts:
-        return hosts
+    key = getattr(site, data['key'])
+    if data['p2'] != '': hosts = key(entry, data['p2'])
+    else: hosts = key(entry)
+    if hosts: return hosts
     return None
 
 
@@ -313,16 +303,14 @@ def getHosterUrl(l, s):
     site = getattr(sites, s)
     entry = l
     host = site.getHosterUrl(entry)
-    if host:
-        return host
+    if host: return host
     return None
 
 
 def getStream(data):
     #Logger(data)
     link = resolver.resolve(data)
-    if link:
-        return link
+    if link: return link
     return None
 
 
