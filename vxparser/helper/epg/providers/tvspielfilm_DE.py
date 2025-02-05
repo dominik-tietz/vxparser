@@ -33,7 +33,7 @@ tvsDE_channels_warnings_tmp = os.path.join(provider_temppath, 'tvsDE_channels_wa
 tvsDE_channels_warnings = os.path.join(temppath, 'tvsDE_channels_warnings.txt')
 
 ## Read tvsDE Settings
-days_to_grab = int(com.get_setting('epg_grab', 'Main'))
+days_to_grab = int(com.get_setting('epg_grab'))
 episode_format = 'onscreen'
 channel_format = 'provider' 
 genre_format = 'provider'
@@ -118,7 +118,7 @@ def get_channellist():
         con = com.con0
         cur = con.cursor()
         for row in cur.execute('SELECT * FROM epgs ORDER BY id'):
-            if not row["tid"] == None:
+            if not row["tid"] == None and not row["tid"] == '':
                 epg_channels.append(row["tid"])
 
         with open(tvsDE_chlist_selected, encoding='utf-8') as selected_list:
@@ -306,7 +306,7 @@ def create_xml_channels():
     xml_structure.epg_start()
 
     #MyADD
-    rytec = str(com.get_setting('epg_rytec', 'Vavoo'))
+    rytec = str(com.get_setting('epg_rytec'))
     if rytec == '1':
         epg_channels = {}
         con = com.con0
@@ -358,7 +358,7 @@ def create_xml_broadcast(enable_rating_mapper, thread_temppath, download_threads
     xml_structure.xml_broadcast_start(provider)
 
     #MyADD
-    rytec = str(com.get_setting('epg_rytec', 'Vavoo'))
+    rytec = str(com.get_setting('epg_rytec'))
     epg_channels = {}
     epg_ids = {}
     con = com.con0

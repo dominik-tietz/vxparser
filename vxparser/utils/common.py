@@ -1,7 +1,7 @@
 import random, os, string, time, socket, sys, sqlite3, json, time
 from unidecode import unidecode
 
-VERSION = '1.4.6-4'
+VERSION = '1.4.6-5'
 unicode = str
 rp = os.path.normpath(os.path.dirname(os.path.abspath(__file__))+'/../')
 
@@ -165,6 +165,11 @@ def check_new_version():
         cur3 = con3.cursor()
         cur3.execute('DROP TABLE IF EXISTS epg')
         con3.commit()
+        if os.path.exists(cp):
+            import shutil
+            shutil.rmtree(cp)
+            time.sleep(0.1)
+            os.makedirs(cp)
         time.sleep(0.1)
         add_tables()
     time.sleep(0.1)

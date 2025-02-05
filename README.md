@@ -8,6 +8,7 @@
 <summary>Klick HIER für Content.</summary>
 
 ### Update to 1.4.6:
+- epg provider tvSpielfilme plugin gefixxt, sodass wenn magenta mal wieder verbindungsprobleme hat, man einfach zu tvs wechseln kann um seine epg.xml.gz zu erstellen.
 - megakino Site Plugin: hoster url aktuallisiert, nun geht megakino auch wieder ...
 - Als vorerst letztes Site Plugin xcine hinzugefügt.
 - Die epg Service Einstellung von Vavoo Einstellungen in Haupt Einstellungen verschoben. Jetzt können alle 3 Services in den Haupt Einstellungen eingestellt werden.
