@@ -7,6 +7,11 @@
 <details>
 <summary>Klick HIER für Content.</summary>
 
+### Update to 1.4.7:
+- Einen neuen Menüpunkt im Hauptmenü hinzugefügt. Dieser startet die install.py für den vxparser.service um diesen voll automatisch in ein Unix (root) System zu speichern und ggf. direkt aus zu führen.
+- install.py komplett überarbeitet. Jetzt ist jeder Inhalt genauso wie beim vxparser in Deutsch oder Englisch versehen.
+- Einen neuen Process hinzugefügt, da beim livetv die befüllung der Datenbank und die m3u8 Listen Erstellung aufgeteilt worden sind.
+- Noch ein neuen Menüpunkt im Vavoo Untermenü hinzugefügt. Und zwar lässt sich der Process der Datenbank befüllung jetzt seperat damit anstoßen.
 ### Update to 1.4.6:
 - epg provider tvSpielfilme plugin gefixxt, sodass wenn magenta mal wieder verbindungsprobleme hat, man einfach zu tvs wechseln kann um seine epg.xml.gz zu erstellen.
 - megakino Site Plugin: hoster url aktuallisiert, nun geht megakino auch wieder ...

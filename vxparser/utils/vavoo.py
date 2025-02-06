@@ -186,7 +186,8 @@ def getLinks(action, params):
                 #except:
                     #return
 
-def sky_dbfill():
+
+def sky_dbfill(m3u8_generation=True):
     lang = int(com.get_setting('lang'))
     hurl = 'http://'+str(com.get_setting('server_ip'))+':'+str(com.get_setting('server_port'))
     Logger(1, 'Filling Database with data ...' if lang == 1 else 'Fülle Datenbank mit Daten ...', 'db', 'process')
@@ -316,10 +317,12 @@ def sky_dbfill():
     con0.commit()
     con1.commit()
 
-    gen_m3u8()
+    if m3u8_generation:
+        gen_m3u8()
 
     lang = int(com.get_setting('lang'))
     Logger(0, 'Done!' if lang == 1 else 'Fertig!', 'db', 'process')
+
 
 def gen_m3u8():
     lang = int(com.get_setting('lang'))

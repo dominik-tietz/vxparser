@@ -53,6 +53,7 @@ def mainMenu():
     c.append(("Restart Services" if lang == 1 else "Starte Services Neu", "restart_service"))
     c.append(("- Clean Database (Settings)" if lang == 1 else "- Leere Datenbank (Einstellungen)","clean_db"))
     c.append(("- Clear Data Path" if lang == 1 else "- Lösche Data Ordner","clear_data"))
+    c.append(("Install vxparser.service into Unix System" if lang == 1 else "Installiere vxparser.service in ein Unix System", "install_py"))
     c.append(("<= Shutdown" if lang == 1 else "<= Herunterfahren","shutdown"))
     q = [ inquirer.List("item", message="Main Menu" if lang == 1 else "Haupt Menu", choices=c, carousel=True) ]
     quest = inquirer.prompt(q)
@@ -65,6 +66,7 @@ def vavooMenu():
     c.append((" ","0"))
     c.append(("Settings =>" if lang == 1 else "Einstellungen =>","settings"))
     c.append(("List|Group|Stream Submenü =>" if lang == 1 else "List|Group|Stream Untermenü =>","submenu_lgs"))
+    c.append(("Fill Database with LiveTV Data" if lang == 1 else "Fülle Datenbank mit LiveTV Daten", "fill_db"))
     c.append(("Generate M3U8 Lists" if lang == 1 else "Erstelle M3U8 Listen","gen_list"))
     c.append(("Get epg.xml.gz" if lang == 1 else "Hole epg.xml.gz", "get_epg"))
     c.append(("- Clean Database (LiveTV)" if lang == 1 else "- Lösche Datenbank (LiveTV)","clean_db"))
@@ -350,6 +352,17 @@ def menu():
                     services.handler('kill')
                     clear = com.clear_cache()
                     break
+            if item == 'install_py':
+                c = []
+                c.append((" ","0"))
+                c.append(("Yes" if lang == 1 else "Ja","yes"))
+                c.append(("No" if lang == 1 else "Nein", "no"))
+                c.append(("<= Back" if lang == 1 else "<= Zurück","back"))
+                q = [ inquirer.List("item", message="Install vxparser.service into System?" if lang == 1 else "vxparser.service wirklich in das System installieren?", choices=c, carousel=True) ]
+                quest = inquirer.prompt(q)
+                if quest['item'] == 'yes':
+                    import install
+                    install.main(lang)
         if menü == 'xstream':
             item = xstreamMenu()
             if item == 'settings':
@@ -405,6 +418,7 @@ def menu():
                     clean = com.clean_tables('live')
                     if not clean: Logger(3, 'Error!' if lang == 1 else 'Fehler!', 'db', 'clean')
                     else: Logger(0, 'Successful ...' if lang == 1 else 'Erfolgreich ...', 'db', 'clean')
+            if item == 'fill_db': services.handler('db_start')
         if menü == 'vsettings':
             quest = vavooSettings()
             if not quest: Logger(3, 'Error!' if lang == 1 else 'Fehler!', 'vavoo', 'settings')

@@ -1,7 +1,7 @@
 import random, os, string, time, socket, sys, sqlite3, json, time
 from unidecode import unidecode
 
-VERSION = '1.4.6-5'
+VERSION = '1.4.7'
 unicode = str
 rp = os.path.normpath(os.path.dirname(os.path.abspath(__file__))+'/../')
 

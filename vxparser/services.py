@@ -13,8 +13,8 @@ from api import UvicornServer
 cachepath = com.cp
 jobs = []
 proc = {}
-proc['api'] = proc['m3u8'] = proc['epg'] = proc['vod'] = proc['m3u8_p'] = proc['epg_p'] = proc['vod_p'] = None
-procs = [ 'm3u8', 'epg', 'vod', 'm3u8_p', 'epg_p', 'vod_p' ]
+proc['api'] = proc['m3u8'] = proc['epg'] = proc['vod'] = proc['m3u8_p'] = proc['epg_p'] = proc['vod_p'] = proc['db_p'] = None
+procs = [ 'm3u8', 'epg', 'vod', 'm3u8_p', 'epg_p', 'vod_p', 'db_p' ]
 
 
 def convert(seconds):
@@ -134,6 +134,16 @@ def handler(typ, name=None):
             proc['vod'].start()
             Logger(1, 'Successful started...' if lang == 1 else 'Erfolgreich gestartet...', 'vod', 'service')
         else: Logger(1, 'Service disabled ...' if lang == 1 else 'Service deaktiviert ...', 'vod', 'service')
+    if typ == 'db_start':
+        if proc['db_p']:
+            proc['db_p'].join(timeout=0)
+            if proc['db_p'].is_alive():
+                Logger(1, 'terminate ...' if lang == 1 else 'töte ...', 'db', 'process')
+                proc['db_p'].terminate()
+                proc['db_p'] = None
+        proc['db_p'] = Process(target=vavoo.sky_dbfill, args=(False,))
+        proc['db_p'].start()
+        Logger(1, 'Successful started...' if lang == 1 else 'Erfolgreich gestartet...', 'db', 'process')
     if typ == 'epg_start':
         if proc['epg_p']:
             proc['epg_p'].join(timeout=0)
