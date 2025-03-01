@@ -40,7 +40,7 @@ def getAuthSignature():
         if ip == key_ip and key_ok == True and valid > now: return key
     veclist = com.get_cache('veclist')
     if not veclist:
-        veclist=requests.get("https://raw.githubusercontent.com/michaz1988/michaz1988.github.io/master/data.json").json()
+        veclist=requests.get("http://mastaaa1987.github.io/repo/veclist.json").json()
         com.set_cache('veclist', veclist)
     sig = None
     i = 0

@@ -1,12 +1,14 @@
 # vavoo-parser (für LiveTV) + xstream-addon (für VoD's & Series) ...
 
-## Next Gen fork - (Beta!) CLI Version 1.4.6
+## Next Gen fork - (Beta!) CLI Version 1.4.7
 
 # Update Verlauf:
 
 <details>
 <summary>Klick HIER für Content.</summary>
 
+### Update to 1.4.7-1:
+- veclist.json von michaz1988.github.io auf Mastaaa1987.github.io verschoben und download url angepasst ...
 ### Update to 1.4.7:
 - Einen neuen Menüpunkt im Hauptmenü hinzugefügt. Dieser startet die install.py für den vxparser.service um diesen voll automatisch in ein Unix (root) System zu speichern und ggf. direkt aus zu führen.
 - install.py komplett überarbeitet. Jetzt ist jeder Inhalt genauso wie beim vxparser in Deutsch oder Englisch versehen.
