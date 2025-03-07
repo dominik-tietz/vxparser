@@ -187,7 +187,7 @@ def sky_dbfill(m3u8_generation=True):
     cur1 = con1.cursor()
 
     ssl._create_default_https_context = ssl._create_unverified_context
-    req = Request('https://www2.vavoo.to/live2/index?output=json', headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.100 Safari/537.36'})
+    req = Request('https://www.vavoo.to/live2/index?output=json', headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.100 Safari/537.36'})
     req.add_header('Content-Type', 'application/json; charset=utf-8')
     response = urlopen(req)
     content = response.read().decode('utf8')
