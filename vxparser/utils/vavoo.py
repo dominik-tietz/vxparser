@@ -311,7 +311,7 @@ def sky_dbfill(m3u8_generation=True):
 
 def gen_m3u8():
     lang = int(com.get_setting('lang'))
-    hurl = 'http://'+str(com.get_setting('server_ip'))+':'+str(com.get_setting('server_port'))
+    hurl = 'https://'+str(com.get_setting('server_ip'))+':'+str(com.get_setting('server_port'))
     Logger(1, 'Starting with URL: %s ...' % str(hurl) if lang == 1 else 'Starte mit URL: %s ...' % str(hurl), 'm3u8', 'process')
     epg_logos = com.get_setting('epg_logos')
     epg_rytec = com.get_setting('epg_rytec')
